@@ -110,7 +110,7 @@ function skip() {
 }
 
 throughputsAuthPbft=$()
-throughputsAuthPbft[4]="1024"
+throughputsAuthPbft[4]="4096"
 throughputsAuthPbft[8]=""
 throughputsAuthPbft[16]=""
 throughputsAuthPbft[32]=""
@@ -124,7 +124,7 @@ throughputsNoAuthPbft[32]=""
 throughputsNoAuthPbft[64]=""
 throughputsNoAuthPbft[128]=""
 throughputsAuthSinglePbft=$()
-throughputsAuthSinglePbft[4]="1024"
+throughputsAuthSinglePbft[4]="4096"
 throughputsAuthSinglePbft[8]=""
 throughputsAuthSinglePbft[16]=""
 throughputsAuthSinglePbft[32]=""
@@ -139,8 +139,7 @@ throughputsNoAuthSinglePbft[64]=""
 throughputsNoAuthSinglePbft[128]=""
 
 throughputsAuthHotStuff=$()
-throughputsAuthHotStuff[3]="1024"
-throughputsAuthHotStuff[4]="1024"
+throughputsAuthHotStuff[4]="4096"
 throughputsAuthHotStuff[8]=""
 throughputsAuthHotStuff[16]=""
 throughputsAuthHotStuff[32]=""
@@ -154,8 +153,7 @@ throughputsNoAuthHotStuff[32]=""
 throughputsNoAuthHotStuff[64]=""
 throughputsNoAuthHotStuff[128]=""
 throughputsAuthSingleHotStuff=$()
-throughputsAuthSingleHotStuff[3]="1024"
-throughputsAuthSingleHotStuff[4]="1024"
+throughputsAuthSingleHotStuff[4]="4096"
 throughputsAuthSingleHotStuff[8]=""
 throughputsAuthSingleHotStuff[16]=""
 throughputsAuthSingleHotStuff[32]=""

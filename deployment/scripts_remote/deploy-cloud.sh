@@ -1,5 +1,5 @@
 
-totalnum=2
+totalnum=4
 for ((c=1;c<=$totalnum;c++))
 do
     new_instance_info=$(aws ec2 run-instances \

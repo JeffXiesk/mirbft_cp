@@ -86,7 +86,7 @@ func (ms *messengerServer) Listen(srv pb.Messenger_ListenServer) error {
 	finished := false
 	for msg, err = srv.Recv(); !finished && err == nil; msg, err = srv.Recv() {
 		checkForHotStuffProposal(msg, "Received HotStuffProposal.")
-		logger.Info().Int32("SenderId",msg.SenderId).Int32("Sn",msg.Sn).Str("type",msg.Type).Int32("height",msg.Height).Msg("Receive msg from peer ...")
+		logger.Info().Int32("SenderId",msg.SenderId).Int32("Sn",msg.Sn).Str("type",msg.Type).Int32("hightimestamp",msg.Hightimestamp).Msg("Receive msg from peer ...")
 		finished = handleMessage(msg, srv)
 	}
 
@@ -261,7 +261,7 @@ func EnqueueMsg(msg *pb.ProtocolMessage, destNodeID int32) {
 		logger.Error().Int32("nodeID", destNodeID).Msg("Cannot enqueue message. Node not connected.")
 	} else {
 		peerConnections[destNodeID].Send(msg)
-		logger.Debug().Int32("SenderID",msg.SenderId).Int32("Sn",msg.Sn).Str("type",msg.Type).Int32("height",msg.Height).Msg("EnqueueMsg send...")
+		logger.Debug().Int32("SenderID",msg.SenderId).Int32("Sn",msg.Sn).Str("type",msg.Type).Int32("hightimestamp",msg.Hightimestamp).Int32("Destination",destNodeID).Msg("EnqueueMsg send...")
 	}
 }
 
@@ -283,7 +283,7 @@ func EnqueuePriorityMsg(msg *pb.ProtocolMessage, destNodeID int32) {
 		logger.Error().Int32("nodeID", destNodeID).Msg("Cannot enqueue message. Node not connected.")
 	} else {
 		peerConnections[destNodeID].SendPriority(msg)
-		logger.Debug().Int32("SenderID",msg.SenderId).Int32("Sn",msg.Sn).Str("type",msg.Type).Int32("height",msg.Height).Msg("EnqueuePriorityMsg send...")
+		logger.Debug().Int32("SenderID",msg.SenderId).Int32("Sn",msg.Sn).Str("type",msg.Type).Int32("hightimestamp",msg.Hightimestamp).Int32("Destination",destNodeID).Msg("EnqueuePriorityMsg send...")
 	}
 }
 

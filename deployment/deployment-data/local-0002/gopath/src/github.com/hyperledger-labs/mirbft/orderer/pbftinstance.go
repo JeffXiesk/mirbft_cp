@@ -189,8 +189,8 @@ func (pi *pbftInstance) lead() {
 	batchSize := pi.segment.BatchSize()
 
 	// Simulate a straggler.
-	if membership.SimulatedCrashes[membership.OwnID] != nil && config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(0.5*float64(config.Config.ViewChangeTimeoutMs))
+	if pi.segment.SegID()==0 && config.Config.CrashTiming == "Straggler" {
+		config.Config.BatchTimeoutMs = int(0.1*float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs)
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
