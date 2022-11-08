@@ -14,10 +14,11 @@ d = np.array([14119.625485135135,15215.262512523642])
 
 
 x = np.arange(2)
-total_width, n = 0.08, 0.25
+total_width, n = 5, 25
 width = total_width / n
 x = x - (total_width - width) / 2
 
+plt.ylim((0,11000))
 plt.bar(x, a,  width=width, label='Normal')
 plt.bar(x + width, b, width=width, label='Straggler')
 # plt.bar(x + 2 * width, c, width=width, label='c')
