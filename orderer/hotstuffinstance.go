@@ -47,6 +47,7 @@ type hotStuffInstance struct {
 
 	leader    int32
 	view      int32           // In each view we have a persistent leader for the segment
+	fake_view int32 		  // custom view designed by us
 	next      int             // The segment *index* of the next to be proposed seq no
 	height2sn map[int32]int32 // Height to segment seq no
 	sn2height map[int32]int32 // Segment seq no to height
@@ -102,9 +103,10 @@ func (hi *hotStuffInstance) init(seg manager.Segment, orderer *HotStuffOrderer) 
 		Msg("Starting HotStuff instance.")
 	// Start the instance at view 0
 	hi.view = 0
+	hi.fake_view = 0
 
 	// Initialize leader
-	hi.leader = segmentLeader(seg, hi.view)
+	hi.leader = segmentLeader(seg, hi.fake_view)
 
 	// Attach segment to the instance
 	hi.segment = seg
@@ -175,33 +177,18 @@ func (hi *hotStuffInstance) start() {
 	// If this instance leads the segment
 	if isLeading(hi.segment, membership.OwnID, hi.view) {
 		logger.Debug().Int("segment", hi.segment.SegID()).Msg("Leading segment.")
-		logger.Debug().Str("crashtiming",config.Config.CrashTiming).Msg("show crashtiming")
-		batchTimeout := config.Config.BatchTimeout
-		// Simulate a straggler.
-		if hi.segment.SegID()==0 && config.Config.CrashTiming == "Straggler" {
-			batchTimeoutMs := int(0.15*float64(config.Config.ViewChangeTimeoutMs))
-			batchTimeout = time.Duration(batchTimeoutMs) * time.Millisecond
-			logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", batchTimeoutMs).Msg("Straggler Effected...")
-			// we set the batchsize to an infinate practically size, so that we always wait for the timeout
-		}
 
-		// Simulate a straggler.
-		batchSize := hi.segment.BatchSize()
-		if hi.segment.SegID()==0 && config.Config.CrashTiming == "Straggler" {
-				// we cut an empty batch to maximize damage
-			batchSize = 2048
-		}
 		// If the segment is not proposed yet schedule a new batch
 		if !hi.segmentProposed {
 			go func() {
-				hi.newBatch <- hi.segment.Buckets().CutBatch(batchSize, config.Config.BatchTimeout)
+				hi.newBatch <- hi.segment.Buckets().CutBatch(config.Config.BatchSize, config.Config.BatchTimeout)
 				logger.Debug().Msgf("Buckets for %d-th leader %d: %v", membership.OwnID, membership.OwnID, hi.segment.Buckets().GetBucketIDs())
 			}()
 		}
 
 		// Schedule a batch for the first sn in the segment
 		go func() {
-			hi.newBatch <- hi.segment.Buckets().CutBatch(config.Config.BatchSize, batchTimeout)
+			hi.newBatch <- hi.segment.Buckets().CutBatch(config.Config.BatchSize, config.Config.BatchTimeout)
 		}()
 
 		// Send a proposal for the *fist* sn in the segment
@@ -219,6 +206,8 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 		Int32("hightimestamp", htnlog[hi.segment.SegID()]).
 		// Int32("height", hi.leaf.height+1).
 		Int32("view", hi.view).
+		Int32("fake_view", hi.fake_view).
+		Int32("leader", hi.leader).
 		Int32("senderID", membership.OwnID).
 		Bool("proposed", hi.segmentProposed).
 		Msg("Creating PROPOSAL.")
@@ -235,6 +224,7 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 			// Int32("height", hi.leaf.height+1).
 			Int32("hightimestamp", htnlog[hi.segment.SegID()]).
 			Int32("view", hi.view).
+			Int32("fake_view", hi.fake_view).
 			Int32("senderID", membership.OwnID).
 			Int("nReq", len(batch.Requests)).
 			Msg("New BATCH.")
@@ -245,16 +235,10 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 			hi.segmentProposed = true
 		}
 
-		// Simulate a straggler.
-		batchSize := hi.segment.BatchSize()
-		if hi.segment.SegID()==0 && config.Config.CrashTiming == "Straggler" {
-				// we cut an empty batch to maximize damage
-			batchSize = 2048
-		}
 		// If the segment is not proposed yet schedule a new batch
 		if !hi.segmentProposed {
 			go func() {
-				hi.newBatch <- hi.segment.Buckets().CutBatch(batchSize, config.Config.BatchTimeout)
+				hi.newBatch <- hi.segment.Buckets().CutBatch( config.Config.BatchSize, config.Config.BatchTimeout)
 				logger.Debug().Msgf("Buckets for %d-th leader %d: %v", membership.OwnID, membership.OwnID, hi.segment.Buckets().GetBucketIDs())
 			}()
 		}
@@ -264,7 +248,7 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 		hi.next = hi.next + 1
 	}
 
-	new := hi.newNode(hi.leaf, batch, hi.highQC, sn, hi.leaf.height+1, membership.OwnID)
+	new := hi.newNode(hi.leaf, batch, hi.highQC, sn, hi.leaf.height+1, (hi.fake_view+membership.OwnID)%int32(len(hi.segment.Followers())))
 	// htnlog[hi.segment.SegID()] = htnlog[hi.segment.SegID()] + 1
 	// new := hi.newNode(hi.leaf, batch, hi.highQC, sn, htnlog[hi.segment.SegID()], membership.OwnID)
 
@@ -284,18 +268,20 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 		Sn:       sn,
 		Msg: &pb.ProtocolMessage_Proposal{
 			Proposal: &pb.HotStuffProposal{
-				Leader: membership.OwnID,
+				Leader: (hi.fake_view+membership.OwnID)%int32(len(hi.segment.Followers())),
 				Node:   new.node,
 			},
 		},
 		Type: "ProtocolMessage_Proposal",
 		Hightimestamp: hi.height2tn[new.height],
+		FakeView:	   hi.fake_view,
 	}
 
 	logger.Info().Int32("sn", sn).
 		Int("segment", hi.segment.SegID()).
 		Int32("height", new.height).
 		Int32("view", hi.view).
+		Int32("fake_view", hi.fake_view).
 		Int32("senderId", membership.OwnID).
 		Bool("proposed", hi.segmentProposed).
 		Msg("Sending PROPOSAL.")
@@ -325,6 +311,7 @@ func (hi *hotStuffInstance) handleProposal(proposal *pb.HotStuffProposal, msg *p
 		Int("segment", hi.segment.SegID()).
 		Int32("height", proposal.Node.Height).
 		Int32("certificate", proposal.Node.Certificate.Height).
+		Int32("leader", proposal.Leader).
 		Int32("senderId", senderID).
 		Msg("Handling PROPOSAL.")
 
@@ -336,7 +323,9 @@ func (hi *hotStuffInstance) handleProposal(proposal *pb.HotStuffProposal, msg *p
 		Int("Nodes", len(hi.nodes)).
 		Msg("Follower's initial local state")
 
-	if senderID != proposal.Leader {
+
+	// TODO: vetified not right
+	if (senderID+msg.FakeView)%4 != proposal.Leader {
 		hi.sendNewView()
 		return fmt.Errorf("malformed message: sender %d does not match leader %d", senderID, proposal.Leader)
 	}
@@ -411,7 +400,7 @@ func (hi *hotStuffInstance) handleProposal(proposal *pb.HotStuffProposal, msg *p
 
 	hi.vheight = proposal.Node.Height
 
-	new := hi.newNode(hi.nodes[proposal.Node.Certificate.Height], batch, proposal.Node.Certificate, sn, proposal.Node.Height, senderID)
+	new := hi.newNode(hi.nodes[proposal.Node.Certificate.Height], batch, proposal.Node.Certificate, sn, proposal.Node.Height, proposal.Leader)
 	batch.MarkInFlight()
 
 	// Update to own log
@@ -431,7 +420,7 @@ func (hi *hotStuffInstance) handleProposal(proposal *pb.HotStuffProposal, msg *p
 		Int32("senderId", senderID).
 		Msg("Follower updated log.")
 
-	hi.updateHighQC(new.node.Certificate)
+	hi.updateHighQC(new.node.Certificate, new.leader)
 	logger.Info().Int32("sn", sn).
 		Int("segment", hi.segment.SegID()).
 		Int32("height", proposal.Node.Height).
@@ -508,9 +497,7 @@ func (hi *hotStuffInstance) sendVote(node *hotStuffNode) {
 			Msg("Do not need to update new high time stamp.")
 	}
 
-	for j:=0;j<4;j++ {
-		logger.Debug().Msgf("htnlog content: instance: %d; htn: %d",j,htnlog[j])
-	}
+	logger.Debug().Msgf("htnlog content: %v",htnlog)
 	msg := &pb.ProtocolMessage{
 		SenderId: membership.OwnID,
 		Sn:       hi.height2sn[node.height],
@@ -519,13 +506,14 @@ func (hi *hotStuffInstance) sendVote(node *hotStuffNode) {
 				Data:      data,
 				Signature: signature,
 				// The followint two variables are need for checkCert
-				TsQc: 	   ts_QC,                                        
-				DigestPar: node.node.Parent,                                        
+				// TsQc: 	   ts_QC,                                        
+				// DigestPar: node.node.Parent,                                        
 			},
 		},
 		Type: "ProtocolMessage_Vote",
 		Hightimestamp: htnlog[int(membership.OwnID)],
 		// Hightimestamp: decided.height,
+		FakeView: hi.fake_view,
 	}
 
 	logger.Info().Int32("sn", hi.height2sn[node.height]).
@@ -556,6 +544,7 @@ func (hi *hotStuffInstance) sendTimestamp(node *hotStuffNode) {
 		},
 		Type: "ProtocolMessage_sendTimestamp",
 		Hightimestamp: htnlog[hi.segment.SegID()],
+		FakeView: hi.fake_view,
 	}
 
 	logger.Info().
@@ -628,9 +617,8 @@ func (hi *hotStuffInstance) handleVote(signed *pb.HotstuffSignedMsg, sn, senderI
 			Int32("New hightimestamp", hightimestamp).
 			Msg("Do not need to update new high time stamp.")
 	}
-	for j:=0;j<4;j++ {
-		logger.Debug().Msgf("htnlog content: instance: %d; htn: %d",j,htnlog[j])
-	}
+		
+	logger.Debug().Msgf("htnlog content: %v",htnlog)
 	// If the message is from a previous height, ignore
 	if hi.leaf.height > vote.Height {
 		logger.Debug().
@@ -696,11 +684,13 @@ func (hi *hotStuffInstance) handleVote(signed *pb.HotstuffSignedMsg, sn, senderI
 		Int32("senderId", senderID).
 		Msg("Updating  state.")
 
-	hi.updateHighQC(&pb.HotStuffQC{Height: vote.Height, Node: hi.leaf.node, Signature: certificate})
+	hi.updateHighQC(&pb.HotStuffQC{Height: vote.Height, Node: hi.leaf.node, Signature: certificate}, membership.OwnID)
 
 	// Propose next batch
 	// Check we have still un-proposed sequence numbers in the segment
 	if int32(hi.next) < hi.segment.Len() {
+		hi.fake_view += 1
+		hi.leader = (hi.fake_view+membership.OwnID)%int32(len(hi.segment.Followers()))
 		hi.proposeSN(hi.segment.SNs()[hi.next])
 		return nil
 	}
@@ -711,6 +701,8 @@ func (hi *hotStuffInstance) handleVote(signed *pb.HotstuffSignedMsg, sn, senderI
 	}
 
 	// Reuse the last sequence number to make sure that it commits
+	hi.fake_view += 1
+	hi.leader = (hi.fake_view+membership.OwnID)%int32(len(hi.segment.Followers()))
 	hi.proposeSN(hi.segment.LastSN())
 
 	return nil
@@ -741,12 +733,14 @@ func (hi *hotStuffInstance) sendNewView() {
 		},
 		Type: "ProtocolMessage_HotstuffNewView",
 		Hightimestamp: newview.Certificate.Height,
+		FakeView: hi.fake_view,
 	}
 
 	logger.Info().
 		Int("segment", hi.segment.SegID()).
 		Int32("sn", hi.height2sn[hi.highQC.Height]).
 		Int32("view", hi.view).
+		Int32("fake_view", hi.fake_view).
 		Int32("height", newview.Certificate.Height).
 		Int32("leader", hi.leader).
 		Msg("Sending NEW VIEW.")
@@ -792,7 +786,8 @@ func (hi *hotStuffInstance) handleNewView(newview *pb.HotStuffNewView, sn, sende
 		}
 	}
 
-	hi.updateHighQC(highQC)
+	// TODO, set proper leader
+	hi.updateHighQC(highQC, hi.leader)
 
 	hi.startView(newview.View)
 
@@ -819,6 +814,7 @@ func (hi *hotStuffInstance) handleMissingEntry(msg *pb.MissingEntry) {
 	logger.Info().
 		Int("segment", hi.segment.SegID()).
 		Int32("view", hi.view).
+		Int32("fake_view", hi.fake_view).
 		Int32("sn", msg.Sn).
 		Msg("Handling MissingEntry.")
 
@@ -1016,7 +1012,7 @@ func (hi *hotStuffInstance) addNode(node *hotStuffNode) {
 	hi.setViewChangeTimer(node.sn, node)
 }
 
-func (hi *hotStuffInstance) updateHighQC(qc *pb.HotStuffQC) {
+func (hi *hotStuffInstance) updateHighQC(qc *pb.HotStuffQC, leader int32) {
 	if qc.Height > hi.highQC.Height {
 		hi.highQC = qc
 		if int32(len(hi.nodes)) < qc.Height {
@@ -1026,12 +1022,19 @@ func (hi *hotStuffInstance) updateHighQC(qc *pb.HotStuffQC) {
 			// If we dont' have the node of the highQC locally, create a new node from the highQC node
 			// with parent the highest available node.
 			batch := request.NewBatch(qc.Node.Batch)
-			leaf := hi.newNode(hi.nodes[len(hi.nodes)-1], batch, qc.Node.Certificate, -1, qc.Node.Height, hi.leader)
+			leaf := hi.newNode(hi.nodes[len(hi.nodes)-1], batch, qc.Node.Certificate, -1, qc.Node.Height, leader)
+			// leaf := hi.newNode(hi.nodes[len(hi.nodes)-1], batch, qc.Node.Certificate, -1, qc.Node.Height, hi.leader)
 			// Potentially adding dummy nodes inbetween.
 			hi.addNode(leaf)
 			hi.leaf = leaf
+			logger.Debug().Int32("height",hi.leaf.height).Msg("updateHighQC 111")
 		} else {
 			hi.leaf = hi.nodes[hi.highQC.Height]
+			logger.Debug().Msgf("hi.node is : %v",hi.nodes)
+			for i:=0;i<len(hi.nodes);i++{
+				logger.Debug().Int32("height",hi.nodes[i].height).Msg("hi.nodes m")
+			}
+			logger.Debug().Int32("height",hi.leaf.height).Msg("updateHighQC 222")
 		}
 	}
 }
@@ -1079,6 +1082,7 @@ func (hi *hotStuffInstance) setViewChangeTimer(sn int32, node *hotStuffNode) {
 			}},
 		Type: "ProtocolMessage_Timeout",
 		Hightimestamp: node.height,
+		FakeView: hi.fake_view,
 	}
 	node.viewChangeTimer = time.AfterFunc(hi.viewChangeTimeout, func() { hi.serializer.serialize(msg) })
 }
@@ -1112,6 +1116,7 @@ func (hi *hotStuffInstance) processSerializedMessages() {
 					Int("segment", hi.segment.SegID()).
 					Int32("timeoutView", m.Timeout.View).
 					Int32("currentView", hi.view).
+					Int32("fake_view", hi.fake_view).
 					Msg("Ignoring outdated timeout.")
 			} else {
 				logger.Warn().
