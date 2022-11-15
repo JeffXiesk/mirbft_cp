@@ -1,3 +1,5 @@
+-- entrance  scripts/analyze/analyze-parallel.sh -q queries/ethereum.sql -q queries/aggregates.sql -q queries/histograms.sql deployment-data/local-0024/experiment-output/*
+
 -- Truncate request table to include only rows with timestamps between:
 --   the first response obtained by the last client to obtain a response
 --   and

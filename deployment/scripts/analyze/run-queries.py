@@ -84,4 +84,5 @@ with sqlite3.connect(dbFile) as con:
     print("Total running time: {:.3f} seconds".format(totalTime))
 
     # Revert the the database to the initial state.
-    con.rollback()
+    # con.rollback()
+    con.commit()
