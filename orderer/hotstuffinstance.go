@@ -437,16 +437,16 @@ func (hi *hotStuffInstance) handleProposal(proposal *pb.HotStuffProposal, msg *p
 		Msg("Follower processed backlog.")
 
 	// Send vote
-	hi.sendVote(new)
+	hi.sendVote(new, senderID)
 
 	return nil
 }
 
-func (hi *hotStuffInstance) sendVote(node *hotStuffNode) {
+func (hi *hotStuffInstance) sendVote(node *hotStuffNode, dst int32) {
 	logger.Info().Int32("sn", hi.height2sn[node.height]).
 		Int("segment", hi.segment.SegID()).
 		Int32("height", node.height).
-		Int32("leader", hi.leader).
+		Int32("leader", node.leader).
 		Msg("Creating VOTE.")
 
 	vote := &pb.HotStuffVote{
@@ -509,50 +509,13 @@ func (hi *hotStuffInstance) sendVote(node *hotStuffNode) {
 	logger.Info().Int32("sn", hi.height2sn[node.height]).
 		Int("segment", hi.segment.SegID()).
 		Int32("height", node.height).
-		Int32("send to leader", hi.leader).
+		Int32("leader", node.leader).
+		Int32("Destination",dst).
 		Int32("Hightimestamp",msg.Hightimestamp).
 		Msg("Sending VOTE.")
 
 	// Enqueue the message to the leader
-	messenger.EnqueueMsg(msg, node.leader)
-}
-
-func (hi *hotStuffInstance) sendTimestamp(node *hotStuffNode) {
-	logger.Info().
-		Int("segment", hi.segment.SegID()).
-		Int32("High_Time_stamp",htnlog[hi.segment.SegID()]).
-		Int32("leader", hi.leader).
-		Int32("Sn",node.sn).
-		Int32("SenderId",membership.OwnID).
-		Msg("Creating Send Timestamp.")
-
-	msg := &pb.ProtocolMessage{
-		SenderId: membership.OwnID,
-		Sn:       node.sn,
-		Msg: &pb.ProtocolMessage_HotstuffSendtimestamp{
-			HotstuffSendtimestamp: nil,
-		},
-		Type: "ProtocolMessage_sendTimestamp",
-		Hightimestamp: htnlog[hi.segment.SegID()],
-	}
-
-	logger.Info().
-		Int("segment", hi.segment.SegID()).
-		Int32("leader", hi.leader).
-		Int32("Sn",node.sn).
-		Int32("SenderId",membership.OwnID).
-		Msg("Sending sendTimestamp.")
-
-	logger.Debug().Msgf("hi.segment.Followers is: %v", hi.segment.Followers())
-	logger.Debug().Msgf("hi.segment.Leaders is: %v", hi.segment.Leaders())
-	// Enqueue the message to the leader
-	for _, nodeID := range hi.segment.Followers() {
-		// Skip sending to self
-		// if nodeID == membership.OwnID {
-		// 	continue
-		// }
-		messenger.EnqueuePriorityMsg(msg, nodeID)
-	}
+	messenger.EnqueueMsg(msg, dst)
 }
 
 func (hi *hotStuffInstance) handleVote(signed *pb.HotstuffSignedMsg, sn, senderID, hightimestamp int32) error {
@@ -682,7 +645,7 @@ func (hi *hotStuffInstance) handleVote(signed *pb.HotstuffSignedMsg, sn, senderI
 	// Check we have still un-proposed sequence numbers in the segment
 	if int32(hi.next) < hi.segment.Len() {
 		hi.fake_view += 1
-		hi.leader = (hi.fake_view+membership.OwnID)%int32(len(hi.segment.Followers()))
+		hi.leader = segmentLeader(hi.segment, hi.fake_view)
 		hi.proposeSN(hi.segment.SNs()[hi.next])
 		return nil
 	}
@@ -694,7 +657,7 @@ func (hi *hotStuffInstance) handleVote(signed *pb.HotstuffSignedMsg, sn, senderI
 
 	// Reuse the last sequence number to make sure that it commits
 	hi.fake_view += 1
-	hi.leader = (hi.fake_view+membership.OwnID)%int32(len(hi.segment.Followers()))
+	hi.leader = segmentLeader(hi.segment, hi.fake_view)
 	hi.proposeSN(hi.segment.LastSN())
 
 	return nil
@@ -828,15 +791,6 @@ func (hi *hotStuffInstance) handleMissingEntry(msg *pb.MissingEntry) {
 			hi.announce(node, (msg.Sn-int32(hi.segment.SegID()))/int32(len(hi.segment.Followers())), msg.Batch, msg.Digest, msg.Aborted)
 		}
 	}
-}
-
-func (hi *hotStuffInstance) handleSendTimeStamp(msg *pb.ProtocolMessage) {
-	logger.Info().
-		Int32("SenderId", msg.SenderId).
-		Int32("sn",msg.Sn).
-		Int32("high_time_stamp", msg.Hightimestamp).
-		Str("message type",msg.Type).
-		Msg("Receive and Handling HotstuffSendtimestamp.")
 }
 
 func (hi *hotStuffInstance) announce(node *hotStuffNode, tn int32, reqBatch *pb.Batch, digest []byte, aborted bool) {
@@ -1015,13 +969,7 @@ func (hi *hotStuffInstance) updateHighQC(qc *pb.HotStuffQC) {
 			hi.leaf = leaf
 			logger.Debug().Int("segment",hi.segment.SegID()).Int32("new height",hi.leaf.height).Msg("hi.leaf update height")
 		} else {
-			// hi.leaf = hi.nodes[hi.highQC.Height]
-			for i:=0;i<len(hi.nodes);i++{
-				logger.Debug().Int("i",i).Int32("height",hi.nodes[i].height).Msg("hi.nodes height")
-				if (hi.leaf.height<hi.nodes[i].height) {
-					hi.leaf = hi.nodes[i]
-				}
-			}
+			hi.leaf = hi.nodes[hi.highQC.Height]
 			logger.Debug().Int("segment",hi.segment.SegID()).Int32("new height",hi.leaf.height).Msg("hi.leaf update height")
 		}
 	} else {
@@ -1137,8 +1085,6 @@ func (hi *hotStuffInstance) processSerializedMessages() {
 			}
 		case *pb.ProtocolMessage_MissingEntry:
 			hi.handleMissingEntry(m.MissingEntry)
-		case *pb.ProtocolMessage_HotstuffSendtimestamp:
-			hi.handleSendTimeStamp(msg)
 
 		default:
 			logger.Error().
