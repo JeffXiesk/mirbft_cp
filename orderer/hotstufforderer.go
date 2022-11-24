@@ -151,7 +151,7 @@ func (ho *HotStuffOrderer) runSegment(seg manager.Segment) {
 	hi.subscribeToBacklog()
 
 	go hi.start()
-	go hi.processSerializedMessages()
+	// go hi.processSerializedMessages()
 }
 
 func (ho *HotStuffOrderer) killSegment(seg manager.Segment) {
