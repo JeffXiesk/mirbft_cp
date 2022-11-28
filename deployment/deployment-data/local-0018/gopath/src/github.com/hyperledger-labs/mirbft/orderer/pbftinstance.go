@@ -115,7 +115,6 @@ func (pi *pbftInstance) setNewViewTimer(view int32) {
 				Sn:   -1,
 				View: view,
 			}},
-		Type: "ProtocolMessage_Timeout",
 	}
 
 	pi.viewChange[view].newViewTimer = time.AfterFunc(pi.viewChangeTimeout, func() { pi.serializer.serialize(timeoutMsg) })
@@ -132,7 +131,6 @@ func (pi *pbftInstance) setCheckpointTimer() {
 				Sn:   -1,
 				View: pi.view,
 			}},
-		Type: "ProtocolMessage_Timeout",
 	}
 
 	if pi.checkpointTimer != nil {
@@ -188,11 +186,18 @@ func (pi *pbftInstance) lead() {
 	logger.Debug().Int("segID", pi.segment.SegID()).Msg("Leading segment.")
 	batchSize := pi.segment.BatchSize()
 
+	logger.Debug().Msgf("Res is %d",membership.SimulatedStraggler[membership.OwnID])
+	if membership.SimulatedStraggler[membership.OwnID] == 1 {
+		logger.Debug().Msg("membership.SimulatedStraggler[membership.OwnID] == 1 is true")
+	}
+	if config.Config.CrashTiming == "Straggler" {
+		logger.Debug().Msg("config.Config.CrashTiming == Straggler is true")
+	}
 	// Simulate a straggler.
-	if pi.segment.SegID()==0 && config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(0.1*float64(config.Config.ViewChangeTimeoutMs))
+	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
+		config.Config.BatchTimeoutMs = int(0.5*float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
-		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs)
+		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs).Msg("Byzantine Effect !")
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
 		batchSize = 1000000000
 	}
@@ -228,7 +233,6 @@ func (pi *pbftInstance) lead() {
 					Batch:  nil, // This will be filled in by the PBFT instance when this message is serialized.
 				},
 			},
-			Type: "ProtocolMessage_Newseqno",
 		}
 		pi.serializer.serialize(msg)
 
@@ -262,7 +266,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 
 	// Simulate a straggler.
 	batchSize := pi.segment.BatchSize()
-	if membership.SimulatedCrashes[membership.OwnID] != nil && config.Config.CrashTiming == "Straggler" {
+	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 			// we cut an empty batch to maximize damage
 			batchSize = 0
 	}

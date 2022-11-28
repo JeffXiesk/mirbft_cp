@@ -35,23 +35,22 @@ rsync --progress -rptz -e "ssh $ssh_options" queries scripts "root@$master_ip:$r
 # Upload commands to the master
 scp $ssh_options "$exp_data_dir/$local_master_command_file" "root@$master_ip:$remote_master_command_file" || exit 5
 
-# # install dependencies
-scp $ssh_options "scripts/cloud-deploy/user-script-master.sh.template" "root@$master_ip:/root" || exit 6
-scp $ssh_options "scripts/cloud-deploy/global-vars.sh" "root@$master_ip:/root" || exit 7
-ssh $ssh_options root@$master_ip "chmod u+x /root/user-script-master.sh.template;chmod u+x /root/global-vars.sh;/root/user-script-master.sh.template"
-
 # Generate TLS certificates and compile code at the master
 ssh $ssh_options root@$master_ip "
   cd $remote_tls_directory &&
-  ./generate.sh -f $master_ip &&
+  ./generate.sh $master_ip &&
   cd $remote_work_dir &&
   cp -r $remote_tls_directory . &&
 
   echo 'Compiling ISS.' &&
+  export PATH=\$PATH:$remote_gopath/bin:$remote_work_dir/bin &&
+  export GOPATH=$remote_work_dir/go
   # Disabling go modles to be able to compile with new Go version (>=1.16.3)
+  export GO111MODULE=auto
+  export GOCACHE=/root/.cache/go-build
   cd $remote_code_dir &&
   ./run-protoc.sh &&
-  go install ./..." || exit 6
+  go install ./cmd/..." || exit 6
 # &&
 #
 #  echo 'Cloning and compiling old Mir.' &&
@@ -78,4 +77,3 @@ ssh $ssh_options root@$master_ip "
   $remote_work_dir/scripts/analyze/analyze-continuously.sh $remote_exp_dir $remote_status_file $remote_work_dir/scripts $remote_work_dir/queries $remote_gopath/bin/orderingpeer $remote_gopath/bin/orderingclient $remote_analysis_processes > $remote_exp_dir/continuous-analysis.log 2>&1 &
   export PATH=\$PATH:$remote_gopath/bin:$remote_work_dir/bin &&
   discoverymaster $master_port file $remote_master_command_file > $remote_master_log 2>&1 < /dev/null"
-echo "start-master.sh  end......"

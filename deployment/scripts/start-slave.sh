@@ -10,26 +10,19 @@ master_ip=$2
 public_ip=$3
 private_ip=$4
 
-# install dependency
-scp $ssh_options "scripts/cloud-deploy/user-script-slave.sh.template" "root@$public_ip:/root" || exit 6
-scp $ssh_options "scripts/cloud-deploy/global-vars.sh" "root@$public_ip:/root" || exit 7
-ssh $ssh_options root@$public_ip "chmod u+x /root/user-script-slave.sh.template;chmod u+x /root/global-vars.sh;/root/user-script-slave.sh.template"
-
-
 init_command="
   export PATH=\$PATH:$remote_gopath/bin:$remote_work_dir/bin &&
-  mkdir -p /root/go && mkdir -p /root/bin &&
 
   cd $remote_work_dir &&
   rsync --progress -rptz -e \"ssh $ssh_options\" root@$master_ip:$remote_tls_directory . &&
   cd tls-data &&
-  ./generate.sh -f $public_ip $private_ip &&
+  ./generate.sh $public_ip $private_ip &&
 
   cd $remote_work_dir &&
-  rsync --progress -rptz -e \"ssh \" root@$master_ip:$remote_gopath/bin/* $remote_gopath/bin/ &&
+  rsync --progress -rptz -e \"ssh $ssh_options\" root@$master_ip:$remote_gopath/bin/* $remote_gopath/bin/ &&
   mkdir -p config &&
 
-  stubborn-scp.sh 5 $master_ip:$remote_code_dir/oldmir/oldmir-start.sh $remote_work_dir/bin &&
+  stubborn-scp.sh 5 $ssh_options $master_ip:$remote_code_dir/oldmir/oldmir-start.sh $remote_work_dir/bin &&
   chmod u+x $remote_work_dir/bin/oldmir-start.sh"
 
 slave_command="
@@ -67,5 +60,4 @@ while ! ssh $ssh_options root@$public_ip "$init_command"; do
 done
 
 echo "Master ready. Starting slave process."
-echo "ssh $ssh_options root@$public_ip "$slave_command""
 ssh $ssh_options root@$public_ip "$slave_command"
