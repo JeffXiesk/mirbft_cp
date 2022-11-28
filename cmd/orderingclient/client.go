@@ -213,8 +213,6 @@ func (c *client) createRequest(seqNr int32) *pb.ClientRequest {
 		Signature: nil,
 	}
 
-	c.log.Debug().Int32("clSeqNr", req.RequestId.ClientSn).Msg("Created request.")
-
 	// Sign request message.
 	var err error = nil
 	if config.Config.SignRequests {
@@ -251,7 +249,6 @@ func (c *client) Run(wg *sync.WaitGroup) {
 	c.startBucketAssignmentReceivers()
 
 	c.log.Info().Msg("Connected to orderers.")
-	c.log.Info().Int("count",len(ordererIDs)).Msg("Non crashing node count.")
 
 	// Initialize tracing
 	// Client IDs are negative to distinguish them from peer IDs.
@@ -439,8 +436,6 @@ func (c *client) submitRequest(seqNr int32) {
 	for _, ordererID := range destIDs {
 		if c.reqSinks[ordererID] != nil {
 			c.reqSinks[ordererID] <- req
-			c.log.Debug().Int32("clSeqNr", req.RequestId.ClientSn).
-			Int32("ordererID",ordererID).Msg("Send Message to orderers.")
 		} else {
 			c.log.Warn().Int32("ordererId", ordererID).Msg("Not sending request to orderer. No connection established.")
 		}

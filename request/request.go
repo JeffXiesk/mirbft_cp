@@ -175,7 +175,7 @@ func AddReqMsg(reqMsg *pb.ClientRequest) *Request {
 		Digest:   Digest(reqMsg),
 		Buffer:   getBuffer(reqMsg.RequestId.ClientId),
 		Bucket:   getBucket(reqMsg),
-		Verified: true, // signature has not yet been verified
+		Verified: false, // signature has not yet been verified
 		InFlight: false, // request has not yet been proposed (an identical one might have been, though, in which case we discard this request object)
 		Next:     nil,   // This request object is not part of a bucket list.
 		Prev:     nil,
@@ -210,15 +210,13 @@ func Add(req *Request) *Request {
 		if err := crypto.CheckSig(req.Digest, membership.ClientPubKey(req.Msg.RequestId.ClientId), req.Msg.Signature); err == nil {
 			req.Verified = true
 		} else {
-			// logger.Warn().
-				// Err(err).
-			// 	Int32("clSn", req.Msg.RequestId.ClientSn).
-			// 	Int32("clId", req.Msg.RequestId.ClientId).
-			// 	Msg("Invalid request signature.")
+			logger.Warn().
+				Err(err).
+				Int32("clSn", req.Msg.RequestId.ClientSn).
+				Int32("clId", req.Msg.RequestId.ClientId).
+				Msg("Invalid request signature.")
 
-			// return nil
-			logger.Debug().
-				Msg("Ignore invalid request signature.")
+			return nil
 		}
 
 		// Add verified request.

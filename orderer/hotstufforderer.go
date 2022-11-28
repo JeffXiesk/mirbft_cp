@@ -105,7 +105,6 @@ func (ho *HotStuffOrderer) HandleEntry(entry *log.Entry) {
 				Proof:   "Dummy Proof.",
 			},
 		},
-		Type: "ProtocolMessage_MissingEntry",
 	})
 }
 

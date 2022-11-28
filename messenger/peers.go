@@ -86,7 +86,6 @@ func (ms *messengerServer) Listen(srv pb.Messenger_ListenServer) error {
 	finished := false
 	for msg, err = srv.Recv(); !finished && err == nil; msg, err = srv.Recv() {
 		checkForHotStuffProposal(msg, "Received HotStuffProposal.")
-		logger.Info().Int32("SenderId",msg.SenderId).Int32("Sn",msg.Sn).Str("type",msg.Type).Int32("hightimestamp",msg.Hightimestamp).Msg("Receive msg from peer ...")
 		finished = handleMessage(msg, srv)
 	}
 
@@ -134,9 +133,6 @@ func handleMessage(msg *pb.ProtocolMessage, srv pb.Messenger_ListenServer) (fini
 	// If the message is not a checkpoint message, it is an Orderer message.
 	default:
 		//logger.Trace().Int32("from", msg.SenderId).Msg("Received protocol message: Orderer.")
-
-	// This is the entrance.
-
 		OrdererMsgHandler(msg)
 	}
 	return false
@@ -261,7 +257,6 @@ func EnqueueMsg(msg *pb.ProtocolMessage, destNodeID int32) {
 		logger.Error().Int32("nodeID", destNodeID).Msg("Cannot enqueue message. Node not connected.")
 	} else {
 		peerConnections[destNodeID].Send(msg)
-		logger.Debug().Int32("SenderID",msg.SenderId).Int32("Sn",msg.Sn).Str("type",msg.Type).Int32("hightimestamp",msg.Hightimestamp).Int32("Destination",destNodeID).Msg("EnqueueMsg send...")
 	}
 }
 
@@ -283,7 +278,6 @@ func EnqueuePriorityMsg(msg *pb.ProtocolMessage, destNodeID int32) {
 		logger.Error().Int32("nodeID", destNodeID).Msg("Cannot enqueue message. Node not connected.")
 	} else {
 		peerConnections[destNodeID].SendPriority(msg)
-		logger.Debug().Int32("SenderID",msg.SenderId).Int32("Sn",msg.Sn).Str("type",msg.Type).Int32("hightimestamp",msg.Hightimestamp).Int32("Destination",destNodeID).Msg("EnqueuePriorityMsg send...")
 	}
 }
 
@@ -400,7 +394,6 @@ func createTestedConnections(addrString string, dialOpts []grpc.DialOption, node
 			SenderId: membership.OwnID,
 			Sn:       0,
 			Msg:      &pb.ProtocolMessage_Close{Close: &pb.CloseConnection{}},
-			Type: "ProtocolMessage_Close",
 		})
 		if err != nil {
 			logger.Error().Err(err).Int32("peerId", nodeID).Int("bandwidth", t.Bandwidth).Msg("Failed to close slow excess connection.")
@@ -572,7 +565,6 @@ func testConnection(client pb.Messenger_ListenClient) *connectionTest {
 			Msg: &pb.ProtocolMessage_BandwidthTest{BandwidthTest: &pb.BandwidthTest{
 				Payload: make([]byte, config.Config.ConnectionTestPayload, config.Config.ConnectionTestPayload),
 			}},
-			Type: "ProtocolMessage_BandwidthTest",
 		})
 		if err != nil {
 			logger.Error().Err(err).Msg("Failed sending bandwidth test message to peer.")
