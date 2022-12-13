@@ -31,7 +31,7 @@ message ProtocolMessage {
         PbftMissingPreprepare missing_preprepare = 9;
         SignedMsg newview = 10;
         HotStuffProposal proposal = 11;
-        HotstuffSignedMsg vote = 12;
+        SignedMsg vote = 12;
         Timeout timeout = 13;
         PbftPreprepare newseqno = 14;
         CheckpointMsg checkpoint = 15;
@@ -48,11 +48,8 @@ message ProtocolMessage {
         MissingEntry missing_entry = 26;
         PbftCatchUp pbft_catchup = 27;
         HotStuffNewView hotstuff_newview = 28;
-        HotStuffSendTimestamp hotstuff_sendtimestamp = 29;
+        HtnMessage htnmsg=29;///1024
     }
-    string type = 30;
-    int32 hightimestamp = 31;
-    int32 fake_view = 32;
 }
 
 message ProtocolMessageBatch {

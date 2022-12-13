@@ -88,7 +88,6 @@ function result_processor() {
 # ========== Main script ==========
 
 for i in $(seq 0 $((num_processors - 1))); do
-  echo "result_processor $i $num_processors"
   result_processor $i $num_processors &
 done
 wait

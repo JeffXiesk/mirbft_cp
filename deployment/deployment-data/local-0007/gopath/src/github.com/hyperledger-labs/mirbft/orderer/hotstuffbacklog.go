@@ -23,11 +23,11 @@ import (
 
 // Backlogs messages by height
 type hotStuffBacklog struct {
-	hi          *hotStuffInstance_real
+	hi          *hotStuffInstance
 	backlogMsgs map[int32][]*pb.ProtocolMessage
 }
 
-func newHotStuffBacklog(hi *hotStuffInstance_real) *hotStuffBacklog {
+func newHotStuffBacklog(hi *hotStuffInstance) *hotStuffBacklog {
 	b := &hotStuffBacklog{
 		hi:          hi,
 		backlogMsgs: make(map[int32][]*pb.ProtocolMessage),

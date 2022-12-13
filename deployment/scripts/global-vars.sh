@@ -8,12 +8,10 @@ analysis_query_params="-q queries/ethereum.sql -q queries/aggregates.sql -q quer
 
 # Private key, of which the corresponding public key needs to be an authorized ssh key at each instance.
 # (Previously uploaded to IBM Cloud and specified at instance creation in the corresponding template file)
-# private_key_file=/root/.ssh/id_rsa.pub
-private_key_file=scripts/cloud-deploy/bft11.pem
+private_key_file=ibmcloud-ssh-key
 
 # Options to use when communicating with the remote machines.
 ssh_options="-i $private_key_file -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60"
-# ssh_options="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60"
 
 # Command to kill children of exiting scripts
 trap_exit_command='{ jobs; if [ -n "$(jobs -p)" ]; then kill $(jobs -p); fi; sleep 0.5; } > /dev/null 2>&1'

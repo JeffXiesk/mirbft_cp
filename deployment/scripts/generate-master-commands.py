@@ -52,7 +52,7 @@ def pushConfigFiles(expID, slaves):
     output("# Push config files.")
     for s, configFile in slaves.items():
         output(
-            "exec-start {0} scp-output-{1}-config.log stubborn-scp.sh {5} $own_public_ip:{2}/{3} {4}"
+            "exec-start {0} scp-output-{1}-config.log stubborn-scp.sh {5} -i $ssh_key_file $own_public_ip:{2}/{3} {4}"
             "".format(s, expID, MASTER_CONFIG_DIR, configFile, SLAVE_CONFIG_FILE, SCP_RETRY_COUNT)
         )
         output("exec-wait {0} 60000 "
@@ -80,7 +80,7 @@ def setBandwidth(expID, bandwidths):
     for s, bandwidth in bandwidths.items():
         if bandwidth != "0" and bandwidth != "unlimited":
             output(
-                "exec-start {0} set-bandwidth-{1}.log tc qdisc add dev ens18 root tbf rate {2} burst 320kbit latency 400ms"
+                "exec-start {0} set-bandwidth-{1}.log tc qdisc add dev eth0 root tbf rate {2} burst 320kbit latency 400ms"
                 "".format(s, expID, bandwidth)
             )
             output("exec-wait {0} 2000 "
@@ -96,7 +96,7 @@ def unsetBandwidth(expID, bandwidths):
     for s, bandwidth in bandwidths.items():
         if bandwidth != "0" and bandwidth != "unlimited":
             output(
-                "exec-start {0} unset-bandwidth-{1}.log tc qdisc del dev ens18 root tbf rate {2} burst 320kbit latency 400ms"
+                "exec-start {0} unset-bandwidth-{1}.log tc qdisc del dev eth0 root tbf rate {2} burst 320kbit latency 400ms"
                 "".format(s, expID, bandwidth)
             )
             output("exec-wait {0} 2000 "
@@ -288,7 +288,7 @@ def submitLogs(expID, slaves):
                "exec-wait {0} 2000".format(s, expID))
     for s in slaves:
         output(
-            "exec-start {0} scp-output-{1}-logs.log stubborn-scp.sh {2} "
+            "exec-start {0} scp-output-{1}-logs.log stubborn-scp.sh {2} -i $ssh_key_file "
             "experiment-output-{1}-slave-__id__.tar.gz $own_public_ip:{3}/raw-results/".format(s, expID, SCP_RETRY_COUNT, MASTER_EXP_DIR))
         output("exec-wait {0} 60000 "
                "exec-start {0} experiment-output/{1}/slave-__id__/FAILED echo Could not submit logs; "
@@ -349,11 +349,11 @@ def generateCommands(expID, peers, clients):
     waitForSlaves(slaves)
     createLogDir(expID)
     pushConfigFiles(expID, configFiles)
-    # setBandwidth(expID, bandwidths)
+    setBandwidth(expID, bandwidths)
     startPeers(expID, list(peers))
     runClients(expID, list(clients))
     stopPeers(list(peers))
-    # unsetBandwidth(expID, bandwidths)
+    unsetBandwidth(expID, bandwidths)
     saveConfig(expID, slaves)
     submitLogs(expID, slaves)
     updateStatus(expID)
@@ -384,12 +384,12 @@ def generateOldMirCommands(expID, peers, clients):
     waitForSlaves(slaves)
     createLogDir(expID)
     pushConfigFiles(expID, configFiles)
-    # setBandwidth(expID, bandwidths)
+    setBandwidth(expID, bandwidths)
     generateOldMirConfig(expID, list(peers), list(clients))
     # startOldMirPeers(expID, list(peers))
     runOldMirClients(expID, list(clients))
     stopPeers(list(peers))
-    # unsetBandwidth(expID, bandwidths)
+    unsetBandwidth(expID, bandwidths)
     saveConfig(expID, slaves)
     submitLogs(expID, slaves)
     updateStatus(expID)

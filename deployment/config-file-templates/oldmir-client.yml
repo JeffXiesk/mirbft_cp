@@ -5,7 +5,7 @@ n : NUM_NODES
 f : NUM_FAULTS
 
 logging: LOGGINGLEVEL  # One of {debug, info, error}
-blocking: true # Set to true for the client to wait command line input before starting
+blocking: false # Set to true for the client to wait command line input before starting
 
 # Request fromat
 requestSize: PAYLOAD
@@ -28,7 +28,7 @@ batchSizeBytes: BATCHSIZE
 bucketRotationPeriod: EPOCH             # max epoch size in recovery & bucket rotation period in stable mode
 buckets: 2                              # total number of buckets
 
-useTLS: false
+useTLS: true
 
 servers:
   caCertFile: "/root/tls-data/ca.pem"
