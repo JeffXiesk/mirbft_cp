@@ -264,7 +264,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	batchSize := pi.segment.BatchSize()
 	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 			// we cut an empty batch to maximize damage
-			batchSize = 0
+			batchSize = 1024
 	}
 
 	// Create the actual request batch. The timeout is 0, since the we already waited for the batch in pi.lead().
