@@ -190,7 +190,7 @@ func (pi *pbftInstance) lead() {
 
 	// Simulate a straggler.
 	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(0.1*float64(config.Config.ViewChangeTimeoutMs))
+		config.Config.BatchTimeoutMs = int(0.0333*float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs)
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
@@ -264,7 +264,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	batchSize := pi.segment.BatchSize()
 	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 			// we cut an empty batch to maximize damage
-			batchSize = 1024
+			batchSize = 0
 	}
 
 	// Create the actual request batch. The timeout is 0, since the we already waited for the batch in pi.lead().
@@ -657,8 +657,22 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, reqBatch *pb.Batch,
 		logEntry.Suspect = segmentLeader(pi.segment, 0)
 	}
 	// Announce decision.
+	logger.Info().
+		Int32("logEntry.Sn", logEntry.Sn).
+		Int32("origin_sn",sn).
+		Int("SegID", pi.segment.SegID()).
+		Msg("Get logEntry.Sn from tn. (Origin ISS Mode)")
 	announcer.Announce(logEntry)
 
+	// print request id.
+	if (len(reqBatch.Requests)>0) {
+		req_id:=make([]int32, len(reqBatch.Requests))
+		for i:=0;i<len(reqBatch.Requests);i++ {
+			req_id[i]=(reqBatch.Requests[i].RequestId.ClientSn)
+		}
+		logger.Debug().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v",req_id)
+	}
+	
 	// Start new view change timeout
 	// for the fist uncommitted sequence number in the segment
 	finished := true // Will be set to false if any SN is still uncommitted
