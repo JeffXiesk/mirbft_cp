@@ -892,8 +892,6 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 			//break
 		}
 	}
-	///1116 Announce decision.
-	announcer.Announce(logEntry)
 	logger.Info().
 		Int32("logEntry.Sn", logEntry.Sn).
 		Int32("origin_sn",sn).
@@ -901,6 +899,8 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 		Int32("Hn", hn).
 		Int("SegID", pi.segment.SegID()).
 		Msg("Get logEntry.Sn from tn.")
+	///1116 Announce decision.
+	announcer.Announce(logEntry)
 	if (len(reqBatch.Requests)>0) {
 		req_id:=make([]int32, len(reqBatch.Requests))
 		for i:=0;i<len(reqBatch.Requests);i++ {
