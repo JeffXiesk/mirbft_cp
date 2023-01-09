@@ -1,4 +1,4 @@
-bandwidth=(150 100 50 30)
+bandwidth=(5)
 # bandwidth=(300 200 20)
 
 len=${#bandwidth[@]}

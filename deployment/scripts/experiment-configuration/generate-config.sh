@@ -113,8 +113,8 @@ function skip() {
 }
 
 throughputsAuthPbft=$()
-throughputsAuthPbft[4]="128 256 512 1024"
-# throughputsAuthPbft[4]="2048"
+# throughputsAuthPbft[4]="128 256 512 1024"
+throughputsAuthPbft[4]="2048"
 throughputsAuthPbft[8]="256"
 throughputsAuthPbft[16]=""
 throughputsAuthPbft[32]=""
