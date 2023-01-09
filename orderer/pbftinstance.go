@@ -33,6 +33,7 @@ import (
 	"github.com/hyperledger-labs/mirbft/request"
 	"github.com/hyperledger-labs/mirbft/statetransfer"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	// bls "github.com/herumi/bls-eth-go-binary/bls"
 )
 
 const (
@@ -75,6 +76,13 @@ type pbftInstance struct {
 	htnssn map[int32][]*pb.HtnMessage///1116 more than 2f hns for a sn
 	vhtnsn map[int32]bool
 	//tnmsgsn map[int32][]*pb.HtnMessage///*pb.PbftCommit///1116 to be revised, more than 2f hn messages for a sn &pb.HtnMessage
+	// signature
+	// replica int
+	// ids []*bls.ID
+	// secs []*bls.SecretKey
+	// mpk *bls.PublicKey
+	// pubs [][]*bls.PublicKey
+	// sigs []*bls.Sign
 }
 
 type pbftBatch struct {
@@ -213,6 +221,24 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	// Set the starting timestamp
 	pi.startTs = time.Now().UnixNano()
 	
+	// pi.replica = len(pi.segment.Followers())
+	// // pi.pubs = make([][]*bls.PublicKey, pi.replica)
+	// pi.sigs = make([]*bls.Sign, pi.replica);
+	// pi.ids = make([]*bls.ID ,pi.replica*10);
+	
+	// pi.secs = make([]*bls.SecretKey, pi.replica);
+	// for i := 0; i < pi.replica; i++ {
+	// 	pi.secs[i] = new(bls.SecretKey)
+	// 	pi.secs[i].SetByCSPRNG()
+	// }
+	// for i := 0; i < pi.replica*10; i++ {
+	// 	pi.ids[i] = new(bls.ID)
+	// 	logger.Debug().Msg("Before IDSetInt")
+	// 	// unsafe.Pointer(pi.ids[i]).IDSetInt(i+1);
+	// }
+	// logger.Debug().Msgf("ids is %v", pi.ids)
+
+
 }
 //func (pi *pbftInstance) lead(sn int32) {///1201
 func (pi *pbftInstance) lead() {
@@ -318,7 +344,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	///1031
 	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 		// we cut an empty batch to maximize damage
-			batchSize = 1024
+			batchSize = 4096
 	}
 	//if config.Config.CrashTiming == "Straggler" {			
 			// everybody straggler, everybody not straggler
@@ -391,7 +417,7 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 		Msg("Handling PREPREPARE.")
 	///1201
 	for i,j := range preprepare.Hset {
-		logger.Info().Int32("sn", sn).
+		logger.Debug().Int32("sn", sn).
 		Int32("tn", j.Htn).
 		Int("i",i).
 		Msg("Hset.")
@@ -671,7 +697,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 	}
 	*/
 	///1116
-	messenger.EnqueueMsg(msg1, segmentLeader(pi.segment, 0))
+	messenger.EnqueueMsg(msg1, segmentLeader(pi.segment, pi.view))
 }
 
 ///1201
@@ -718,11 +744,11 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	    ///1116
 	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && batch.CheckCommits() && batch.CheckHtns() {
 		pi.vhtnsn[sn+int32(membership.NumNodes())] = true
-		logger.Info().Int32("sn", sn+int32(membership.NumNodes())).
+		logger.Debug().Int32("sn", sn+int32(membership.NumNodes())).
 		//[]Int32("validHtnMsgs", batch.validHtnMsgs.Htn).
 		Msg("Set TRUE.")
 		for _,x := range batch.validHtnMsgs {
-			logger.Info().Int32("validHtnMsgs", x.Htn).
+			logger.Debug().Int32("validHtnMsgs", x.Htn).
 			Msg("validHtnMsgs sets.")
 		}
 
@@ -892,6 +918,8 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 			//break
 		}
 	}
+	///1116 Announce decision.
+	announcer.Announce(logEntry)
 	logger.Info().
 		Int32("logEntry.Sn", logEntry.Sn).
 		Int32("origin_sn",sn).
@@ -899,14 +927,12 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 		Int32("Hn", hn).
 		Int("SegID", pi.segment.SegID()).
 		Msg("Get logEntry.Sn from tn.")
-	///1116 Announce decision.
-	announcer.Announce(logEntry)
 	if (len(reqBatch.Requests)>0) {
 		req_id:=make([]int32, len(reqBatch.Requests))
 		for i:=0;i<len(reqBatch.Requests);i++ {
 			req_id[i]=(reqBatch.Requests[i].RequestId.ClientSn)
 		}
-		logger.Debug().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v",req_id)
+		logger.Info().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v",req_id)
 	}
 	// Start new view change timeout
 	// for the fist uncommitted sequence number in the segment
@@ -2152,7 +2178,7 @@ func (batch *pbftBatch) CheckHtns() bool {
 	}
 
 	// Check if enough valid htn messages are received
-	if len(batch.validHtnMsgs) >= 2*membership.Faults() {
+	if len(batch.validHtnMsgs) >= 2*membership.Faults()+1 {
 		return true
 	} else {
 		return false

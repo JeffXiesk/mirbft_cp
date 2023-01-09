@@ -133,3 +133,11 @@ echo 'unsetting bandwidth'
 echo "Shutdown all instances..."
 # source shutdown_instances.sh
 
+
+for each_region in ${AWS_REGIONS} ; do 
+    aws ec2 import-key-pair \
+    --key-name MyKeyPair \
+    --public-key-material fileb://$HOME/.ssh/id_rsa_MyKeyPair.pub \
+    --region $each_region ; 
+done
+
