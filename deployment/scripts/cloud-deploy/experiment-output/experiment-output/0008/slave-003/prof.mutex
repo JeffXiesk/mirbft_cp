@@ -1,0 +1,16 @@
+--- mutex:
+cycles/second=2400012000
+sampling period=0
+382883757 1 @ 0x8fd150 0x8fd12b 0x46ab61
+#	0x8fd14f	sync.(*Mutex).Unlock+0x4ef						/usr/lib/go-1.19/src/sync/mutex.go:223
+#	0x8fd12a	github.com/hyperledger-labs/mirbft/orderer.(*pbftInstance).lead+0x4ca	/root/go/src/github.com/hyperledger-labs/mirbft/orderer/pbftinstance.go:304
+
+478266 1 @ 0x8379a5 0x83798e 0x82fba5 0x82fb86 0x82ebc5 0x8a55a9 0x8a4d06 0x46ab61
+#	0x8379a4	sync.(*Mutex).Unlock+0x224							/usr/lib/go-1.19/src/sync/mutex.go:223
+#	0x83798d	google.golang.org/grpc/internal/transport.(*recvBuffer).put+0x20d		/root/go/src/google.golang.org/grpc/internal/transport/transport.go:122
+#	0x82fba4	google.golang.org/grpc/internal/transport.(*Stream).write+0x364			/root/go/src/google.golang.org/grpc/internal/transport/transport.go:469
+#	0x82fb85	google.golang.org/grpc/internal/transport.(*http2Server).handleData+0x345	/root/go/src/google.golang.org/grpc/internal/transport/http2_server.go:782
+#	0x82ebc4	google.golang.org/grpc/internal/transport.(*http2Server).HandleStreams+0x2e4	/root/go/src/google.golang.org/grpc/internal/transport/http2_server.go:645
+#	0x8a55a8	google.golang.org/grpc.(*Server).serveStreams+0x188				/root/go/src/google.golang.org/grpc/server.go:949
+#	0x8a4d05	google.golang.org/grpc.(*Server).handleRawConn.func1+0x45			/root/go/src/google.golang.org/grpc/server.go:891
+
