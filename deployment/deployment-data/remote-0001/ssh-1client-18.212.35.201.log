@@ -1,0 +1,163 @@
+Setting up slave: 18.212.35.201 (172.31.91.16)
+Slave status (18.212.35.201): RUNNING
+Waiting for master server.
+cat: /root/master-ready: No such file or directory
+Master not ready. Retrying in 5 seconds.
+cat: /root/master-ready: No such file or directory
+Master not ready. Retrying in 5 seconds.
+cat: /root/master-ready: No such file or directory
+Master not ready. Retrying in 5 seconds.
+cat: /root/master-ready: No such file or directory
+Master not ready. Retrying in 5 seconds.
+cat: /root/master-ready: No such file or directory
+Master not ready. Retrying in 5 seconds.
+Warning: Permanently added '18.212.35.201' (ECDSA) to the list of known hosts.
+Warning: Permanently added '18.212.35.201' (ED25519) to the list of known hosts.
+receiving incremental file list
+tls-data/
+tls-data/ca.key
+              0   0%    0.00kB/s    0:00:00            3,272 100%    3.12MB/s    0:00:00 (xfr#1, to-chk=24/29)
+tls-data/ca.pem
+              0   0%    0.00kB/s    0:00:00            1,862 100%    1.78MB/s    0:00:00 (xfr#2, to-chk=23/29)
+tls-data/ca.srl
+              0   0%    0.00kB/s    0:00:00               41 100%   20.02kB/s    0:00:00 (xfr#3, to-chk=22/29)
+tls-data/client-rsa-2048.csr
+              0   0%    0.00kB/s    0:00:00            1,082 100%  528.32kB/s    0:00:00 (xfr#4, to-chk=12/29)
+tls-data/client-rsa-2048.key
+              0   0%    0.00kB/s    0:00:00            1,704 100%  554.69kB/s    0:00:00 (xfr#5, to-chk=11/29)
+tls-data/client-rsa-2048.pem
+              0   0%    0.00kB/s    0:00:00            1,635 100%  399.17kB/s    0:00:00 (xfr#6, to-chk=10/29)
+tls-data/generate-auth.sh
+              0   0%    0.00kB/s    0:00:00            1,518 100%  370.61kB/s    0:00:00 (xfr#7, to-chk=6/29)
+tls-data/generate-ca.sh
+              0   0%    0.00kB/s    0:00:00              867 100%  169.34kB/s    0:00:00 (xfr#8, to-chk=5/29)
+tls-data/generate-client.sh
+              0   0%    0.00kB/s    0:00:00            2,938 100%  573.83kB/s    0:00:00 (xfr#9, to-chk=4/29)
+tls-data/generate.sh
+              0   0%    0.00kB/s    0:00:00              498 100%   81.05kB/s    0:00:00 (xfr#10, to-chk=3/29)
+tls-data/openssl.conf
+              0   0%    0.00kB/s    0:00:00              291 100%   47.36kB/s    0:00:00 (xfr#11, to-chk=1/29)
+tls-data/plot-timeline.py
+              0   0%    0.00kB/s    0:00:00            2,080 100%  290.18kB/s    0:00:00 (xfr#12, to-chk=0/29)
+
+Generating CA key.
+
+Generating CA self-signed certificate.
+Adding IP address to certificate alt names IP.3: 18.212.35.201
+Adding IP address to certificate alt names IP.4: 172.31.91.16
+
+Generating key and certificate: client-rsa-2048.key, client-rsa-2048.pem
+
+Generating key: client-rsa-2048.key
+
+Generating certificate signing request (CSR): client-rsa-2048.csr
+
+Generating certificate: client-rsa-2048.pem
+Certificate request self-signature ok
+subject=C = MR, ST = MR, O = Mir, CN = localhost
+
+Generating key and certificate: client-rsa-4096.key, client-rsa-4096.pem
+
+Generating key: client-rsa-4096.key
+
+Generating certificate signing request (CSR): client-rsa-4096.csr
+
+Generating certificate: client-rsa-4096.pem
+Certificate request self-signature ok
+subject=C = MR, ST = MR, O = Mir, CN = localhost
+
+Generating key and certificate: client-ecdsa-224.key, client-ecdsa-224.pem
+
+Generating key: client-ecdsa-224.key
+
+Generating certificate signing request (CSR): client-ecdsa-224.csr
+
+Generating certificate: client-ecdsa-224.pem
+Certificate request self-signature ok
+subject=C = MR, ST = MR, O = Mir, CN = localhost
+
+Generating key and certificate: client-ecdsa-256.key, client-ecdsa-256.pem
+
+Generating key: client-ecdsa-256.key
+
+Generating certificate signing request (CSR): client-ecdsa-256.csr
+
+Generating certificate: client-ecdsa-256.pem
+Certificate request self-signature ok
+subject=C = MR, ST = MR, O = Mir, CN = localhost
+
+Generating key and certificate: client-ecdsa-384.key, client-ecdsa-384.pem
+
+Generating key: client-ecdsa-384.key
+
+Generating certificate signing request (CSR): client-ecdsa-384.csr
+
+Generating certificate: client-ecdsa-384.pem
+Certificate request self-signature ok
+subject=C = MR, ST = MR, O = Mir, CN = localhost
+
+Generating key and certificate: auth.key, auth.pem
+Adding IP address to certificate alt names IP.3: 18.212.35.201
+Adding IP address to certificate alt names IP.4: 172.31.91.16
+
+Generating key: auth.key
+
+Generating certificate signing request (CSR): auth.csr
+
+Generating certificate: auth.pem
+Certificate request self-signature ok
+subject=C = MR, ST = MR, O = Mir, CN = localhost
+Warning: Permanently added '18.212.35.201' (ED25519) to the list of known hosts.
+receiving incremental file list
+Master ready. Starting slave process.
+ssh -i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@18.212.35.201  ulimit -Sn 16384 && export PATH=$PATH:/root/go/bin:/root/bin && discoveryslave 1client 18.212.35.201:9999 18.212.35.201 172.31.91.16
+Warning: Permanently added '18.212.35.201' (ECDSA) to the list of known hosts.
+9:33AM INF Received own slave ID. ownSlaveId=4
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=3
+9:33AM INF Received an ExecStart command args="[-p experiment-output/0000/slave-__id__]" cmd=mkdir outFile=/dev/null
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=4
+9:33AM INF Received command. cmdType=ExecWait
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=7
+9:33AM INF Received an ExecStart command args="[10 18.212.35.201:experiment-config/config-0000.yml config/config.yml]" cmd=stubborn-scp.sh outFile=scp-output-0000-config.log
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=8
+9:33AM INF Received command. cmdType=ExecWait
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=10
+9:33AM INF Received command. cmdType=Noop
+9:33AM INF Noop. Doing nothing. status=0
+9:33AM INF Received command. cmdId=14
+9:33AM INF Received an ExecStart command args="[config/config.yml 18.212.35.201:9999 experiment-output/0000/slave-__id__/client experiment-output/0000/slave-__id__/prof-client]" cmd=orderingclient outFile=experiment-output/0000/slave-__id__/clients.log
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=15
+9:33AM INF Received command. cmdType=ExecWait
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=16
+9:33AM INF Received command. cmdType=Noop
+9:33AM INF Noop. Doing nothing. status=0
+9:33AM INF Received command. cmdId=21
+9:33AM INF Received an ExecStart command args="[config/config.yml experiment-output/0000/slave-__id__]" cmd=cp outFile=/dev/null
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=22
+9:33AM INF Received command. cmdType=ExecWait
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=25
+9:33AM INF Received an ExecStart command args="[czf experiment-output-0000-slave-__id__.tar.gz experiment-output/0000/slave-__id__]" cmd=tar outFile=/dev/null
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=26
+9:33AM INF Received command. cmdType=ExecWait
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=29
+9:33AM INF Received an ExecStart command args="[10 experiment-output-0000-slave-__id__.tar.gz 18.212.35.201:current-deployment-data/raw-results/]" cmd=stubborn-scp.sh outFile=scp-output-0000-logs.log
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=30
+9:33AM INF Received command. cmdType=ExecWait
+9:33AM INF OK status=0
+9:33AM INF Received command. cmdId=32
+9:33AM INF Received command. cmdType=Noop
+9:33AM INF Noop. Doing nothing. status=0
+9:33AM INF Received command. cmdId=36
+9:33AM INF Received command. cmdType=Stop

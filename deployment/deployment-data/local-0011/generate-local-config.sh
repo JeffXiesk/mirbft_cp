@@ -113,9 +113,16 @@ function skip() {
 }
 
 throughputsAuthPbft=$()
+<<<<<<< HEAD:deployment/deployment-data/local-0011/generate-local-config.sh
 throughputsAuthPbft[4]="4096"
 throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
 throughputsAuthPbft[16]="128 256 512 1024 2048 4096"
+=======
+# throughputsAuthPbft[4]="128 256 512 1024"
+throughputsAuthPbft[4]="2048"
+throughputsAuthPbft[8]="256"
+throughputsAuthPbft[16]=""
+>>>>>>> 3ef0ebc4704df0b60b947e81f147205d34b188ed:deployment/deployment-data/remote-0000/generate-config.sh
 throughputsAuthPbft[32]=""
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""
