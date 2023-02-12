@@ -134,6 +134,15 @@ echo "Shutdown all instances..."
 # source shutdown_instances.sh
 
 
+for i in "${public_ip_arr[@]:1:totalnum}"
+do
+    scp $ssh_options_cloud root@$i:/root/experiment-output-* scripts/cloud-deploy/experiment-output
+    echo "$i fetch experiment done..."
+done
+
+
+
+
 for each_region in ${AWS_REGIONS} ; do 
     aws ec2 import-key-pair \
     --key-name MyKeyPair \
