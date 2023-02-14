@@ -9,7 +9,7 @@ analysis_query_params="-q queries/ethereum.sql -q queries/aggregates.sql -q quer
 # Private key, of which the corresponding public key needs to be an authorized ssh key at each instance.
 # (Previously uploaded to IBM Cloud and specified at instance creation in the corresponding template file)
 # private_key_file=/root/.ssh/id_rsa.pub
-private_key_file=/opt/gopath/src/github.com/hyperledger-labs/mirbft/deployment/scripts/cloud-deploy/bft11.pem
+private_key_file=scripts/cloud-deploy/bft11.pem
 
 # Options to use when communicating with the remote machines.
 ssh_options="-i $private_key_file -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60"

@@ -46,7 +46,6 @@ type hotStuffInstance struct {
 	next      int             // The segment *index* of the next to be proposed seq no
 	height2sn map[int32]int32 // Height to segment seq no
 	sn2height map[int32]int32 // Segment seq no to height
-	height2tn map[int32]int32 // Height to timestamp number
 
 	nodes   []*hotStuffNode // HotStuff nodes (including dummy nodes)
 	vheight int32           // The height of the last voted node
@@ -69,10 +68,6 @@ type hotStuffInstance struct {
 	// No more that one heights will be committed with the last sequence number of the segment, since
 	// the segment will be killed once the last sequence number is committed.
 	segmentProposed bool
-
-	// custom
-	tn int32
-	TsQc *pb.HotStuffQC
 }
 
 type hotStuffNode struct {
@@ -82,7 +77,7 @@ type hotStuffNode struct {
 	node      *pb.HotStuffNode
 	batch     *request.Batch
 	parent    *hotStuffNode
-	votes     map[int32]*pb.HotstuffSignedMsg // Should be append only to prevent double voting.
+	votes     map[int32]*pb.SignedMsg // Should be append only to prevent double voting.
 	digest    []byte                  // The digest of the proposal (preprepare) message
 	quorum    bool                    // True if there is a vote quorum
 	announced bool                    // True if the node has been announced
@@ -158,33 +153,19 @@ func (hi *hotStuffInstance) init(seg manager.Segment, orderer *HotStuffOrderer) 
 	hi.next = 0
 	hi.height2sn = make(map[int32]int32)
 	hi.sn2height = make(map[int32]int32)
-	hi.height2tn = make(map[int32]int32)
 
 	// Initialize the batch channel as a buffered channel of one batch
 	hi.newBatch = make(chan *request.Batch, 1)
-
-	hi.tn = 0
 }
 
 func (hi *hotStuffInstance) start() {
 	// If this instance leads the segment
 	if isLeading(hi.segment, membership.OwnID, hi.view) {
 		logger.Debug().Int("segment", hi.segment.SegID()).Msg("Leading segment.")
-		logger.Debug().Str("crashtiming",config.Config.CrashTiming).Msg("show crashtiming")
-		batchSize := config.Config.BatchSize
-		batchTimeout := config.Config.BatchTimeout
-		// Simulate a straggler.
-		if hi.segment.SegID()==0 && config.Config.CrashTiming == "Straggler" {
-			batchTimeoutMs := int(0.0333*float64(config.Config.ViewChangeTimeoutMs))
-			batchTimeout = time.Duration(batchTimeoutMs) * time.Millisecond
-			logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", batchTimeoutMs).Msg("Straggler Effected...")
-			// we set the batchsize to an infinate practically size, so that we always wait for the timeout
-			batchSize = 0
-		}
 
 		// Schedule a batch for the first sn in the segment
 		go func() {
-			hi.newBatch <- hi.segment.Buckets().CutBatch(batchSize, batchTimeout)
+			hi.newBatch <- hi.segment.Buckets().CutBatch(config.Config.BatchSize, config.Config.BatchTimeout)
 		}()
 
 		// Send a proposal for the *fist* sn in the segment
@@ -197,8 +178,7 @@ func (hi *hotStuffInstance) start() {
 func (hi *hotStuffInstance) proposeSN(sn int32) {
 	logger.Info().Int32("sn", sn).
 		Int("segment", hi.segment.SegID()).
-		Int32("hightimestamp", hi.tn).
-		// Int32("height", hi.leaf.height+1).
+		Int32("height", hi.leaf.height+1).
 		Int32("view", hi.view).
 		Int32("senderID", membership.OwnID).
 		Bool("proposed", hi.segmentProposed).
@@ -213,8 +193,7 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 
 		logger.Info().Int32("sn", sn).
 			Int("segment", hi.segment.SegID()).
-			// Int32("height", hi.leaf.height+1).
-			Int32("hightimestamp", hi.tn).
+			Int32("height", hi.leaf.height+1).
 			Int32("view", hi.view).
 			Int32("senderID", membership.OwnID).
 			Int("nReq", len(batch.Requests)).
@@ -230,7 +209,6 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 		if !hi.segmentProposed {
 			go func() {
 				hi.newBatch <- hi.segment.Buckets().CutBatch(config.Config.BatchSize, config.Config.BatchTimeout)
-				logger.Debug().Msgf("Buckets for %d-th leader %d: %v", membership.OwnID, membership.OwnID, hi.segment.Buckets().GetBucketIDs())
 			}()
 		}
 
@@ -240,9 +218,6 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 	}
 
 	new := hi.newNode(hi.leaf, batch, hi.highQC, sn, hi.leaf.height+1, membership.OwnID)
-	hi.height2tn[hi.leaf.height+1] = hi.tn
-	hi.tn = hi.tn + 1
-	// new := hi.newNode(hi.leaf, batch, hi.highQC, sn, hi.tn, membership.OwnID)
 
 	if _, ok := hi.sn2height[sn]; ok {
 		new.dummy = true
@@ -264,8 +239,6 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 				Node:   new.node,
 			},
 		},
-		Type: "ProtocolMessage_Proposal",
-		Hightimestamp: hi.tn,
 	}
 
 	logger.Info().Int32("sn", sn).
@@ -419,7 +392,7 @@ func (hi *hotStuffInstance) handleProposal(proposal *pb.HotStuffProposal, msg *p
 
 	decided := new.parent.parent.parent
 	if !decided.announced {
-		hi.announce(decided, decided.height, decided.batch.Message(), decided.digest, decided.node.Aborted)
+		hi.announce(decided, hi.height2sn[decided.height], decided.batch.Message(), decided.digest, decided.node.Aborted)
 	}
 
 	// Return to serializer the proposal with the next height to be voted.
@@ -463,77 +436,28 @@ func (hi *hotStuffInstance) sendVote(node *hotStuffNode) {
 		return
 	}
 
-	// decided := node.parent.parent.parent
-	// ts_QC := decided.node.Certificate
-	ts_QC := node.node.Certificate
-	logger.Info().Int32("decided.node.Certificate.Height", ts_QC.Height).
-		Msg("Decided get!")
-	
-
 	msg := &pb.ProtocolMessage{
 		SenderId: membership.OwnID,
 		Sn:       hi.height2sn[node.height],
 		Msg: &pb.ProtocolMessage_Vote{
-			Vote: &pb.HotstuffSignedMsg{
+			Vote: &pb.SignedMsg{
 				Data:      data,
 				Signature: signature,
-				// The followint two variables are need for checkCert
-				TsQc: 	   ts_QC,                                        
-				DigestPar: node.node.Parent,                                        
 			},
 		},
-		Type: "ProtocolMessage_Vote",
-		Hightimestamp: node.height,
-		// Hightimestamp: decided.height,
 	}
 
 	logger.Info().Int32("sn", hi.height2sn[node.height]).
 		Int("segment", hi.segment.SegID()).
 		Int32("height", node.height).
-		Int32("90..............", hi.leader).
+		Int32("leader", hi.leader).
 		Msg("Sending VOTE.")
 
 	// Enqueue the message to the leader
 	messenger.EnqueueMsg(msg, node.leader)
 }
 
-func (hi *hotStuffInstance) sendTimestamp(node *hotStuffNode) {
-	logger.Info().
-		Int("segment", hi.segment.SegID()).
-		Int32("High_Time_stamp",hi.tn).
-		Int32("leader", hi.leader).
-		Int32("Sn",node.sn).
-		Int32("SenderId",membership.OwnID).
-		Msg("Creating Send Timestamp.")
-
-	msg := &pb.ProtocolMessage{
-		SenderId: membership.OwnID,
-		Sn:       node.sn,
-		Msg: &pb.ProtocolMessage_HotstuffSendtimestamp{
-			HotstuffSendtimestamp: nil,
-		},
-		Type: "ProtocolMessage_sendTimestamp",
-		Hightimestamp: hi.tn,
-	}
-
-	logger.Info().
-		Int("segment", hi.segment.SegID()).
-		Int32("leader", hi.leader).
-		Int32("Sn",node.sn).
-		Int32("SenderId",membership.OwnID).
-		Msg("Sending sendTimestamp.")
-
-	// Enqueue the message to the leader
-	for _, nodeID := range hi.segment.Followers() {
-		// Skip sending to self
-		if nodeID == membership.OwnID {
-			continue
-		}
-		messenger.EnqueuePriorityMsg(msg, nodeID)
-	}
-}
-
-func (hi *hotStuffInstance) handleVote(signed *pb.HotstuffSignedMsg, sn, senderID, hightimestamp int32) error {
+func (hi *hotStuffInstance) handleVote(signed *pb.SignedMsg, sn, senderID int32) error {
 	vote := &pb.HotStuffVote{}
 	err := proto.Unmarshal(signed.Data, vote)
 	if err != nil {
@@ -543,64 +467,9 @@ func (hi *hotStuffInstance) handleVote(signed *pb.HotstuffSignedMsg, sn, senderI
 	logger.Info().Int32("sn", sn).
 		Int("segment", hi.segment.SegID()).
 		Int32("height", vote.Height).
-		Int32("Origin hightimestamp", hi.tn).
-		Int32("Receive hightimestamp", hightimestamp).
 		Int32("senderId", senderID).
 		Msg("Handling VOTE.")
 
-	// Verify the certificate
-	logger.Debug().Int32("hightimestamp",hightimestamp).
-		Msg("Begin vertify the certificate.")
-	// it := hightimestamp
-	// node := &hotStuffNode{}
-	// for it >= 0 {
-	// 	if hi.nodes[it] != nil {
-	// 		break
-	// 	}
-	// 	node = hi.nodes[it]
-	// 	it -= 1
-	// }
-	
-	// if node.parent!=nil {
-	// 	if err := hi.orderer.CheckCert(node.parent.digest, signed.TsQc.Signature); err != nil {
-	// 		logger.Debug().
-	// 		Str("Error",err.Error()).
-	// 		Int32("SenderID",senderID).
-	// 		Msg("invalid certificate!")
-	// 	} else {
-	// 		if hightimestamp > hi.high_time_stamp {
-	// 			logger.Debug().Int32("Origin hightimestamp", hi.high_time_stamp).
-	// 				Int32("New hightimestamp", hightimestamp).
-	// 				Msg("Update new high time stamp.")
-	// 			hi.high_time_stamp = hightimestamp
-	// 			hi.TsQc = signed.TsQc
-	// 		} else {
-	// 			logger.Debug().Int32("Origin hightimestamp", hi.high_time_stamp).
-	// 				Int32("New hightimestamp", hightimestamp).
-	// 				Msg("Do not need to update new high time stamp.")
-	// 		}
-	// 	}
-	// }
-
-	if err := hi.orderer.CheckCert(signed.DigestPar, signed.TsQc.Signature); err != nil {
-		logger.Debug().
-		Str("Error",err.Error()).
-		Int32("SenderID",senderID).
-		Msg("invalid certificate!")
-	} else {
-		if hightimestamp > hi.tn {
-			logger.Debug().Int32("Origin hightimestamp", hi.tn).
-				Int32("New hightimestamp", hightimestamp).
-				Msg("Update new high time stamp.")
-			hi.tn = hightimestamp
-			hi.TsQc = signed.TsQc
-		} else {
-			logger.Debug().Int32("Origin hightimestamp", hi.tn).
-				Int32("New hightimestamp", hightimestamp).
-				Msg("Do not need to update new high time stamp.")
-		}
-	}
-	
 	// If the message is from a previous height, ignore
 	if hi.leaf.height > vote.Height {
 		logger.Debug().
@@ -709,8 +578,6 @@ func (hi *hotStuffInstance) sendNewView() {
 		Msg: &pb.ProtocolMessage_HotstuffNewview{
 			HotstuffNewview: newview,
 		},
-		Type: "ProtocolMessage_HotstuffNewView",
-		Hightimestamp: newview.Certificate.Height,
 	}
 
 	logger.Info().
@@ -816,16 +683,7 @@ func (hi *hotStuffInstance) handleMissingEntry(msg *pb.MissingEntry) {
 	}
 }
 
-func (hi *hotStuffInstance) handleSendTimeStamp(msg *pb.ProtocolMessage) {
-	logger.Info().
-		Int32("SenderId", msg.SenderId).
-		Int32("sn",msg.Sn).
-		Int32("high_time_stamp", msg.Hightimestamp).
-		Str("message type",msg.Type).
-		Msg("Receive and Handling HotstuffSendtimestamp.")
-}
-
-func (hi *hotStuffInstance) announce(node *hotStuffNode, tn int32, reqBatch *pb.Batch, digest []byte, aborted bool) {
+func (hi *hotStuffInstance) announce(node *hotStuffNode, sn int32, reqBatch *pb.Batch, digest []byte, aborted bool) {
 	if node != nil {
 		// Cancel timer
 		if node.viewChangeTimer != nil {
@@ -837,7 +695,7 @@ func (hi *hotStuffInstance) announce(node *hotStuffNode, tn int32, reqBatch *pb.
 			notFired := node.viewChangeTimer.Stop()
 			if !notFired {
 				// This is harmelss, since the timeout, even though generated, will be ignored.
-				logger.Warn().Int32("tn-1", tn-1).Msg("Timer fired concurently with being canceled.")
+				logger.Warn().Int32("sn", sn).Msg("Timer fired concurently with being canceled.")
 			}
 		}
 
@@ -856,12 +714,11 @@ func (hi *hotStuffInstance) announce(node *hotStuffNode, tn int32, reqBatch *pb.
 	logger.Info().
 		Int("segment", hi.segment.SegID()).
 		Int32("sn", hi.height2sn[node.height]).
-		Int32("newSn",4*(tn-1)+int32(hi.segment.SegID())).
 		Int32("height", node.height).
 		Msg("Announcement.")
 
 	logEntry := &log.Entry{
-		Sn:      4*(tn-1)+int32(hi.segment.SegID()),
+		Sn:      sn,
 		Batch:   reqBatch,
 		Aborted: aborted,
 		Digest:  digest,
@@ -869,64 +726,6 @@ func (hi *hotStuffInstance) announce(node *hotStuffNode, tn int32, reqBatch *pb.
 
 	// Announce decision
 	announcer.Announce(logEntry)
-
-	// Customize Message
-	// hi.sendTimestamp(node)
-
-	logger.Debug().
-		Int("length_nodes",len(hi.nodes)).
-		Msg("Nodes Information.")
-
-	for _,node := range hi.nodes {
-		logger.Debug().
-			Int32("height",node.height).
-			Int32("sn",node.sn).
-			Msg("Node Info")
-	}
-
-	for j:=int32(0); j<=node.height; j++ {
-		logger.Debug().
-			Int32("height", j).
-			Int32("tn",hi.height2tn[int32(j)]).
-			Msg("height2tn content.")
-	}
-
-	start_tn := hi.height2tn[node.height]
-	end_tn := hi.height2tn[node.height-1]
-	logger.Debug().
-		Int32("tn",hi.tn).
-		Int32("start_tn",hi.height2tn[node.height]).
-		Int32("end_tn",hi.height2tn[node.height-1]).
-		Int32("sn",4*(tn-1)+int32(hi.segment.SegID())).
-		Msg("Check Announce.")
-	for tn := start_tn-1; tn>end_tn; tn-- {
-		logger.Debug().
-			Int32("start_tn",hi.height2tn[node.height]).
-			Int32("end_tn",hi.height2tn[node.height-1]).
-			Int32("sn",4*(tn-1)+int32(hi.segment.SegID())).
-			Msg("Announce Nil!")
-		logEntry1 := &log.Entry{
-			Sn:        4*(tn-1)+int32(hi.segment.SegID()),
-			Batch:     nil,
-			Aborted:   aborted,
-			Digest:    nil,
-		}
-		announcer.Announce(logEntry1)
-	}
-
-	// for _, sn := range hi.segment.SNs() {
-	// 	if !hi.nodes[hi.sn2height[sn]].announced && sn<logEntry.Sn {
-	// 		logEntry1 := &log.Entry{
-	// 		Sn:        sn,///1101
-	// 		Batch:     nil,
-	// 		Aborted:   aborted,
-	// 		Digest:    nil,
-	// 	}
-	// 	announcer.Announce(logEntry1)
-	// 		//break
-	// 	}
-	// }
-
 }
 
 // Creates a new node
@@ -949,8 +748,7 @@ func (hi *hotStuffInstance) newNode(parent *hotStuffNode, batch *request.Batch, 
 		parent: parent,
 		batch:  batch,
 		digest: hotStuffDigest(node),
-		// votes:  make(map[int32]*pb.SignedMsg),
-		votes:  make(map[int32]*pb.HotstuffSignedMsg),
+		votes:  make(map[int32]*pb.SignedMsg),
 		dummy:  false,
 	}
 	if _, ok := hi.sn2height[sn]; ok {
@@ -1054,8 +852,6 @@ func (hi *hotStuffInstance) setViewChangeTimer(sn int32, node *hotStuffNode) {
 				Sn:   node.sn,
 				View: hi.view,
 			}},
-		Type: "ProtocolMessage_Timeout",
-		Hightimestamp: node.height,
 	}
 	node.viewChangeTimer = time.AfterFunc(hi.viewChangeTimeout, func() { hi.serializer.serialize(msg) })
 }
@@ -1111,8 +907,7 @@ func (hi *hotStuffInstance) processSerializedMessages() {
 		case *pb.ProtocolMessage_Vote:
 			logger.Debug().Int32("sn", msg.Sn).Int32("senderId", msg.SenderId).Msg("Received VOTE")
 			vote := m.Vote
-			// err := hi.handleVote(vote, msg.Sn, msg.SenderId)
-			err := hi.handleVote(vote, msg.Sn, msg.SenderId, msg.Hightimestamp)
+			err := hi.handleVote(vote, msg.Sn, msg.SenderId)
 			if err != nil {
 				logger.Error().
 					Err(err).
@@ -1121,9 +916,6 @@ func (hi *hotStuffInstance) processSerializedMessages() {
 			}
 		case *pb.ProtocolMessage_MissingEntry:
 			hi.handleMissingEntry(m.MissingEntry)
-		case *pb.ProtocolMessage_HotstuffSendtimestamp:
-			hi.handleSendTimeStamp(msg)
-
 		default:
 			logger.Error().
 				Str("msg", fmt.Sprint(m)).

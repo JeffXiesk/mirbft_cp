@@ -36,9 +36,9 @@ rsync --progress -rptz -e "ssh $ssh_options" queries scripts "root@$master_ip:$r
 scp $ssh_options "$exp_data_dir/$local_master_command_file" "root@$master_ip:$remote_master_command_file" || exit 5
 
 # # install dependencies
-scp $ssh_options "scripts/cloud-deploy/user-script-master.sh.template" "root@$master_ip:/root" || exit 6
-scp $ssh_options "scripts/cloud-deploy/global-vars.sh" "root@$master_ip:/root" || exit 7
-ssh $ssh_options root@$master_ip "chmod u+x /root/user-script-master.sh.template;chmod u+x /root/global-vars.sh;/root/user-script-master.sh.template"
+# scp $ssh_options "scripts/cloud-deploy/user-script-master.sh.template" "root@$master_ip:/root" || exit 6
+# scp $ssh_options "scripts/cloud-deploy/global-vars.sh" "root@$master_ip:/root" || exit 7
+# ssh $ssh_options root@$master_ip "chmod u+x /root/user-script-master.sh.template;chmod u+x /root/global-vars.sh;/root/user-script-master.sh.template"
 
 # Generate TLS certificates and compile code at the master
 ssh $ssh_options root@$master_ip "

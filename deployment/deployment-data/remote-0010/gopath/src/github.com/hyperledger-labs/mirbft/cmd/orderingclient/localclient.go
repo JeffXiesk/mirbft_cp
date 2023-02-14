@@ -131,7 +131,7 @@ func (c *LocalClient) submitRequest(seqNr int32) {
 	// Submit request to handler function.
 	c.requestHandler(req)
 
-	c.log.Debug().Int32("clSeqNr", req.RequestId.ClientSn).Msg("Submitted request.")
+	c.log.Info().Int32("clSeqNr", req.RequestId.ClientSn).Msg("Submitted request.")
 }
 
 // Registers response to request with clientSN from replica peerID.

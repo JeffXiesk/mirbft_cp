@@ -106,7 +106,6 @@ func FetchMissingEntry(sn int32, sources []int32) {
 			Sn:             sn,
 			PayloadRequest: true,
 		}},
-		Type: "ProtocolMessage_MissingEntryReq",
 	}
 
 	// Keep sending entry request messages until the entry appears in the log.
@@ -207,7 +206,6 @@ func handleRequest(req *pb.MissingEntryRequest, senderID int32) {
 				Suspect: entry.Suspect,
 				Proof:   "Dummy Proof", // TODO: Use an actual proof.
 			}},
-			Type: "ProtocolMessage_MissingEntry",
 		}
 
 		// Only append batch data if payload is requested

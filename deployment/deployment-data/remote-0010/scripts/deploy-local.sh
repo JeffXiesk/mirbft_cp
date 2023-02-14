@@ -40,4 +40,5 @@ echo "Waiting for local experiment to finish."
 wait
 
 echo "Analyzing experiments."
+echo "scripts/analyze/analyze-parallel.sh $analysis_query_params $exp_data_dir/experiment-output/*"
 scripts/analyze/analyze-parallel.sh $analysis_query_params $exp_data_dir/experiment-output/*

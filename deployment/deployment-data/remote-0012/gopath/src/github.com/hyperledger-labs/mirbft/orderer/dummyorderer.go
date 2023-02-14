@@ -175,7 +175,6 @@ func (do *DummyOrderer) proposeSN(segment manager.Segment, sn int32) {
 			Sn:    sn,
 			Batch: batch.Message(),
 		}},
-		Type: "ProtocolMessage_Dummy",
 	}
 	tracing.MainTrace.Event(tracing.PROPOSE, int64(sn), 0)
 	logger.Debug().

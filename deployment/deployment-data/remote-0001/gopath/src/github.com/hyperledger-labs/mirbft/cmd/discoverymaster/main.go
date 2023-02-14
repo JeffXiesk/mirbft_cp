@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+
 	"github.com/rs/zerolog"
 	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/discovery"

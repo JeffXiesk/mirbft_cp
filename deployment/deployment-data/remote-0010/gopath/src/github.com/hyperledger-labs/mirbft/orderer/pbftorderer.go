@@ -160,9 +160,59 @@ func (po *PbftOrderer) Start(wg *sync.WaitGroup) {
 	//		logger.Fatal().Msg("Peer is crashing")
 	//	}
 	//}()
-
+	// N:=0
+	// K:=0
+	// var ids []*bls.ID
+	// var msk []bls.SecretKey
+	// var secs [][]bls.SecretKey
+	// var mpk *bls.PublicKey
+	// var pubs [][]*bls.PublicKey
+	// init := true
 	for s, ok := <-po.segmentChan; ok; s, ok = <-po.segmentChan {
+		// if !init {
+		// 	init = true
+		// 	// Prepare for signature aggregation
+		// 	N = len(s.Leaders())
+		// 	K = int(N-(N-1)/3)
+		// 	logger.Debug().Int("n",N).Int("k",K).Msg("m and k is")
+		// 	// var mpk *bls.PublicKey;
+		// 	// ids = new([]*bls.ID);
+		// 	// ids := make([]*bls.ID ,N*10);
+		// 	// secs = make([][]bls.SecretKey, N);
+		// 	// pubs = make([][]*bls.PublicKey, N);
 
+		// 	// for i := 0; i < N*10; i++ {
+		// 	// 	ids[i] = new(bls.ID)
+		// 	// 	logger.Debug().Msg("Before IDSetInt")
+		// 	// 	ids[i].IDSetInt(i+1);
+		// 	// }
+
+		// 	msk = make([]bls.SecretKey, K);
+		// 	for i := 0; i < K; i++ {
+		// 		msk[i].SetByCSPRNG()
+		// 	}
+		
+		// 	// for i := 0; i < N; i++ {
+		// 	// 	secs[i] = make([]bls.SecretKey, 10);
+		// 	// 	for j := 0; j < 10; j++ {
+		// 	// 		secs[i][j].Set(msk, ids[i*10+j])
+		// 	// 		logger.Debug().Msgf("%v\n",secs[i][j].SerializeToHexStr())
+		// 	// 	}
+		// 	// }
+		// 	mpk = msk[0].GetPublicKey()
+		// 	logger.Debug().Msgf("%v\n",mpk.SerializeToHexStr())
+			
+		// 	// Get public key
+		// 	// for i := 0; i < N; i++ {
+		// 	// 	pubs[i] = make([]bls.PublicKey, 10);
+		// 	// 	for j := 0; j < 10; j++ {
+		// 	// 		secs[i][j].Set(msk, ids[i*10+j])
+		// 	// 		fmt.Printf("%v\n",secs[i][j].SerializeToHexStr())
+		// 	// 	}
+		// 	// }
+
+		// }
+		logger.Debug().Msgf("s.leaders() is %v", s.Leaders())
 		logger.Info().
 			Int("segId", s.SegID()).
 			Int32("length", s.Len()).
@@ -181,6 +231,9 @@ func (po *PbftOrderer) Start(wg *sync.WaitGroup) {
 // Runs the pbft ordering algorithm for a Segment.
 func (po *PbftOrderer) runSegment(seg manager.Segment) {
 	pi := &pbftInstance{}
+	// pi.secs = sec
+	// pi.ids = id
+	// pi.mpk = mpk
 	pi.init(seg, po)
 	for _, sn := range seg.SNs() {
 		po.dispatcher.store(sn, pi)
@@ -195,6 +248,7 @@ func (po *PbftOrderer) runSegment(seg manager.Segment) {
 
 	if isLeading(seg, membership.OwnID, pi.view) {
 		go pi.lead()
+		//go pi.lead(int32(pi.segment.SegID()))///1201
 	}
 	go pi.processSerializedMessages()
 

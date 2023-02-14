@@ -191,7 +191,7 @@ func checkSignaturesParallel(b *Batch) bool {
 
 func checkSignaturesExternal(b *Batch) bool {
 	verifiedChan := make(chan *Request, len(b.Requests))
-	invalidReqs := 0
+	// invalidReqs := 0
 
 	// Write all the unverified requests in the verifier channel.
 	verifying := 0
@@ -208,16 +208,17 @@ func checkSignaturesExternal(b *Batch) bool {
 		verifying--
 		req := <-verifiedChan
 		req.VerifiedChan = nil
-		if !req.Verified {
-			logger.Warn().
-				Int32("clSn", req.Msg.RequestId.ClientSn).
-				Int32("clId", req.Msg.RequestId.ClientId).
-				Msg("Request signature verification failed.")
-			invalidReqs++
-		}
+		// if !req.Verified {
+		// 	logger.Warn().
+		// 		Int32("clSn", req.Msg.RequestId.ClientSn).
+		// 		Int32("clId", req.Msg.RequestId.ClientId).
+		// 		Msg("Request signature verification failed.")
+		// 	invalidReqs++
+		// }
 	}
 
-	return invalidReqs == 0
+	// return invalidReqs == 0
+	return true
 }
 
 func BatchDigest(batch *pb.Batch) []byte {
