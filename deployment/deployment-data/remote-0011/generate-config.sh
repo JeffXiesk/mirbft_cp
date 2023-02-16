@@ -43,7 +43,7 @@ clients32=""    # deploys 32 client machine which run the specified number of cl
 systemSizes="16" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
-StragglerCnt=(0) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 
 reuseFaulty=true  # If true, both correct and faulty peers will have the same tag and will be launched together, with the same config file.
                   # The failure count is only expressed as a parameter in (every peer's) config file, and even the faulty peers will see
@@ -76,7 +76,7 @@ fixedEpochLength=false
 auths="true"
 bucketsPerLeader="16"
 minBuckets="16"
-minEpochLength="1024"       # [entries]
+minEpochLength="256"       # [entries]
 nodeConnections="1"
 minConnections="16"
 leaderPolicies="Simple"  # Possible values:
@@ -116,7 +116,7 @@ throughputsAuthPbft=$()
 # throughputsAuthPbft[4]="128 256 512 1024"
 throughputsAuthPbft[4]="1024 2048"
 throughputsAuthPbft[8]="256"
-throughputsAuthPbft[16]="1024 2048 4096 6144 8192 10240 12288 14336 16384"
+throughputsAuthPbft[16]="8192 10240 12288 14336 16384"
 throughputsAuthPbft[32]=""
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""

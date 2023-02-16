@@ -14,20 +14,20 @@ exec-start __all__ /dev/null mkdir -p experiment-output/0000/slave-__id__
 exec-wait __all__ 2000
 
 # Push config files.
-exec-start peers scp-output-0000-config.log stubborn-scp.sh 10 184.73.98.73:experiment-config/config-0000.yml config/config.yml
+exec-start peers scp-output-0000-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0000.yml config/config.yml
 exec-wait peers 60000 exec-start peers experiment-output/0000/slave-__id__/FAILED echo Could not fetch config; exec-wait peers 2000
-exec-start 1client scp-output-0000-config.log stubborn-scp.sh 10 184.73.98.73:experiment-config/config-0000.yml config/config.yml
+exec-start 1client scp-output-0000-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0000.yml config/config.yml
 exec-wait 1client 60000 exec-start 1client experiment-output/0000/slave-__id__/FAILED echo Could not fetch config; exec-wait 1client 2000
 sync peers
 sync 1client
 
 # Start peers.
 discover-reset 16
-exec-start peers experiment-output/0000/slave-__id__/peer.log orderingpeer config/config.yml 184.73.98.73:9999 __public_ip__ __private_ip__ experiment-output/0000/slave-__id__/peer.trc experiment-output/0000/slave-__id__/prof
+exec-start peers experiment-output/0000/slave-__id__/peer.log orderingpeer config/config.yml 44.204.117.232:9999 __public_ip__ __private_ip__ experiment-output/0000/slave-__id__/peer.trc experiment-output/0000/slave-__id__/prof
 discover-wait
 
 # Run clients and wait for them to stop.
-exec-start 1client experiment-output/0000/slave-__id__/clients.log orderingclient config/config.yml 184.73.98.73:9999 experiment-output/0000/slave-__id__/client experiment-output/0000/slave-__id__/prof-client
+exec-start 1client experiment-output/0000/slave-__id__/clients.log orderingclient config/config.yml 44.204.117.232:9999 experiment-output/0000/slave-__id__/client experiment-output/0000/slave-__id__/prof-client
 exec-wait 1client 480000 exec-start 1client experiment-output/0000/slave-__id__/FAILED echo Client failed or timed out; exec-wait 1client 2000
 sync 1client
 
@@ -46,9 +46,9 @@ exec-start peers /dev/null tar czf experiment-output-0000-slave-__id__.tar.gz ex
 exec-wait peers 30000 exec-start peers experiment-output/0000/slave-__id__/FAILED echo Could not compress logs; exec-wait peers 2000
 exec-start 1client /dev/null tar czf experiment-output-0000-slave-__id__.tar.gz experiment-output/0000/slave-__id__
 exec-wait 1client 30000 exec-start 1client experiment-output/0000/slave-__id__/FAILED echo Could not compress logs; exec-wait 1client 2000
-exec-start peers scp-output-0000-logs.log stubborn-scp.sh 10 experiment-output-0000-slave-__id__.tar.gz 184.73.98.73:current-deployment-data/raw-results/
+exec-start peers scp-output-0000-logs.log stubborn-scp.sh 10 experiment-output-0000-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
 exec-wait peers 60000 exec-start peers experiment-output/0000/slave-__id__/FAILED echo Could not submit logs; exec-wait peers 2000
-exec-start 1client scp-output-0000-logs.log stubborn-scp.sh 10 experiment-output-0000-slave-__id__.tar.gz 184.73.98.73:current-deployment-data/raw-results/
+exec-start 1client scp-output-0000-logs.log stubborn-scp.sh 10 experiment-output-0000-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
 exec-wait 1client 60000 exec-start 1client experiment-output/0000/slave-__id__/FAILED echo Could not submit logs; exec-wait 1client 2000
 sync peers
 sync 1client
@@ -71,20 +71,20 @@ exec-start __all__ /dev/null mkdir -p experiment-output/0001/slave-__id__
 exec-wait __all__ 2000
 
 # Push config files.
-exec-start peers scp-output-0001-config.log stubborn-scp.sh 10 184.73.98.73:experiment-config/config-0001.yml config/config.yml
+exec-start peers scp-output-0001-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0001.yml config/config.yml
 exec-wait peers 60000 exec-start peers experiment-output/0001/slave-__id__/FAILED echo Could not fetch config; exec-wait peers 2000
-exec-start 1client scp-output-0001-config.log stubborn-scp.sh 10 184.73.98.73:experiment-config/config-0001.yml config/config.yml
+exec-start 1client scp-output-0001-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0001.yml config/config.yml
 exec-wait 1client 60000 exec-start 1client experiment-output/0001/slave-__id__/FAILED echo Could not fetch config; exec-wait 1client 2000
 sync peers
 sync 1client
 
 # Start peers.
 discover-reset 16
-exec-start peers experiment-output/0001/slave-__id__/peer.log orderingpeer config/config.yml 184.73.98.73:9999 __public_ip__ __private_ip__ experiment-output/0001/slave-__id__/peer.trc experiment-output/0001/slave-__id__/prof
+exec-start peers experiment-output/0001/slave-__id__/peer.log orderingpeer config/config.yml 44.204.117.232:9999 __public_ip__ __private_ip__ experiment-output/0001/slave-__id__/peer.trc experiment-output/0001/slave-__id__/prof
 discover-wait
 
 # Run clients and wait for them to stop.
-exec-start 1client experiment-output/0001/slave-__id__/clients.log orderingclient config/config.yml 184.73.98.73:9999 experiment-output/0001/slave-__id__/client experiment-output/0001/slave-__id__/prof-client
+exec-start 1client experiment-output/0001/slave-__id__/clients.log orderingclient config/config.yml 44.204.117.232:9999 experiment-output/0001/slave-__id__/client experiment-output/0001/slave-__id__/prof-client
 exec-wait 1client 480000 exec-start 1client experiment-output/0001/slave-__id__/FAILED echo Client failed or timed out; exec-wait 1client 2000
 sync 1client
 
@@ -103,9 +103,9 @@ exec-start peers /dev/null tar czf experiment-output-0001-slave-__id__.tar.gz ex
 exec-wait peers 30000 exec-start peers experiment-output/0001/slave-__id__/FAILED echo Could not compress logs; exec-wait peers 2000
 exec-start 1client /dev/null tar czf experiment-output-0001-slave-__id__.tar.gz experiment-output/0001/slave-__id__
 exec-wait 1client 30000 exec-start 1client experiment-output/0001/slave-__id__/FAILED echo Could not compress logs; exec-wait 1client 2000
-exec-start peers scp-output-0001-logs.log stubborn-scp.sh 10 experiment-output-0001-slave-__id__.tar.gz 184.73.98.73:current-deployment-data/raw-results/
+exec-start peers scp-output-0001-logs.log stubborn-scp.sh 10 experiment-output-0001-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
 exec-wait peers 60000 exec-start peers experiment-output/0001/slave-__id__/FAILED echo Could not submit logs; exec-wait peers 2000
-exec-start 1client scp-output-0001-logs.log stubborn-scp.sh 10 experiment-output-0001-slave-__id__.tar.gz 184.73.98.73:current-deployment-data/raw-results/
+exec-start 1client scp-output-0001-logs.log stubborn-scp.sh 10 experiment-output-0001-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
 exec-wait 1client 60000 exec-start 1client experiment-output/0001/slave-__id__/FAILED echo Could not submit logs; exec-wait 1client 2000
 sync peers
 sync 1client
@@ -128,20 +128,20 @@ exec-start __all__ /dev/null mkdir -p experiment-output/0002/slave-__id__
 exec-wait __all__ 2000
 
 # Push config files.
-exec-start peers scp-output-0002-config.log stubborn-scp.sh 10 184.73.98.73:experiment-config/config-0002.yml config/config.yml
+exec-start peers scp-output-0002-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0002.yml config/config.yml
 exec-wait peers 60000 exec-start peers experiment-output/0002/slave-__id__/FAILED echo Could not fetch config; exec-wait peers 2000
-exec-start 1client scp-output-0002-config.log stubborn-scp.sh 10 184.73.98.73:experiment-config/config-0002.yml config/config.yml
+exec-start 1client scp-output-0002-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0002.yml config/config.yml
 exec-wait 1client 60000 exec-start 1client experiment-output/0002/slave-__id__/FAILED echo Could not fetch config; exec-wait 1client 2000
 sync peers
 sync 1client
 
 # Start peers.
 discover-reset 16
-exec-start peers experiment-output/0002/slave-__id__/peer.log orderingpeer config/config.yml 184.73.98.73:9999 __public_ip__ __private_ip__ experiment-output/0002/slave-__id__/peer.trc experiment-output/0002/slave-__id__/prof
+exec-start peers experiment-output/0002/slave-__id__/peer.log orderingpeer config/config.yml 44.204.117.232:9999 __public_ip__ __private_ip__ experiment-output/0002/slave-__id__/peer.trc experiment-output/0002/slave-__id__/prof
 discover-wait
 
 # Run clients and wait for them to stop.
-exec-start 1client experiment-output/0002/slave-__id__/clients.log orderingclient config/config.yml 184.73.98.73:9999 experiment-output/0002/slave-__id__/client experiment-output/0002/slave-__id__/prof-client
+exec-start 1client experiment-output/0002/slave-__id__/clients.log orderingclient config/config.yml 44.204.117.232:9999 experiment-output/0002/slave-__id__/client experiment-output/0002/slave-__id__/prof-client
 exec-wait 1client 480000 exec-start 1client experiment-output/0002/slave-__id__/FAILED echo Client failed or timed out; exec-wait 1client 2000
 sync 1client
 
@@ -160,15 +160,129 @@ exec-start peers /dev/null tar czf experiment-output-0002-slave-__id__.tar.gz ex
 exec-wait peers 30000 exec-start peers experiment-output/0002/slave-__id__/FAILED echo Could not compress logs; exec-wait peers 2000
 exec-start 1client /dev/null tar czf experiment-output-0002-slave-__id__.tar.gz experiment-output/0002/slave-__id__
 exec-wait 1client 30000 exec-start 1client experiment-output/0002/slave-__id__/FAILED echo Could not compress logs; exec-wait 1client 2000
-exec-start peers scp-output-0002-logs.log stubborn-scp.sh 10 experiment-output-0002-slave-__id__.tar.gz 184.73.98.73:current-deployment-data/raw-results/
+exec-start peers scp-output-0002-logs.log stubborn-scp.sh 10 experiment-output-0002-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
 exec-wait peers 60000 exec-start peers experiment-output/0002/slave-__id__/FAILED echo Could not submit logs; exec-wait peers 2000
-exec-start 1client scp-output-0002-logs.log stubborn-scp.sh 10 experiment-output-0002-slave-__id__.tar.gz 184.73.98.73:current-deployment-data/raw-results/
+exec-start 1client scp-output-0002-logs.log stubborn-scp.sh 10 experiment-output-0002-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
 exec-wait 1client 60000 exec-start 1client experiment-output/0002/slave-__id__/FAILED echo Could not submit logs; exec-wait 1client 2000
 sync peers
 sync 1client
 
 # Update master status.
 write-file /root/status 0002
+
+
+#========================================
+# 0003
+#========================================
+
+
+# Wait for slaves.
+wait for slaves peers 16
+wait for slaves 1client 1
+
+# Create log directory.
+exec-start __all__ /dev/null mkdir -p experiment-output/0003/slave-__id__
+exec-wait __all__ 2000
+
+# Push config files.
+exec-start peers scp-output-0003-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0003.yml config/config.yml
+exec-wait peers 60000 exec-start peers experiment-output/0003/slave-__id__/FAILED echo Could not fetch config; exec-wait peers 2000
+exec-start 1client scp-output-0003-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0003.yml config/config.yml
+exec-wait 1client 60000 exec-start 1client experiment-output/0003/slave-__id__/FAILED echo Could not fetch config; exec-wait 1client 2000
+sync peers
+sync 1client
+
+# Start peers.
+discover-reset 16
+exec-start peers experiment-output/0003/slave-__id__/peer.log orderingpeer config/config.yml 44.204.117.232:9999 __public_ip__ __private_ip__ experiment-output/0003/slave-__id__/peer.trc experiment-output/0003/slave-__id__/prof
+discover-wait
+
+# Run clients and wait for them to stop.
+exec-start 1client experiment-output/0003/slave-__id__/clients.log orderingclient config/config.yml 44.204.117.232:9999 experiment-output/0003/slave-__id__/client experiment-output/0003/slave-__id__/prof-client
+exec-wait 1client 480000 exec-start 1client experiment-output/0003/slave-__id__/FAILED echo Client failed or timed out; exec-wait 1client 2000
+sync 1client
+
+# Stop peers.
+exec-signal peers SIGINT
+wait for 5s
+
+# Save config file.
+exec-start peers /dev/null cp config/config.yml experiment-output/0003/slave-__id__
+exec-wait peers 2000 exec-start peers experiment-output/0003/slave-__id__/FAILED echo Could not log config file; exec-wait peers 2000
+exec-start 1client /dev/null cp config/config.yml experiment-output/0003/slave-__id__
+exec-wait 1client 2000 exec-start 1client experiment-output/0003/slave-__id__/FAILED echo Could not log config file; exec-wait 1client 2000
+
+# Submit logs to master node
+exec-start peers /dev/null tar czf experiment-output-0003-slave-__id__.tar.gz experiment-output/0003/slave-__id__
+exec-wait peers 30000 exec-start peers experiment-output/0003/slave-__id__/FAILED echo Could not compress logs; exec-wait peers 2000
+exec-start 1client /dev/null tar czf experiment-output-0003-slave-__id__.tar.gz experiment-output/0003/slave-__id__
+exec-wait 1client 30000 exec-start 1client experiment-output/0003/slave-__id__/FAILED echo Could not compress logs; exec-wait 1client 2000
+exec-start peers scp-output-0003-logs.log stubborn-scp.sh 10 experiment-output-0003-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
+exec-wait peers 60000 exec-start peers experiment-output/0003/slave-__id__/FAILED echo Could not submit logs; exec-wait peers 2000
+exec-start 1client scp-output-0003-logs.log stubborn-scp.sh 10 experiment-output-0003-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
+exec-wait 1client 60000 exec-start 1client experiment-output/0003/slave-__id__/FAILED echo Could not submit logs; exec-wait 1client 2000
+sync peers
+sync 1client
+
+# Update master status.
+write-file /root/status 0003
+
+
+#========================================
+# 0004
+#========================================
+
+
+# Wait for slaves.
+wait for slaves peers 16
+wait for slaves 1client 1
+
+# Create log directory.
+exec-start __all__ /dev/null mkdir -p experiment-output/0004/slave-__id__
+exec-wait __all__ 2000
+
+# Push config files.
+exec-start peers scp-output-0004-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0004.yml config/config.yml
+exec-wait peers 60000 exec-start peers experiment-output/0004/slave-__id__/FAILED echo Could not fetch config; exec-wait peers 2000
+exec-start 1client scp-output-0004-config.log stubborn-scp.sh 10 44.204.117.232:experiment-config/config-0004.yml config/config.yml
+exec-wait 1client 60000 exec-start 1client experiment-output/0004/slave-__id__/FAILED echo Could not fetch config; exec-wait 1client 2000
+sync peers
+sync 1client
+
+# Start peers.
+discover-reset 16
+exec-start peers experiment-output/0004/slave-__id__/peer.log orderingpeer config/config.yml 44.204.117.232:9999 __public_ip__ __private_ip__ experiment-output/0004/slave-__id__/peer.trc experiment-output/0004/slave-__id__/prof
+discover-wait
+
+# Run clients and wait for them to stop.
+exec-start 1client experiment-output/0004/slave-__id__/clients.log orderingclient config/config.yml 44.204.117.232:9999 experiment-output/0004/slave-__id__/client experiment-output/0004/slave-__id__/prof-client
+exec-wait 1client 480000 exec-start 1client experiment-output/0004/slave-__id__/FAILED echo Client failed or timed out; exec-wait 1client 2000
+sync 1client
+
+# Stop peers.
+exec-signal peers SIGINT
+wait for 5s
+
+# Save config file.
+exec-start peers /dev/null cp config/config.yml experiment-output/0004/slave-__id__
+exec-wait peers 2000 exec-start peers experiment-output/0004/slave-__id__/FAILED echo Could not log config file; exec-wait peers 2000
+exec-start 1client /dev/null cp config/config.yml experiment-output/0004/slave-__id__
+exec-wait 1client 2000 exec-start 1client experiment-output/0004/slave-__id__/FAILED echo Could not log config file; exec-wait 1client 2000
+
+# Submit logs to master node
+exec-start peers /dev/null tar czf experiment-output-0004-slave-__id__.tar.gz experiment-output/0004/slave-__id__
+exec-wait peers 30000 exec-start peers experiment-output/0004/slave-__id__/FAILED echo Could not compress logs; exec-wait peers 2000
+exec-start 1client /dev/null tar czf experiment-output-0004-slave-__id__.tar.gz experiment-output/0004/slave-__id__
+exec-wait 1client 30000 exec-start 1client experiment-output/0004/slave-__id__/FAILED echo Could not compress logs; exec-wait 1client 2000
+exec-start peers scp-output-0004-logs.log stubborn-scp.sh 10 experiment-output-0004-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
+exec-wait peers 60000 exec-start peers experiment-output/0004/slave-__id__/FAILED echo Could not submit logs; exec-wait peers 2000
+exec-start 1client scp-output-0004-logs.log stubborn-scp.sh 10 experiment-output-0004-slave-__id__.tar.gz 44.204.117.232:current-deployment-data/raw-results/
+exec-wait 1client 60000 exec-start 1client experiment-output/0004/slave-__id__/FAILED echo Could not submit logs; exec-wait 1client 2000
+sync peers
+sync 1client
+
+# Update master status.
+write-file /root/status 0004
 
 
 #========================================

@@ -41,19 +41,19 @@ Manager: "Mir"      # Manager type. One of {Dummy, Mir}
 Checkpointer: Signing # Checkpointer type. One of {Simple, Signing}
 Failures: 0
 Faulty: false
-StragglerCnt: 0
+StragglerCnt: 1
 CrashTiming: Straggler # EpochStart EpochEnd
                          # For peers that are supposed to simulate a crash, CrashTiming decides whether the crash
                          # happens at the start or at the end of the first epoch.
 
 # Dummy Manager Configuration
-CheckpointInterval:  1024  # The checkpointing protocol is triggered each checkpointInterval of contiguously committed sequence numbers.
-WatermarkWindowSize: 1024  # The number of "in-flight" sequence numbers.
+CheckpointInterval:  256  # The checkpointing protocol is triggered each checkpointInterval of contiguously committed sequence numbers.
+WatermarkWindowSize: 256  # The number of "in-flight" sequence numbers.
                             # I.e., the maximum difference between the first uncommitted sequence number and the last sequence number for which a value can be proposed, plus 1.
 
 # Mir Manager Configuration
-EpochLength: 1024 # Determines the length of the epoch, if SegmentLength is not specified. Ignored otherwise.
-SegmentLength: 64 # Number of sequence numbers in a segment.
+EpochLength: 256 # Determines the length of the epoch, if SegmentLength is not specified. Ignored otherwise.
+SegmentLength: 16 # Number of sequence numbers in a segment.
                              # Overrides EpochLength, which may vary depending on the number of leaders.
                              # If set to 0, epoch length remains constant (EpochLength).
 WaitForCheckpoints: true  # Wait for a stable checkpoint of an epoch before starting a new epoch.
@@ -64,7 +64,7 @@ ClientWatermarkWindowSize: 4194304
 ClientRequestBacklogSize: 4194304 # The number of requests beyond client's current window that are backlogged.
 
 # Leader and failure handling
-RandomSeed: 17635     # Should be set to a random integer.
+RandomSeed: 17579     # Should be set to a random integer.
 LeaderPolicy: Simple # Leader selection policy. One of {Simple, Single, Backoff, Blacklist, Combined}
 NodeToLeaderRatio: 1        # Total number of nodes devided by this number gives number of leaders
 DefaultLeaderBan: 2        # The default number of epochs a node is excluded from the leaderset once suspected.
@@ -86,9 +86,9 @@ ClientTraceSampling: 10 # Only trace one out of ClientTraceSampling events at th
 
 # Client configuration
 ClientsPerProcess:    1       # Number of concurrent clients on each client machine (running as threads in a single process).
-RequestsPerClient:    122880      # Number of requests each client submits.
+RequestsPerClient:    368640      # Number of requests each client submits.
 ClientRunTime:        15000      # Timeout for client to submit all its requests, in milliseconds. Set to 0 for no timeout.
-RequestRate:          4096   # Max request rate per client, in requests per second. Set to -1 for no limit.
+RequestRate:          12288   # Max request rate per client, in requests per second. Set to -1 for no limit.
 HardRequestRateLimit: false # If true, the client always waits for at least 1/RequestRateLimit between any two requests.
                                     # If false, the client treats RequestRateLimit as a limit on the average request rate,
                                     # and might temporarily increase the rate to catch up with the prescribed average rate.

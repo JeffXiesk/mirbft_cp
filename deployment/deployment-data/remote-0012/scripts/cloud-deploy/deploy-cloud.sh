@@ -104,15 +104,15 @@ echo 'setting bandwidth'
 echo $public_ip_arr
 for ((c=0;c<$peer_num;c++))
 do
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev eth0 root'
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc add dev eth0 root tbf rate 1000mbit burst 320kbit latency 100ms'
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev ens5 root'
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc add dev ens5 root tbf rate 1000mbit burst 320kbit latency 100ms'
     echo ${public_ip_arr[c]} '1000mbit'
 done
 
 for ((c=1+$client_num;c<1+$client_num+$bandwidth_cnt;c++))    
 do
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev eth0 root'
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} "tc qdisc add dev eth0 root tbf rate $bandwidth burst 320kbit latency 100ms"
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev ens5 root'
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} "tc qdisc add dev ens5 root tbf rate $bandwidth burst 320kbit latency 100ms"
     echo ${public_ip_arr[c]} $bandwidth 
     # Limiting the Egress Traffic
 done
@@ -125,7 +125,7 @@ echo "End deployment..."
 
 
 for ((c=0;c<$peer_num;c++)) do
-    ssh $ssh_options_cloud root@${public_ip_arr[c+bandwidth_cnt]} 'tc qdisc del dev eth0 root'
+    ssh $ssh_options_cloud root@${public_ip_arr[c+bandwidth_cnt]} 'tc qdisc del dev ens5 root'
 done
 echo 'unsetting bandwidth'
 
@@ -136,12 +136,20 @@ rm -rf scripts/cloud-deploy/experiment-output
 mkdir -p scripts/cloud-deploy/experiment-output
 
 echo "fetch result from client and peer"
-
 for i in "${public_ip_arr[@]:1:totalnum}"
 do
     scp $ssh_options_cloud root@$i:/root/experiment-output-* scripts/cloud-deploy/experiment-output
     echo "$i fetch experiment done..."
 done
+
+
+
+# for each_region in ${AWS_REGIONS} ; do 
+#     aws ec2 import-key-pair \
+#     --key-name MyKeyPair \
+#     --public-key-material fileb://$HOME/.ssh/id_rsa_MyKeyPair.pub \
+#     --region $each_region ; 
+# done
 
 
 for tar in scripts/cloud-deploy/experiment-output/*.tar.gz;  do 
