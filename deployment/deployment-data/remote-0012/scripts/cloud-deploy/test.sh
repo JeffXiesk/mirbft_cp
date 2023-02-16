@@ -107,12 +107,15 @@ ssh_options_cloud='-i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no
 # # echo "$public_ip_arr"
 # # echo "${public_ip_arr[@]:1:4}"
 
-for i in "${public_ip_arr[@]:0:totalnum}"
-do
-    scp $ssh_options_cloud root@$i:/root/experiment-output-* scripts/cloud-deploy/experiment-output
-    echo "$i fetch experiment done..."
-done
+# for i in "${public_ip_arr[@]:0:totalnum}"
+# do
+#     scp $ssh_options_cloud root@$i:/root/experiment-output-* scripts/cloud-deploy/experiment-output
+#     echo "$i fetch experiment done..."
+# done
 
+
+scp $ssh_options_cloud root@100.25.211.118:/root/experiment-output-* scripts/cloud-deploy/experiment-output
+echo "$i fetch experiment done..."
 
 # for each_region in ${AWS_REGIONS} ; do 
 #     aws ec2 import-key-pair \

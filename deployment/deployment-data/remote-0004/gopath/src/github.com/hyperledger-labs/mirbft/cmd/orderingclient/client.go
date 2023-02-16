@@ -441,7 +441,7 @@ func (c *client) submitRequest(seqNr int32) {
 		}
 	}
 
-	c.log.Debug().Int32("clSeqNr", req.RequestId.ClientSn).Msg("Submitted request.")
+	c.log.Info().Int32("clSeqNr", req.RequestId.ClientSn).Msg("Submitted request.")
 }
 
 // Starts response handler threads, one per orderer.

@@ -23,12 +23,27 @@ deploy 1 1client
 # ========================================
 #  Peers: 16
 # Faulty: 0
-# Straggler: 0
+# Straggler: 1
 #  Reuse: true
 # ========================================
 machine: cloud-machine-templates/small-machine-fra05.cmt
 deploy 16 peers
 
 bandwidth: 1gbit
+# 0000,16,0,1,60000,1,1gbit,1,Pbft,Signing,1,1,1,16,Simple,256,2048,1000,32,4,256,16,true,false,131072000,8192,8192,false,245760,4194304,external,32,8192
+run 0000 config: config-0000.yml   peers: peers   clients: 1client
+
+# 0001,16,0,1,60000,1,1gbit,1,Pbft,Signing,1,1,1,16,Simple,256,2048,1000,32,4,256,16,true,false,131072000,10240,10240,false,307200,4194304,external,32,8192
+run 0001 config: config-0001.yml   peers: peers   clients: 1client
+
+# 0002,16,0,1,60000,1,1gbit,1,Pbft,Signing,1,1,1,16,Simple,256,2048,1000,32,4,256,16,true,false,131072000,12288,12288,false,368640,4194304,external,32,8192
+run 0002 config: config-0002.yml   peers: peers   clients: 1client
+
+# 0003,16,0,1,60000,1,1gbit,1,Pbft,Signing,1,1,1,16,Simple,256,2048,1000,32,4,256,16,true,false,131072000,14336,14336,false,430080,4194304,external,32,8192
+run 0003 config: config-0003.yml   peers: peers   clients: 1client
+
+# 0004,16,0,1,60000,1,1gbit,1,Pbft,Signing,1,1,1,16,Simple,256,2048,1000,32,4,256,16,true,false,131072000,16384,16384,false,491520,4194304,external,32,8192
+run 0004 config: config-0004.yml   peers: peers   clients: 1client
+
 bandwidth: 1gbit
 bandwidth: 1gbit
