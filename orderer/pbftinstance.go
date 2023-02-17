@@ -76,6 +76,8 @@ type pbftInstance struct {
 	hnsn   map[int32]int32
 	htnssn map[int32][]*pb.HtnMessage ///1116 more than 2f hns for a sn
 	vhtnsn map[int32]bool
+	mutex *sync.RWMutex
+
 	//tnmsgsn map[int32][]*pb.HtnMessage///*pb.PbftCommit///1116 to be revised, more than 2f hn messages for a sn &pb.HtnMessage
 	// signature
 	/* ids []*bls.ID
@@ -182,6 +184,7 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	pi.hnsn = make(map[int32]int32)
 	pi.htnssn = make(map[int32][]*pb.HtnMessage)
 	pi.vhtnsn = make(map[int32]bool)
+	pi.mutex = &sync.RWMutex{}
 	// Initialise protocol state
 	pi.batches = make(map[int32]map[int32]*pbftBatch)
 	pi.checkpointMsgs = make(map[int32]*pb.PbftCheckpoint)
@@ -253,7 +256,7 @@ func (pi *pbftInstance) lead() {
 	// Send a proposal for each sequence number in the Segment.
 	// for _, sn := range pi.segment.SNs() {
 	for i := 0; i < len(pi.segment.SNs()); i++ { ///2023待修改。需要在epoch结束的时候停止propose
-		sn := pi.segment.SNs()[i]
+		cursn := pi.segment.SNs()[i]
 		//pi.sendproposal(sn, batchSize)
 
 		// Wait for a batch to be ready.
@@ -266,35 +269,41 @@ func (pi *pbftInstance) lead() {
 		logger.Debug().Int("batchSize", pi.segment.BatchSize()).Msg("Waiting for batch.")
 		pi.segment.Buckets().WaitForRequests(batchSize, config.Config.BatchTimeout)
 		logger.Debug().Int("batchSize", pi.segment.BatchSize()).Msg("Batch ready.")
-		lock.Lock()
+		logger.Debug().Int32("sn",cursn).Msg("In lead() loop")
+
 		// Create message to serve as a placeholder for proposing a batch.
-		msg := &pb.ProtocolMessage{
-			SenderId: membership.OwnID,
-			Sn:       sn,
-			Msg: &pb.ProtocolMessage_Newseqno{
-				Newseqno: &pb.PbftPreprepare{
-					Sn: sn,
-					// In general, the view must be set by the serial processing thread.
-					// Setting it here results in a race condition and maybe even incorrect in a corner case.
-					// Currently, however, batches are only proposed for view 0.
-					View:   0,
-					Leader: membership.OwnID,
-					Batch:  nil,                            // This will be filled in by the PBFT instance when this message is serialized.
-					Tn:     htnlog[pi.segment.SegID()] + 1, //1024092
-					//Tn: GetMaxHtn(pi.htnssn[sn])+1,///12012
-					Hset: pi.htnssn[sn],
-				},
-			},
-		}
+		lock.Lock()
+		htntopropose := htnlog[pi.segment.SegID()] + 1
 		lock.Unlock()
-		///2023epoch结束的时候不再propose,并且补齐剩余的sn，但这个sn不应该马上补齐，对一个instance来说必须按顺序Announce
-		if htnlog[pi.segment.SegID()]+1 > (pi.segment.LastSN()-int32(pi.segment.SegID()%membership.NumNodes()))/int32(membership.NumNodes()) {
-			hn := (sn-int32(pi.segment.SegID()%membership.NumNodes()))/int32(membership.NumNodes()) + 1 ///1103
-			for i := pi.hnsn[hn-1] + int32(membership.NumNodes()); i <= pi.segment.LastSN(); i = i + int32(membership.NumNodes()) {
-				if log.GetEntry(pi.hnsn[hn-1]) != nil { //前一个sn已经Announce了
-					//if	!pi.batches[pi.view][pi.hnsn[hn-1]].committed {
+		snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())
+		pi.mutex.RLock()
+		if pi.vhtnsn[cursn] == true {///收集了足够的tn才能propose
+			pi.mutex.RUnlock()
+			if cursn==snfromhtntopropose {
+				logger.Info().
+					Int32("cursn", cursn).
+					Int("SegID", pi.segment.SegID()).
+					Msg("cursn==snfromhtntopropose")
+				msg := &pb.ProtocolMessage{
+					SenderId: membership.OwnID,
+					Sn:       cursn,
+					Msg: &pb.ProtocolMessage_Newseqno{
+						Newseqno: &pb.PbftPreprepare{
+							Sn: cursn,
+							Leader: membership.OwnID,
+							Batch:  nil,                    // This will be filled in by the PBFT instance when this message is serialized.
+							Tn:     htntopropose, 
+							Hset: pi.htnssn[cursn],
+						},
+					},
+				}
+				pi.serializer.serialize(msg)
+				<-pi.cutBatch
+			}
+			if cursn<snfromhtntopropose&&snfromhtntopropose<=pi.segment.LastSN() {
+				for j := cursn; j < snfromhtntopropose; j = j + int32(membership.NumNodes()) {
 					logEntry1 := &log.Entry{
-						Sn:        i,   ///1103
+						Sn:        j,   ///1103
 						Batch:     nil, ///1205
 						ProposeTs: 0,
 						CommitTs:  0,
@@ -304,23 +313,31 @@ func (pi *pbftInstance) lead() {
 					logger.Info().
 						Int32("logEntry.Sn", logEntry1.Sn).
 						Int("SegID", pi.segment.SegID()).
-						Msg("Get logEntry.Sn from tn. Nil Blocks. END Blocks")
+						Msg("Get logEntry.Sn from tn. Nil Blocks.")
 					announcer.Announce(logEntry1)
 					pi.batches[pi.view][logEntry1.Sn].committed = true
-					
-					// Create message
+					batch := pi.batches[pi.view][logEntry1.Sn]
+					if batch.viewChangeTimer != nil {
+						notFired := batch.viewChangeTimer.Stop()
+						if !notFired {
+							// This is harmelss, since the timeout, even though generated, will be ignored.
+							logger.Warn().Int32("sn", logEntry1.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
+						}
+					}
+
+					// Q: 为什么要用endblock
 					endblock := &pb.EndBlock{
-						Sn: i,
+						Sn: j,
 					}
 					msg := &pb.ProtocolMessage{
 						SenderId: membership.OwnID,
-						Sn:       i,
+						Sn:       j,
 						Msg: &pb.ProtocolMessage_EndBlock{
 							EndBlock: endblock,
 						},
 					}
 					logger.Debug().Int32("sn", msg.Sn).
-						Msg("func EndBlock")
+						Msg("func NilBlock")
 
 					// Enqueue the message for all other nodes
 					for _, nodeID := range pi.segment.Followers() {
@@ -333,7 +350,7 @@ func (pi *pbftInstance) lead() {
 					// for the fist uncommitted sequence number in the segment
 					finished := true // Will be set to false if any SN is still uncommitted
 					for _, sn := range pi.segment.SNs() {
-						if pi.batches[pi.view][sn].batch != nil && !pi.batches[pi.view][sn].committed {
+						if !pi.batches[pi.view][sn].committed {
 							pi.setViewChangeTimer(sn, 0)
 							finished = false
 							break
@@ -352,24 +369,108 @@ func (pi *pbftInstance) lead() {
 							pi.setCheckpointTimer()
 						}
 					}
-				} else {
-					i = i - int32(membership.NumNodes())
+					i++
 				}
+				msg := &pb.ProtocolMessage{
+					SenderId: membership.OwnID,
+					Sn:       snfromhtntopropose,
+					Msg: &pb.ProtocolMessage_Newseqno{
+						Newseqno: &pb.PbftPreprepare{
+							Sn: snfromhtntopropose,
+							Leader: membership.OwnID,
+							Batch:  nil,                    // This will be filled in by the PBFT instance when this message is serialized.
+							Tn:     htntopropose, 
+							Hset: pi.htnssn[snfromhtntopropose],
+						},
+					},
+				}
+				pi.serializer.serialize(msg)
+				<-pi.cutBatch
+			}		
+			
+			///2023epoch结束的时候不再propose,并且补齐剩余的sn，但这个sn不应该马上补齐，对一个instance来说必须按顺序Announce
+			if snfromhtntopropose > pi.segment.LastSN() {
+				for j := cursn; j <= pi.segment.LastSN(); j = j + int32(membership.NumNodes()) {
+					logEntry1 := &log.Entry{
+						Sn:        j,   ///1103
+						Batch:     nil, ///1205
+						ProposeTs: 0,
+						CommitTs:  0,
+						Aborted:   false,
+						//Digest:    batch.digest,
+					}
+					logger.Info().
+						Int32("logEntry.Sn", logEntry1.Sn).
+						Int("SegID", pi.segment.SegID()).
+						Msg("Get logEntry.Sn from tn. Nil Blocks. END Blocks")
+					announcer.Announce(logEntry1)
+					pi.batches[pi.view][logEntry1.Sn].committed = true
+					batch := pi.batches[pi.view][logEntry1.Sn]
+					if batch.viewChangeTimer != nil {
+						notFired := batch.viewChangeTimer.Stop()
+						if !notFired {
+							// This is harmelss, since the timeout, even though generated, will be ignored.
+							logger.Warn().Int32("sn", logEntry1.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
+						}
+					}
+					// Create message
+					endblock := &pb.EndBlock{
+						Sn: j,
+					}
+					msg := &pb.ProtocolMessage{
+						SenderId: membership.OwnID,
+						Sn:       j,
+						Msg: &pb.ProtocolMessage_EndBlock{
+							EndBlock: endblock,
+						},
+					}
+					logger.Debug().Int32("sn", msg.Sn).
+						Msg("func EndBlock")
 
+					// Enqueue the message for all other nodes
+					for _, nodeID := range pi.segment.Followers() {
+						if nodeID == membership.OwnID {
+							continue
+						}
+						messenger.EnqueueMsg(msg, nodeID)
+					}
+					// Start new view change timeout
+					// for the fist uncommitted sequence number in the segment
+					finished := true // Will be set to false if any SN is still uncommitted
+					for _, sn := range pi.segment.SNs() {
+						if !pi.batches[pi.view][sn].committed {
+							pi.setViewChangeTimer(sn, 0)
+							finished = false
+							break
+						}
+					}
+
+					// Submit own checkpoint message if all entries of the segment just have been committed.
+					if finished {
+
+						pi.sendCheckpoint()
+
+						// If no segment checkpoint exists yet, start a timer for a view change if the checkpoint is not created soon.
+						// This is required to help other peers that might be stuck in a future view. The high-level checkpoints are
+						// not sufficient for this, as multiple segments might be blocking each other.
+						if pi.finalDigests == nil {
+							pi.setCheckpointTimer()
+						}
+					}
+				}
+				break
 			}
-			break
-		}
-		///1116收集了足够的tn才能propose
-		if pi.vhtnsn[sn] == true {
-			pi.serializer.serialize(msg)
 		} else {
+			pi.mutex.RUnlock()
 			i--
 		}
+
+
 		//pi.serializer.serialize(msg)
 
 		// Wait until the batch is actually cut. Otherwise this goroutine would just loop quickly through
 		// all sequence numbers as soon as there is more than BatchSize requests in the buckets.
-		<-pi.cutBatch
+		//<-pi.cutBatch
 	}
 }
 
@@ -474,7 +575,7 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 		Msg("Handling PREPREPARE.")
 	///1201
 	for i, j := range preprepare.Hset {
-		logger.Debug().Int32("sn", sn).
+		logger.Info().Int32("sn", sn).
 			Int32("tn", j.Htn).
 			Int("i", i).
 			Msg("Hset.")
@@ -721,9 +822,11 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 	//	htnlog[pi.segment.SegID()] = commit.Tn
 	//}
 	///1201///////1212121212
+	lock.Lock()
 	if commit.Tn > htnlog[int(membership.OwnID)] {
-		lock.Lock()
 		htnlog[int(membership.OwnID)] = commit.Tn
+		lock.Unlock()
+	} else {
 		lock.Unlock()
 	}
 
@@ -786,7 +889,15 @@ func (pi *pbftInstance) handleEndBlock(endblock *pb.EndBlock, msg *pb.ProtocolMe
 		Int("SegID", pi.segment.SegID()).
 		Msg("Get logEntry.Sn from tn. Nil Blocks. END Blocks")
 	announcer.Announce(logEntry)
-	pi.batches[pi.view][logEntry.Sn].committed = true
+	pi.batches[pi.view][sn].committed = true
+	batch := pi.batches[pi.view][sn]
+	if batch.viewChangeTimer != nil {
+		notFired := batch.viewChangeTimer.Stop()
+		if !notFired {
+			// This is harmelss, since the timeout, even though generated, will be ignored.
+			logger.Warn().Int32("sn", logEntry.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
+		}
+	}
 	return nil
 }
 
@@ -815,16 +926,22 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 		Msg("func handleHtnmsg.")
 	lock.Unlock()
 	///1116
+	pi.mutex.RLock()
 	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && batch.CheckCommits() && batch.CheckHtns() {
+		pi.mutex.RUnlock()
+		pi.mutex.Lock()
 		pi.vhtnsn[sn+int32(membership.NumNodes())] = true
-		logger.Debug().Int32("sn", sn+int32(membership.NumNodes())).
+		pi.mutex.Unlock()
+		logger.Info().Int32("sn", sn+int32(membership.NumNodes())).
 			//[]Int32("validHtnMsgs", batch.validHtnMsgs.Htn).
 			Msg("Set TRUE.")
 		for _, x := range batch.validHtnMsgs {
-			logger.Debug().Int32("validHtnMsgs", x.Htn).
+			logger.Info().Int32("validHtnMsgs", x.Htn).
 				Msg("validHtnMsgs sets.")
 		}
 
+	} else {
+		pi.mutex.RUnlock()
 	}
 	return nil
 }
@@ -880,11 +997,17 @@ func (pi *pbftInstance) handleCommit(commit *pb.PbftCommit, msg *pb.ProtocolMess
 		//pi.announce(batch, sn, batch.preprepareMsg.Batch, batch.preprepareMsg.Aborted, batch.preprepareMsg.Ts, batch.lastCommitTs)
 	}
 	///1116
+	pi.mutex.RLock()
 	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && batch.CheckCommits() && batch.CheckHtns() {
+		pi.mutex.RUnlock()
+		pi.mutex.Lock()
 		pi.vhtnsn[sn+int32(membership.NumNodes())] = true
+		pi.mutex.Unlock()
 		logger.Info().Int32("sn", sn+int32(membership.NumNodes())).
 			//Int32("senderID", senderID).
 			Msg("Set TRUE.")
+	} else {
+		pi.mutex.RUnlock()
 	}
 	return nil
 }
@@ -950,74 +1073,26 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 	if logEntry.Aborted {
 		logEntry.Suspect = segmentLeader(pi.segment, 0)
 	}
-	// Announce decision.
-	//announcer.Announce(logEntry)
-	///1101
-	hn := (sn-int32(pi.segment.SegID()%membership.NumNodes()))/int32(membership.NumNodes()) + 1 ///1103
-	pi.hnsn[hn] = logEntry.Sn
-	///2023
-	firsthn := (pi.segment.FirstSN()-int32(pi.segment.SegID()%membership.NumNodes()))/int32(membership.NumNodes()) + 1 ///1103
-
-	///1201
-	if hn == firsthn && pi.hnsn[hn] != int32(pi.segment.SegID()) {
-		for i := pi.segment.FirstSN(); i < pi.hnsn[hn]; i = i + int32(membership.NumNodes()) {
-			logEntry1 := &log.Entry{
-				Sn:    i,   ///1103
-				Batch: nil, ///1205
-				//Batch:     reqBatch,//2023
-				ProposeTs: proposeTs,
-				CommitTs:  commitTs,
-				Aborted:   aborted,
-				//Digest:    batch.digest,//2023
-			}
-			announcer.Announce(logEntry1)
-			pi.batches[pi.view][logEntry1.Sn].committed = true
-			logger.Info().
-				Int32("logEntry.Sn", logEntry1.Sn).
-				Int("SegID", pi.segment.SegID()).
-				Msg("Get logEntry.Sn from tn. Nil Blocks.")
-			//break
-		}
-	}
-	if hn > firsthn && pi.hnsn[hn]-pi.hnsn[hn-1] > int32(membership.NumNodes()) {
-		for i := pi.hnsn[hn-1] + int32(membership.NumNodes()); i < pi.hnsn[hn]; i = i + int32(membership.NumNodes()) {
-			logEntry1 := &log.Entry{
-				Sn:        i,   ///1103
-				Batch:     nil, ///1205
-				ProposeTs: proposeTs,
-				CommitTs:  commitTs,
-				Aborted:   aborted,
-				//Digest:    batch.digest,
-			}
-			logger.Info().
-				Int32("logEntry.Sn", logEntry1.Sn).
-				Int("SegID", pi.segment.SegID()).
-				Msg("Get logEntry.Sn from tn. Nil Blocks.")
-			announcer.Announce(logEntry1)
-			pi.batches[pi.view][logEntry1.Sn].committed = true
-		}
-	}
 	///1116 Announce decision.
-	announcer.Announce(logEntry)
 	logger.Info().
 		Int32("logEntry.Sn", logEntry.Sn).
 		Int32("origin_sn", sn).
 		Int32("Tn", tn).
-		Int32("Hn", hn).
 		Int("SegID", pi.segment.SegID()).
 		Msg("Get logEntry.Sn from tn.")
+	announcer.Announce(logEntry)
 	if len(reqBatch.Requests) > 0 {
 		req_id := make([]int32, len(reqBatch.Requests))
 		for i := 0; i < len(reqBatch.Requests); i++ {
 			req_id[i] = (reqBatch.Requests[i].RequestId.ClientSn)
 		}
-		logger.Info().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
+		logger.Debug().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
 	}
 	// Start new view change timeout
 	// for the fist uncommitted sequence number in the segment
 	finished := true // Will be set to false if any SN is still uncommitted
 	for _, sn := range pi.segment.SNs() {
-		if pi.batches[pi.view][sn].batch != nil && !pi.batches[pi.view][sn].committed {
+		if !pi.batches[pi.view][sn].committed {
 			pi.setViewChangeTimer(sn, 0)
 			finished = false
 			break
@@ -1144,7 +1219,6 @@ func (pi *pbftInstance) catchUp() {
 	requests := 0
 	for sn, batch := range pi.batches[pi.view] {
 		if !batch.committed {
-			logger.Debug().Int32("sn",sn).Msg("batch not committed, FetchMissingEntry...")
 			requests++
 			go statetransfer.FetchMissingEntry(sn, sources)
 		}
@@ -1760,7 +1834,7 @@ func (pi *pbftInstance) sendNewView() {
 	// Start new view change timeout
 	// for the fist uncommitted sequence number in the segment after the checkpoint.
 	for _, sn := range pi.segment.SNs() {
-		if pi.batches[pi.view][sn].batch != nil && (vci.checkpoint == nil || sn > vci.checkpoint.Sn) && !pi.batches[pi.view][sn].committed {
+		if (vci.checkpoint == nil || sn > vci.checkpoint.Sn) && !pi.batches[pi.view][sn].committed {
 			pi.setViewChangeTimer(sn, 0)
 			break
 		}
@@ -2003,7 +2077,7 @@ func (pi *pbftInstance) handleNewView(signed *pb.SignedMsg, senderID int32) erro
 	// Start new view change timeout
 	// for the fist uncommitted sequence number in the segment
 	for _, sn := range pi.segment.SNs() {
-		if pi.batches[pi.view][sn].batch != nil && sn > newview.Checkpoint.Sn && !pi.batches[pi.view][sn].committed {
+		if sn > newview.Checkpoint.Sn && !pi.batches[pi.view][sn].committed {
 			pi.setViewChangeTimer(sn, 0)
 			break
 		}
@@ -2313,10 +2387,6 @@ func (batch *pbftBatch) CheckCommits() bool {
 }
 
 func (pi *pbftInstance) setViewChangeTimer(sn int32, after time.Duration) {
-
-	if pi.batches[pi.view][sn] == nil {
-		return
-	}
 
 	// Convenience variable
 	batch := pi.batches[pi.view][sn]
