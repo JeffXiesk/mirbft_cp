@@ -165,4 +165,4 @@ python scripts/cloud-deploy/Fairness_process/latency_each_stage.py >> scripts/cl
 #     --region $each_region ; 
 # done
 
-# scp -r -i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@3.237.193.123:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@44.199.210.40:/root/experiment-output .

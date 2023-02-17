@@ -406,6 +406,7 @@ func (pi *pbftInstance) lead() {
 							logger.Warn().Int32("sn", logEntry1.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
 						}
 					}
+
 					// Create message
 					endblock := &pb.EndBlock{
 						Sn: j,
@@ -503,7 +504,8 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 
 	// Create the actual request batch. The timeout is 0, since the we already waited for the batch in pi.lead().
 	batch := pi.segment.Buckets().CutBatch(batchSize, 0)
-
+	tn := preprepare.Tn
+	stn := int32(membership.NumNodes())*(int32(tn-1)) + int32(pi.segment.SegID())
 	// Notify batch cutting goroutine that it can start waiting for the next batch.
 	pi.cutBatch <- struct{}{}
 
@@ -527,10 +529,10 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 
 	// Add message to own log
 	digest := pbftDigest(preprepare)
-	pi.batches[pi.view][sn].digest = digest
-	pi.batches[pi.view][sn].preprepareMsg = preprepare
-	pi.batches[pi.view][sn].batch = batch
-	pi.batches[pi.view][sn].preprepared = true
+	pi.batches[pi.view][stn].digest = digest
+	pi.batches[pi.view][stn].preprepareMsg = preprepare
+	pi.batches[pi.view][stn].batch = batch
+	pi.batches[pi.view][stn].preprepared = true
 
 	// This value will be overwritten by receivers.
 	// Setting it here, as this counts as local "reception" of the preprepare.
@@ -1026,7 +1028,7 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 		notFired := batch.viewChangeTimer.Stop()
 		if !notFired {
 			// This is harmelss, since the timeout, even though generated, will be ignored.
-			logger.Warn().Int32("sn", tn).Msg("Timer fired concurrently with being canceled.") ///1101
+			logger.Warn().Int32("sn", sn).Msg("Timer fired concurrently with being canceled.") ///1101
 		}
 	}
 
@@ -1051,6 +1053,7 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 	if logEntry.Aborted {
 		logEntry.Suspect = segmentLeader(pi.segment, 0)
 	}
+
 	///1116 Announce decision.
 	logger.Info().
 		Int32("logEntry.Sn", logEntry.Sn).
@@ -1066,6 +1069,7 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 		}
 		logger.Debug().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
 	}
+	//pi.batches[pi.view][logEntry.Sn].committed=true
 	// Start new view change timeout
 	// for the fist uncommitted sequence number in the segment
 	finished := true // Will be set to false if any SN is still uncommitted
