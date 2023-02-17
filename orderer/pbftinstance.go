@@ -201,7 +201,9 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	htnlog[pi.segment.SegID()] = (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()) ///2023
 	lock.Unlock()
 	pi.vhtnsn[pi.segment.FirstSN()] = true
-
+	for _,sn :=range pi.segment.SNs() {
+		pi.hnsn[sn]=sn
+	}
 	pi.htnssn[int32(pi.segment.FirstSN())] = append(pi.htnssn[int32(pi.segment.FirstSN())], htnmsg0) ///1201
 
 	// Non initializing final digests. Checked for nil in the code.
@@ -279,7 +281,8 @@ func (pi *pbftInstance) lead() {
 		pi.mutex.RLock()
 		if pi.vhtnsn[cursn] == true {///收集了足够的tn才能propose
 			pi.mutex.RUnlock()
-			if cursn==snfromhtntopropose {
+			logger.Info().Int32("cursn", cursn).Msg("enter big block")
+			if cursn == snfromhtntopropose {
 				logger.Info().
 					Int32("cursn", cursn).
 					Int("SegID", pi.segment.SegID()).
@@ -301,76 +304,8 @@ func (pi *pbftInstance) lead() {
 				<-pi.cutBatch
 			}
 			if cursn<snfromhtntopropose&&snfromhtntopropose<=pi.segment.LastSN() {
-				for j := cursn; j < snfromhtntopropose; j = j + int32(membership.NumNodes()) {
-					logEntry1 := &log.Entry{
-						Sn:        j,   ///1103
-						Batch:     nil, ///1205
-						ProposeTs: 0,
-						CommitTs:  0,
-						Aborted:   false,
-						//Digest:    batch.digest,
-					}
-					logger.Info().
-						Int32("logEntry.Sn", logEntry1.Sn).
-						Int("SegID", pi.segment.SegID()).
-						Msg("Get logEntry.Sn from tn. Nil Blocks.")
-					announcer.Announce(logEntry1)
-					pi.batches[pi.view][logEntry1.Sn].committed = true
-					batch := pi.batches[pi.view][logEntry1.Sn]
-					if batch.viewChangeTimer != nil {
-						notFired := batch.viewChangeTimer.Stop()
-						if !notFired {
-							// This is harmelss, since the timeout, even though generated, will be ignored.
-							logger.Warn().Int32("sn", logEntry1.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
-						}
-					}
-
-					// Q: 为什么要用endblock
-					endblock := &pb.EndBlock{
-						Sn: j,
-					}
-					msg := &pb.ProtocolMessage{
-						SenderId: membership.OwnID,
-						Sn:       j,
-						Msg: &pb.ProtocolMessage_EndBlock{
-							EndBlock: endblock,
-						},
-					}
-					logger.Debug().Int32("sn", msg.Sn).
-						Msg("func NilBlock")
-
-					// Enqueue the message for all other nodes
-					for _, nodeID := range pi.segment.Followers() {
-						if nodeID == membership.OwnID {
-							continue
-						}
-						messenger.EnqueueMsg(msg, nodeID)
-					}
-					// Start new view change timeout
-					// for the fist uncommitted sequence number in the segment
-					finished := true // Will be set to false if any SN is still uncommitted
-					for _, sn := range pi.segment.SNs() {
-						if !pi.batches[pi.view][sn].committed {
-							pi.setViewChangeTimer(sn, 0)
-							finished = false
-							break
-						}
-					}
-
-					// Submit own checkpoint message if all entries of the segment just have been committed.
-					if finished {
-
-						pi.sendCheckpoint()
-
-						// If no segment checkpoint exists yet, start a timer for a view change if the checkpoint is not created soon.
-						// This is required to help other peers that might be stuck in a future view. The high-level checkpoints are
-						// not sufficient for this, as multiple segments might be blocking each other.
-						if pi.finalDigests == nil {
-							pi.setCheckpointTimer()
-						}
-					}
-					i++
-				}
+				pi.hnsn[snfromhtntopropose]=cursn
+				logger.Info().Int32("cursn", cursn).Int32("snfromhtntopropose", snfromhtntopropose).Msg("enter block2")
 				msg := &pb.ProtocolMessage{
 					SenderId: membership.OwnID,
 					Sn:       snfromhtntopropose,
@@ -386,6 +321,7 @@ func (pi *pbftInstance) lead() {
 				}
 				pi.serializer.serialize(msg)
 				<-pi.cutBatch
+				i += int((snfromhtntopropose-cursn)/int32(membership.NumNodes()))
 			}		
 			
 			///2023epoch结束的时候不再propose,并且补齐剩余的sn，但这个sn不应该马上补齐，对一个instance来说必须按顺序Announce
@@ -1073,7 +1009,82 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 	if logEntry.Aborted {
 		logEntry.Suspect = segmentLeader(pi.segment, 0)
 	}
-	///1116 Announce decision.
+
+	logger.Debug().Msgf("pi.hnsn is : %v",pi.hnsn)
+	if pi.hnsn[sn] != sn {
+		for i := pi.hnsn[sn]; i < sn; i = i + int32(membership.NumNodes()) {
+			logEntry1 := &log.Entry{
+				Sn:    i,   ///1103
+				Batch: nil, ///1205
+				//Batch:     reqBatch,//2023
+				ProposeTs: proposeTs,
+				CommitTs:  commitTs,
+				Aborted:   aborted,
+				//Digest:    batch.digest,//2023
+			}
+			announcer.Announce(logEntry1)
+			pi.batches[pi.view][logEntry1.Sn].committed = true
+			if pi.batches[pi.view][logEntry1.Sn].viewChangeTimer != nil {
+				notFired := pi.batches[pi.view][logEntry1.Sn].viewChangeTimer.Stop()
+				if !notFired {
+					// This is harmelss, since the timeout, even though generated, will be ignored.
+					logger.Warn().Int32("sn", logEntry1.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
+				}
+			}
+
+			// Q: 为什么要用endblock
+			// A: 给别的peer同步自己commit的空区块！！！
+			endblock := &pb.EndBlock{
+				Sn: i,
+			}
+			msg := &pb.ProtocolMessage{
+				SenderId: membership.OwnID,
+				Sn:       i,
+				Msg: &pb.ProtocolMessage_EndBlock{
+					EndBlock: endblock,
+				},
+			}
+			logger.Debug().Int32("sn", msg.Sn).
+				Msg("func NilBlock")
+
+			// Enqueue the message for all other nodes
+			for _, nodeID := range pi.segment.Followers() {
+				if nodeID == membership.OwnID {
+					continue
+				}
+				messenger.EnqueueMsg(msg, nodeID)
+			}
+
+			logger.Info().
+				Int32("logEntry.Sn", logEntry1.Sn).
+				Int("SegID", pi.segment.SegID()).
+				Msg("Get logEntry.Sn from tn. Nil Blocks.")
+		}
+
+		// Start new view change timeout
+		// for the fist uncommitted sequence number in the segment
+		finished := true // Will be set to false if any SN is still uncommitted
+		for _, sn := range pi.segment.SNs() {
+			if !pi.batches[pi.view][sn].committed {
+				pi.setViewChangeTimer(sn, 0)
+				finished = false
+				break
+			}
+		}
+
+		// Submit own checkpoint message if all entries of the segment just have been committed.
+		if finished {
+
+			pi.sendCheckpoint()
+
+			// If no segment checkpoint exists yet, start a timer for a view change if the checkpoint is not created soon.
+			// This is required to help other peers that might be stuck in a future view. The high-level checkpoints are
+			// not sufficient for this, as multiple segments might be blocking each other.
+			if pi.finalDigests == nil {
+				pi.setCheckpointTimer()
+			}
+		}
+	}
 	logger.Info().
 		Int32("logEntry.Sn", logEntry.Sn).
 		Int32("origin_sn", sn).

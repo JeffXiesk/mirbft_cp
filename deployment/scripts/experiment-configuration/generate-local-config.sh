@@ -40,7 +40,7 @@ faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 da
 clients1="1"    # deploys 1 client machine which run the specified number of client instances
 clients16=""    # deploys 16 client machine which run the specified number of client instances
 clients32=""    # deploys 32 client machine which run the specified number of client instances
-systemSizes="8" # Must be sorted in ascending order!
+systemSizes="4" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
 StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
@@ -51,7 +51,7 @@ reuseFaulty=true  # If true, both correct and faulty peers will have the same ta
                   # the RandomSeed field).
 
 # Low-level system parameters
-loggingLevel="info"
+loggingLevel="debug"
 peerTag="peers"
 faultyPeerTag="faultyPeers"
 minConcurrentRequests=$((256 * 16384)) # Based on empirical data. At saturation, makes the throughput-latency plot nicely go up (as it is equivalent to may concurrent clients).
@@ -114,8 +114,8 @@ function skip() {
 
 throughputsAuthPbft=$()
 throughputsAuthPbft[4]="4096"
-throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
-throughputsAuthPbft[16]="128 256 512 1024 2048 4096"
+throughputsAuthPbft[8]="256"
+throughputsAuthPbft[16]="256"
 throughputsAuthPbft[32]=""
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""
