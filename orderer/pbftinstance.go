@@ -366,14 +366,14 @@ func (pi *pbftInstance) lead() {
 				}
 				msg := &pb.ProtocolMessage{
 					SenderId: membership.OwnID,
-					Sn:       cursn,
+					Sn:       snfromhtntopropose,
 					Msg: &pb.ProtocolMessage_Newseqno{
 						Newseqno: &pb.PbftPreprepare{
-							Sn: cursn,
+							Sn: snfromhtntopropose,
 							Leader: membership.OwnID,
 							Batch:  nil,                    // This will be filled in by the PBFT instance when this message is serialized.
 							Tn:     htntopropose, 
-							Hset: pi.htnssn[cursn],
+							Hset: pi.htnssn[snfromhtntopropose],
 						},
 					},
 				}
