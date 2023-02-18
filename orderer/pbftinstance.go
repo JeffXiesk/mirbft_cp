@@ -278,8 +278,16 @@ func (pi *pbftInstance) lead() {
 
 		// Create message to serve as a placeholder for proposing a batch.
 		lock.Lock()
-		htntopropose := htnlog[pi.segment.SegID()] + 1
+		selfhtn := htnlog[pi.segment.SegID()]
 		lock.Unlock()
+		htnmsg00 := &pb.HtnMessage{
+			Sn:   cursn,
+			View: pi.view,
+			Htn:  selfhtn,
+		}
+		pi.htnssn[cursn] = append(pi.htnssn[cursn], htnmsg00)
+		curhtn := GetMaxHtn(pi.htnssn[cursn])
+		htntopropose := curhtn + 1
 		snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())
 		pi.mutex.RLock()
 		if pi.vhtnsn[cursn] == true { ///收集了足够的tn才能propose
@@ -318,11 +326,12 @@ func (pi *pbftInstance) lead() {
 							Leader: membership.OwnID,
 							Batch:  nil, // This will be filled in by the PBFT instance when this message is serialized.
 							Tn:     htntopropose,
-							Hset:   pi.htnssn[snfromhtntopropose],
+							Hset:   pi.htnssn[cursn],
 							Skip:   cursn,
 						},
 					},
 				}
+				pi.htnssn[snfromhtntopropose] = pi.htnssn[cursn]
 				pi.serializer.serialize(msg)
 				<-pi.cutBatch
 				i += int((snfromhtntopropose - cursn) / int32(membership.NumNodes()))
@@ -520,7 +529,7 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 			Msg("Hset.")
 	}
 
-	if tn < GetMaxHtn(preprepare.Hset)+1 {
+	if tn != GetMaxHtn(preprepare.Hset)+1 {
 		return fmt.Errorf("invalid tn number %d", tn)
 	}
 
@@ -771,34 +780,25 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 	} else {
 		lock.Unlock()
 	}
-
-	///1103这里有问题，发送的不应该是这个instance对应的htn，而是在所有链上看到的最高htn，把pi.segment.SegID()改成membership.OwnID
-	lock.Lock()
-	htnmsg := &pb.HtnMessage{
-		Sn:   batch.preprepareMsg.Sn,
-		View: pi.view,
-		Htn:  htnlog[int(membership.OwnID)],
-	}
-	lock.Unlock()
-
-	msg1 := &pb.ProtocolMessage{
-		SenderId: membership.OwnID,
-		Sn:       batch.preprepareMsg.Sn, ///1116这是当前的sn，事实上这个htn会被用于下一个sn
-		Msg: &pb.ProtocolMessage_Htnmsg{
-			Htnmsg: htnmsg,
-		},
-	}
-	// Enqueue the message for all leaders(in fact only 1 leader?)
-	/*
-		for _, nodeID1 := range pi.segment.Leaders() {
-			if nodeID1 == membership.OwnID {
-				continue
-			}
-			messenger.EnqueueMsg(msg1, nodeID1)
+	if !isLeading(pi.segment, membership.OwnID, pi.view) {
+		///1103这里有问题，发送的不应该是这个instance对应的htn，而是在所有链上看到的最高htn，把pi.segment.SegID()改成membership.OwnID
+		lock.Lock()
+		htnmsg := &pb.HtnMessage{
+			Sn:   batch.preprepareMsg.Sn,
+			View: pi.view,
+			Htn:  htnlog[int(membership.OwnID)],
 		}
-	*/
-	///1116
-	messenger.EnqueueMsg(msg1, segmentLeader(pi.segment, 0))
+		lock.Unlock()
+
+		msg1 := &pb.ProtocolMessage{
+			SenderId: membership.OwnID,
+			Sn:       batch.preprepareMsg.Sn, ///1116这是当前的sn，事实上这个htn会被用于下一个sn
+			Msg: &pb.ProtocolMessage_Htnmsg{
+				Htnmsg: htnmsg,
+			},
+		}
+		messenger.EnqueueMsg(msg1, segmentLeader(pi.segment, 0))
+	}
 }
 
 // /1201
@@ -2359,7 +2359,7 @@ func (batch *pbftBatch) CheckHtns() bool {
 	}
 
 	// Check if enough valid htn messages are received
-	if len(batch.validHtnMsgs) >= 2*membership.Faults()+1 {
+	if len(batch.validHtnMsgs) >= 2*membership.Faults() {
 		return true
 	} else {
 		return false
