@@ -73,7 +73,7 @@ type pbftInstance struct {
 	//	next              int // The index  of the next to be proposed SN
 	startTs int64 // Timestamp of the start of the instance. Used for estimating duration of segment.
 	//localhtn int32///1024
-	hnsn   map[int32]int32
+	//hnsn   map[int32]int32
 	htnssn map[int32][]*pb.HtnMessage ///1116 more than 2f hns for a sn
 	vhtnsn map[int32]bool
 	mutex *sync.RWMutex
@@ -100,6 +100,7 @@ type pbftBatch struct {
 	prepared        bool        // Is true if 2f unique prepare messages and a matching proposal received
 	committed       bool        // Is true if 2f+1 unique commit messages and a matching proposal received
 	viewChangeTimer *time.Timer // Timer to start a view change
+	hnsn   map[int32]int32
 }
 
 type viewChangeInfo struct {
@@ -169,6 +170,8 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	// Next indext of sn of the segment to propose
 	// pi.next = 0
 
+	logger.Debug().Msg("In init !!! ")
+
 	// Attach segment to the instance
 	pi.segment = seg
 
@@ -181,7 +184,7 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	//Initialize view change log
 	pi.viewChange = make(map[int32]*viewChangeInfo)
 	//1103
-	pi.hnsn = make(map[int32]int32)
+	//pi.hnsn = make(map[int32]int32)
 	pi.htnssn = make(map[int32][]*pb.HtnMessage)
 	pi.vhtnsn = make(map[int32]bool)
 	pi.mutex = &sync.RWMutex{}
@@ -201,9 +204,9 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	htnlog[pi.segment.SegID()] = (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()) ///2023
 	lock.Unlock()
 	pi.vhtnsn[pi.segment.FirstSN()] = true
-	for _,sn :=range pi.segment.SNs() {
-		pi.hnsn[sn]=sn
-	}
+	//for _,sn :=range pi.segment.SNs() {
+	//	pi.hnsn[sn]=sn
+	//}
 	pi.htnssn[int32(pi.segment.FirstSN())] = append(pi.htnssn[int32(pi.segment.FirstSN())], htnmsg0) ///1201
 
 	// Non initializing final digests. Checked for nil in the code.
@@ -297,6 +300,7 @@ func (pi *pbftInstance) lead() {
 							Batch:  nil,                    // This will be filled in by the PBFT instance when this message is serialized.
 							Tn:     htntopropose, 
 							Hset: pi.htnssn[cursn],
+							Skip: 0,
 						},
 					},
 				}
@@ -304,7 +308,6 @@ func (pi *pbftInstance) lead() {
 				<-pi.cutBatch
 			}
 			if cursn<snfromhtntopropose&&snfromhtntopropose<=pi.segment.LastSN() {
-				pi.hnsn[snfromhtntopropose]=cursn
 				logger.Info().Int32("cursn", cursn).Int32("snfromhtntopropose", snfromhtntopropose).Msg("enter block2")
 				msg := &pb.ProtocolMessage{
 					SenderId: membership.OwnID,
@@ -316,6 +319,7 @@ func (pi *pbftInstance) lead() {
 							Batch:  nil,                    // This will be filled in by the PBFT instance when this message is serialized.
 							Tn:     htntopropose, 
 							Hset: pi.htnssn[snfromhtntopropose],
+							Skip: cursn,
 						},
 					},
 				}
@@ -475,7 +479,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	pi.batches[pi.view][sn].preprepareMsg = preprepare
 	pi.batches[pi.view][sn].batch = batch
 	pi.batches[pi.view][sn].preprepared = true
-
+	pi.batches[pi.view][sn].hnsn[sn] = preprepare.Skip
 	// This value will be overwritten by receivers.
 	// Setting it here, as this counts as local "reception" of the preprepare.
 	// The timestamp is not part of the digest.
@@ -578,11 +582,14 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 	// Mark requests as preprepared
 	batch.batch.MarkInFlight()
 
+	// logger.Debug().Int32("sn",sn).Msgf("pi.batched[pi.view] is %v",pi.batches[pi.view])
 	// Create new batch
 	digest := pbftDigest(preprepare)
 	batch.digest = digest
 	batch.preprepareMsg = preprepare
 	batch.preprepared = true
+	// batch.hnsn[sn] = preprepare.Skip
+	// logger.Debug().Int32("sn",sn).Msgf("pi.batched[pi.view] is %v",pi.batches[pi.view])
 
 	pi.sendPrepare(batch)
 
@@ -1010,9 +1017,9 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 		logEntry.Suspect = segmentLeader(pi.segment, 0)
 	}
 
-	logger.Debug().Msgf("pi.hnsn is : %v",pi.hnsn)
-	if pi.hnsn[sn] != sn {
-		for i := pi.hnsn[sn]; i < sn; i = i + int32(membership.NumNodes()) {
+	// if batch.hnsn[sn] != sn && batch.hnsn[sn]%int32(membership.NumNodes())==int32((pi.segment.SegID()%membership.NumNodes())) {
+	if batch.hnsn[sn] != sn {
+		for i := batch.hnsn[sn]; i < sn; i = i + int32(membership.NumNodes()) {
 			logEntry1 := &log.Entry{
 				Sn:    i,   ///1103
 				Batch: nil, ///1205
@@ -1023,6 +1030,9 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 				//Digest:    batch.digest,//2023
 			}
 			announcer.Announce(logEntry1)
+
+			
+			// logger.Debug().Int32("sn",logEntry1.Sn).Int("SegID",pi.segment.SegID()).Int32("a",sn%int32(membership.NumNodes())).Int32("b",int32(pi.segment.SegID())).Msgf("In announce : pi.batched[pi.view] is %v",pi.batches[pi.view])
 			pi.batches[pi.view][logEntry1.Sn].committed = true
 			if pi.batches[pi.view][logEntry1.Sn].viewChangeTimer != nil {
 				notFired := pi.batches[pi.view][logEntry1.Sn].viewChangeTimer.Stop()
@@ -1031,7 +1041,7 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 					logger.Warn().Int32("sn", logEntry1.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
 				}
 			}
-
+/*
 			// Q: 为什么要用endblock
 			// A: 给别的peer同步自己commit的空区块！！！
 			endblock := &pb.EndBlock{
@@ -1053,7 +1063,7 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 					continue
 				}
 				messenger.EnqueueMsg(msg, nodeID)
-			}
+			}*///
 
 			logger.Info().
 				Int32("logEntry.Sn", logEntry1.Sn).
@@ -2483,6 +2493,7 @@ func (pi *pbftInstance) startView(view int32) {
 				preprepared: false,
 				prepared:    false,
 				committed:   false,
+				hnsn:   make(map[int32]int32),
 			}
 
 			// If we have a median commitTime from previous epochs

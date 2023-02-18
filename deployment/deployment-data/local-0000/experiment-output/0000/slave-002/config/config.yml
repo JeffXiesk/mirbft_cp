@@ -64,7 +64,7 @@ ClientWatermarkWindowSize: 4194304
 ClientRequestBacklogSize: 4194304 # The number of requests beyond client's current window that are backlogged.
 
 # Leader and failure handling
-RandomSeed: 9581     # Should be set to a random integer.
+RandomSeed: 11535     # Should be set to a random integer.
 LeaderPolicy: Blacklist # Leader selection policy. One of {Simple, Single, Backoff, Blacklist, Combined}
 NodeToLeaderRatio: 1        # Total number of nodes devided by this number gives number of leaders
 DefaultLeaderBan: 2        # The default number of epochs a node is excluded from the leaderset once suspected.
@@ -86,9 +86,9 @@ ClientTraceSampling: 10 # Only trace one out of ClientTraceSampling events at th
 
 # Client configuration
 ClientsPerProcess:    1       # Number of concurrent clients on each client machine (running as threads in a single process).
-RequestsPerClient:    245760      # Number of requests each client submits.
+RequestsPerClient:    491520      # Number of requests each client submits.
 ClientRunTime:        30000      # Timeout for client to submit all its requests, in milliseconds. Set to 0 for no timeout.
-RequestRate:          4096   # Max request rate per client, in requests per second. Set to -1 for no limit.
+RequestRate:          8192   # Max request rate per client, in requests per second. Set to -1 for no limit.
 HardRequestRateLimit: false # If true, the client always waits for at least 1/RequestRateLimit between any two requests.
                                     # If false, the client treats RequestRateLimit as a limit on the average request rate,
                                     # and might temporarily increase the rate to catch up with the prescribed average rate.
