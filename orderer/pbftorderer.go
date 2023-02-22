@@ -19,12 +19,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	logger "github.com/rs/zerolog/log"
+	"sort"
+
+	"github.com/hyperledger-labs/mirbft/config"
+	"github.com/hyperledger-labs/mirbft/crypto"
 	"github.com/hyperledger-labs/mirbft/log"
 	"github.com/hyperledger-labs/mirbft/manager"
 	"github.com/hyperledger-labs/mirbft/membership"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
-	"sort"
+	logger "github.com/rs/zerolog/log"
 )
 
 // Represents a PBFT Orderer implementation.
@@ -33,7 +36,7 @@ type PbftOrderer struct {
 	dispatcher  pbftDispatcher       // map[int32]*pbftInstance
 	backlog     backlog              // map[int32]chan*ordererMsg
 	last        int32                // Some sequence number we can ignere messages above
-	commitTime  time.Duration		 // Median commit duration
+	commitTime  time.Duration        // Median commit duration
 	lock        sync.Mutex
 }
 
@@ -191,7 +194,7 @@ func (po *PbftOrderer) Start(wg *sync.WaitGroup) {
 		// 	for i := 0; i < K; i++ {
 		// 		msk[i].SetByCSPRNG()
 		// 	}
-		
+
 		// 	// for i := 0; i < N; i++ {
 		// 	// 	secs[i] = make([]bls.SecretKey, 10);
 		// 	// 	for j := 0; j < 10; j++ {
@@ -201,7 +204,7 @@ func (po *PbftOrderer) Start(wg *sync.WaitGroup) {
 		// 	// }
 		// 	mpk = msk[0].GetPublicKey()
 		// 	logger.Debug().Msgf("%v\n",mpk.SerializeToHexStr())
-			
+
 		// 	// Get public key
 		// 	// for i := 0; i < N; i++ {
 		// 	// 	pubs[i] = make([]bls.PublicKey, 10);
@@ -301,14 +304,41 @@ func (po *PbftOrderer) killSegment(seg manager.Segment) {
 	}
 }
 
-func (po *PbftOrderer) Sign(data []byte) ([]byte, error) {
-	// TODO
+// Sign generates a signature share. k represent the k th private key the peer use.
+func (ho *PbftOrderer) Sign(data []byte) ([]byte, error) {
 	return nil, nil
 }
 
-func (po *PbftOrderer) CheckSig(data []byte, senderID int32, signature []byte) error {
-	// TODO
+// Sign generates a signature share. k represent the k th private key the peer use.
+func (ho *PbftOrderer) SignWithKthKey(data []byte, k int32) ([]byte, []byte, error) {
+	//return nil, nil
+	id := crypto.BLSIdToBytes(membership.BLSIds[k%int32(config.Config.PrivKeyCnt)])
+	sig, err := crypto.BLSSigShare(membership.BLSPrivKeyShares[k%int32(config.Config.PrivKeyCnt)], data)
+	return id, sig, err
+}
+
+// CheckSigShare checks if a signature share is valid.
+func (ho *PbftOrderer) CheckSigShare(data []byte, senderID int32, k int32, signature []byte) error {
+	//return nil
+	return crypto.BLSSigShareVerification(membership.BLSPubKeyShares[senderID][k%int32(config.Config.PrivKeyCnt)], data, signature)
+}
+
+// CheckSig checks if a signature share is valid.
+func (ho *PbftOrderer) CheckSig(data []byte, senderID int32, signature []byte) error {
 	return nil
+}
+
+// CheckCert checks if the certificate is a valid threshold signature
+func (ho *PbftOrderer) CheckCert(data []byte, signature []byte) error {
+	//return nil
+	return crypto.BLSVerifySingature(membership.BLSPublicKey, data, signature)
+}
+
+// AssembleCert combines validates signature shares in a threshold signature.
+// A threshold signature form the quorum certificate.
+func (ho *PbftOrderer) AssembleCert(data []byte, signatures [][]byte, ids [][]byte) ([]byte, error) {
+	//return nil, nil
+	return crypto.BLSRecoverSignature(data, signatures, ids, 2*membership.Faults()+1, membership.NumNodes())
 }
 
 func (po *PbftOrderer) setMedianCommitTime(seg manager.Segment) {
@@ -316,7 +346,7 @@ func (po *PbftOrderer) setMedianCommitTime(seg manager.Segment) {
 	for _, sn := range seg.SNs() {
 		duration := log.GetEntry(sn).CommitTs - log.GetEntry(sn).ProposeTs
 		logger.Info().Int32("sn", sn).Int64("commitTs", log.GetEntry(sn).CommitTs).Int64("proposeTs", log.GetEntry(sn).ProposeTs).Int64("duration", duration).Msg("Statistics")
-		commits = append(commits, time.Duration(duration) * time.Nanosecond)
+		commits = append(commits, time.Duration(duration)*time.Nanosecond)
 	}
 	sort.Slice(commits, func(i, j int) bool { return commits[i] < commits[j] })
 	po.commitTime = commits[len(commits)/2]

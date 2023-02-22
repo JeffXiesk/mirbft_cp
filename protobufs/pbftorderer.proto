@@ -40,6 +40,20 @@ message HtnMessage {
     int32 sn = 1;
     int32 view = 2;
     int32 htn = 3; // Timestamp to be set by the receiver at message reception.
+    QcMessage qc_message = 4;
+    Qc qc = 5;
+    int32 k = 6;
+}
+
+message QcMessage {
+    int32 sn = 1;
+    int32 view = 2;
+    int32 tn = 3;
+}
+
+message Qc {
+    bytes qc = 1;
+    bytes id = 2;
 }
 
 //2023

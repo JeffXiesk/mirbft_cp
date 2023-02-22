@@ -18,10 +18,10 @@ import (
 	"math/rand"
 	"sort"
 
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/crypto"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	logger "github.com/rs/zerolog/log"
 )
 
 var (
@@ -43,6 +43,18 @@ var (
 
 	// Public key of the BLS threshold cryptosystem
 	TBLSPublicKey *crypto.TBLSPubKey
+
+	// Peer own private threshold BLS key share
+	BLSPrivKeyShares []*crypto.BLSPrivKeyShare
+
+	// Peer own all the public BLS key share
+	BLSPubKeyShares [][]*crypto.BLSPubKeyShare
+
+	// Public key of the BLS threshold cryptosystem
+	BLSPublicKey *crypto.BLSPubKey
+
+	// Public key of the BLS threshold cryptosystem
+	BLSIds []*crypto.BLSId
 
 	// All known node identities, indexed by node ID.
 	nodeIdentities map[int32]*pb.NodeIdentity
