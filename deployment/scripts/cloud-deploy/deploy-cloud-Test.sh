@@ -21,11 +21,9 @@ if [ "$1" = "-i" ]; then
         for ((c=1;c<=$totalnum;c++))    
         do
             new_instance_info=$(aws ec2 run-instances \
-            --launch-template LaunchTemplateId=lt-0854465890b2cf8e9 \
+            --launch-template LaunchTemplateId=lt-0052a4dd500c7b168 \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value="test"}]')
         done
-            # --launch-template LaunchTemplateId=lt-0052a4dd500c7b168 \
-            # --launch-template LaunchTemplateId=lt-0f484f5c1d4158d0e \
 
         echo "sleep 60 seconds"
         sleep 60
@@ -104,15 +102,15 @@ echo 'setting bandwidth'
 echo $public_ip_arr
 for ((c=0;c<$peer_num;c++))
 do
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev ens5 root'
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc add dev ens5 root tbf rate 1000mbit burst 320kbit latency 100ms'
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev eth0 root'
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc add dev eth0 root tbf rate 1000mbit burst 320kbit latency 100ms'
     echo ${public_ip_arr[c]} '1000mbit'
 done
 
 for ((c=1+$client_num;c<1+$client_num+$bandwidth_cnt;c++))    
 do
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev ens5 root'
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} "tc qdisc add dev ens5 root tbf rate $bandwidth burst 320kbit latency 100ms"
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev eth0 root'
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} "tc qdisc add dev eth0 root tbf rate $bandwidth burst 320kbit latency 100ms"
     echo ${public_ip_arr[c]} $bandwidth 
     # Limiting the Egress Traffic
 done
@@ -120,12 +118,12 @@ done
 
 
 echo "Start deployment..."
-./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-config.sh
+./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-test-config.sh
 echo "End deployment..."
 
 
 for ((c=0;c<$peer_num;c++)) do
-    ssh $ssh_options_cloud root@${public_ip_arr[c+bandwidth_cnt]} 'tc qdisc del dev ens5 root'
+    ssh $ssh_options_cloud root@${public_ip_arr[c+bandwidth_cnt]} 'tc qdisc del dev eth0 root'
 done
 echo 'unsetting bandwidth'
 

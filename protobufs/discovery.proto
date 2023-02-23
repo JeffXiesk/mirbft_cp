@@ -43,6 +43,14 @@ message RegisterPeerResponse {
     bytes tbls_pub_key = 3;
     bytes tbls_priv_key_share = 4;
     repeated NodeIdentity peers = 5;
+    bytes bls_pub_key = 6;
+    repeated bytes bls_priv_key_shares = 7;
+    repeated bytes bls_id = 8;
+    repeated pub_key_msg bls_pub_key_shares = 9;
+}
+
+message pub_key_msg {
+    repeated bytes  bls_pub_key = 1;
 }
 
 message SyncRequest {

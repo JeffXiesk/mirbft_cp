@@ -17,12 +17,12 @@ package discovery
 import (
 	"context"
 
-	logger "github.com/rs/zerolog/log"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	logger "github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )
 
-func RegisterPeer(serverAddrPort string, ownPublicIP string, ownPrivateIP string) (int32, []*pb.NodeIdentity, []byte, []byte, []byte) {
+func RegisterPeer(serverAddrPort string, ownPublicIP string, ownPrivateIP string) (int32, []*pb.NodeIdentity, []byte, []byte, []byte, []byte, [][]byte, [][][]byte, [][]byte) {
 
 	// Set up a GRPC connection.
 	conn, err := grpc.Dial(serverAddrPort, grpc.WithInsecure(), grpc.WithBlock())
@@ -40,11 +40,15 @@ func RegisterPeer(serverAddrPort string, ownPublicIP string, ownPrivateIP string
 		PrivateAddr: ownPrivateIP,
 	})
 	if err != nil {
-		logger.Fatal().Msg("RegisterPeer request failed.")
+		logger.Fatal().Msgf("RegisterPeer request failed. %s", err)
 	}
 
+	pubKeyShares := make([][][]byte, 0, 0)
+	for _, j := range response.BlsPubKeyShares {
+		pubKeyShares = append(pubKeyShares, j.BlsPubKey)
+	}
 	// Return discovered values.
-	return response.NewPeerId, response.Peers, response.PrivKey, response.TblsPubKey, response.TblsPrivKeyShare
+	return response.NewPeerId, response.Peers, response.PrivKey, response.TblsPubKey, response.TblsPrivKeyShare, response.BlsPubKey, response.BlsPrivKeyShares, pubKeyShares, response.BlsId
 }
 
 func SyncPeer(serverAddrPort string, ownPeerID int32) {

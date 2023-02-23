@@ -24,7 +24,7 @@ while [ -n "$1" ]; do
   # Wait for trigger. We interpret the master status (a number)
   # reaching (or exceeding) the value of $trigger as a trigger.
   master_status=$(cat $exp_data_dir/$local_master_status_file)
-  while [[ $((10#$trigger)) -ge 0 ]] && [[ ! ( "$master_status" =~ ^[0-9]+$ ) || ( $((10#$master_status)) -lt $((10#$trigger)) ) ]]; do
+  while [[ $(($trigger)) -ge 0 ]] && [[ ! ( "$master_status" =~ ^[0-9]+$ ) || ( $((10#$master_status)) -lt $((10#$trigger)) ) ]]; do
     # Note the $((10#$trigger)) operand. This tells bash to interpret $trigger as a decimal number.
     # Otherwise, if $trigger starts with '0' (which it sometimes does), $trigger is treated as an octal number.
     sleep $machine_status_poll_period
