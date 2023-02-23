@@ -202,7 +202,7 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	/// 1024///1116///1201
 	//htnmember[pi.segment.SegID()] = 0
 	lock.Lock()
-	// TODO: 这个sig能是nil吗
+	// TODO: 这里的sn, Qc还有问题
 	htnmsg0 := &pb.HtnMessage{
 		Sn:   pi.segment.FirstSN(),
 		View: pi.view,
@@ -868,7 +868,7 @@ func (pi *pbftInstance) GetMaxHtn(ary []*pb.HtnMessage) int32 {
 		return 0
 	}
 	maxIdx := -1
-	data := []byte("")
+	var data []byte
 	for i := 1; i < len(ary); i++ {
 		if data == nil {
 			data, _ = proto.Marshal(ary[i].QcMessage)
