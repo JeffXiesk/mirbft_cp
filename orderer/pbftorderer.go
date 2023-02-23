@@ -345,6 +345,10 @@ func (ho *PbftOrderer) AssembleCert(data []byte, signatures [][]byte, ids [][]by
 	return crypto.BLSRecoverSignature(data, signatures, ids, 2*membership.Faults()+1, membership.NumNodes())
 }
 
+func (ho *PbftOrderer) CompareSig(sig1 []byte, sig2 []byte) bool {
+	return crypto.BLSSIgnCompare(sig1, sig2)
+}
+
 func (po *PbftOrderer) setMedianCommitTime(seg manager.Segment) {
 	commits := make([]time.Duration, 0, 0)
 	for _, sn := range seg.SNs() {

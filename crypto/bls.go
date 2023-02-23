@@ -183,3 +183,10 @@ func BLSGetIdDecStringByte(id []byte) string {
 func BLSGetIdDecString(id *BLSId) string {
 	return id.id.GetDecString()
 }
+
+func BLSSIgnCompare(sig1_, sig2_ []byte) bool {
+	var sig1, sig2 bls.Sign
+	sig1.Deserialize(sig1_)
+	sig2.Deserialize(sig2_)
+	return sig1.IsEqual(&sig2)
+}

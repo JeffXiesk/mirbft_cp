@@ -312,15 +312,6 @@ func (pi *pbftInstance) lead() {
 					Int("SegID", pi.segment.SegID()).
 					Msg("cursn==snfromhtntopropose")
 
-				// bls.Init(bls.BLS12_381)
-				// bls.SetETHmode(bls.EthModeDraft07)
-				// var sec bls.SecretKey
-				// sec.SetByCSPRNG()
-
-				// pub := sec.GetPublicKey()
-				// sig := sec.Sign("test")
-				// sig.Verify(pub, "test")
-
 				msg := &pb.ProtocolMessage{
 					SenderId: membership.OwnID,
 					Sn:       cursn,
@@ -544,13 +535,11 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 		Int("nReq", len(preprepare.Batch.Requests)).
 		Msg("Handling PREPREPARE.")
 	///1201
-	// for i, j := range preprepare.Hset {
-	// 	logger.Info().Int32("sn", sn).
-	// 		Int32("tn", j.Htn).
-	// 		Int("i", i).
-	// 		Msg("Hset.")
-	// }
-	logger.Debug().Int32("sn", sn).Msgf("Hset is : %v", preprepare.Hset)
+	for _, j := range preprepare.Hset {
+		logger.Info().Int32("sn", sn).
+			Int32("tn", j.Htn).
+			Msg("Hset.")
+	}
 
 	if tn < pi.GetMaxHtn(preprepare.Hset)+1 {
 		return fmt.Errorf("invalid tn number %d", tn)
@@ -814,6 +803,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 			K:         membership.OwnID * int32(config.Config.PrivKeyCnt),
 			PrepareQc: nil,
 		}
+		// Sign the message
 		qcData, _ := proto.Marshal(htnmsg.QcMessage)
 		id, sig, _ := pi.orderer.SignWithKthKey(qcData, htnmsg.K)
 		htnmsg.Qc = &pb.Qc{Id: id, Qc: sig}
@@ -849,6 +839,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 		QcMessage: qcmessage,
 		Qc:        qc,
 		K:         k,
+		PrepareQc: nil,
 	}
 
 	msg1 := &pb.ProtocolMessage{
@@ -2461,43 +2452,65 @@ func (pi *pbftInstance) CheckHtns(batch *pbftBatch) bool {
 			//htnssn[batch.] = append( ,htn)
 		}
 	}
+
 	// Check if enough valid htn messages are received
-	if len(batch.validHtnMsgs) >= 2*membership.Faults()+1 {
-		return true
-	} else {
+	// if len(batch.validHtnMsgs) >= 2*membership.Faults()+1 {
+	// 	return true
+	// } else {
+	// 	return false
+	// }
+
+	sigs := make([][]byte, 0, 0)
+	ids := make([][]byte, 0, 0)
+	var data []byte
+	for _, htn := range batch.validHtnMsgs {
+		if data == nil {
+			data, _ = proto.Marshal(htn.QcMessage)
+			logger.Debug().Msgf("data Initialize")
+		}
+		// else {
+		// 	data2, _ := proto.Marshal(htn.QcMessage)
+		// 	if pi.orderer.CompareSig(data, data2) {
+		// 		logger.Debug().Msgf("Data is the same")
+		// 	} else {
+		// 		logger.Warn().Msgf("Data is not the same")
+		// 	}
+		// }
+		//
+		// logger.Debug().Msgf("Qcmessage is %d, %d, %d", htn.QcMessage.Sn, htn.QcMessage.Tn, htn.QcMessage.View)
+		// logger.Debug().Msgf("Qc is %s", htn.Qc.Qc)
+		// logger.Debug().Msgf("id is %s", pi.orderer.DesIdToString(htn.Qc.Id))
+		// logger.Debug().Msgf("K is %s", htn.K)
+
+		// err := pi.orderer.CheckSigShare(data, htn.K, htn.Qc.Qc)
+		// if err != nil {
+		// 	logger.Error().Msgf("CheckSigShare Fail : %s", err)
+		// } else {
+		// 	logger.Debug().Msgf("CheckSigShare Success")
+		// }
+		//
+
+		sigs = append(sigs, htn.Qc.Qc)
+		ids = append(ids, htn.Qc.Id)
+		if data == nil {
+			data, _ = proto.Marshal(htn.QcMessage)
+			logger.Debug().Msgf("data Initialize")
+		}
+	}
+	logger.Debug().Msgf("Length of sigs is %d,Length of ids is %d", len(sigs), len(ids))
+
+	assembleSig, err := pi.orderer.AssembleCert(data, sigs, ids)
+	if err != nil {
+		logger.Error().Msgf("Assemble Signature Fail : %s", err)
 		return false
 	}
-
-	/*
-		sigs := make([][]byte, 0, 0)
-		ids := make([][]byte, 0, 0)
-		data := []byte("")
-		for _, htn := range batch.validHtnMsgs {
-			logger.Debug().Msgf("Qcmessage is %s", htn.QcMessage)
-			logger.Debug().Msgf("id is %s", pi.orderer.DesIdToString(htn.Qc.Id))
-			logger.Debug().Msgf("K is %s", htn.K)
-
-			sigs = append(sigs, htn.Qc.Qc)
-			ids = append(ids, htn.Qc.Id)
-			if data == nil {
-				data, _ = proto.Marshal(htn.QcMessage)
-			}
-		}
-		logger.Debug().Msgf("Length of sigs is %d,Length of ids is %d", len(sigs), len(ids))
-
-		assembleSig, err := pi.orderer.AssembleCert(data, ids, sigs)
-		if err != nil {
-			logger.Error().Msgf("Assemble Signature Fail : %s", err)
-			return false
-		}
-		err = pi.orderer.CheckCert(data, assembleSig)
-		if err != nil {
-			logger.Error().Msgf("Assemble Signature Verify Fail : %s", err)
-			return false
-		} else {
-			return true
-		}
-	*/
+	err = pi.orderer.CheckCert(data, assembleSig)
+	if err != nil {
+		logger.Error().Msgf("Assemble Signature Verify Fail : %s", err)
+		return false
+	} else {
+		return true
+	}
 }
 
 func (pi *pbftInstance) CheckCommits(batch *pbftBatch) bool {
