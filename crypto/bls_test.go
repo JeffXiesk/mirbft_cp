@@ -3,7 +3,6 @@
 package crypto
 
 import (
-	// "strconv"
 	"testing"
 	// bls "github.com/herumi/bls-eth-go-binary/bls"
 )
@@ -31,6 +30,8 @@ func TestBLSRecoverSignature(t *testing.T) {
 		}
 		sigShares = append(sigShares, sigShare)
 		idShares = append(idShares, ids[0][i])
+		t.Logf("id is %s", BLSGetIdDecStringByte(ids[0][i]))
+		t.Logf("K is %d", i)
 		err = BLSSigShareVerification(pubShares[0][i], msg, sigShare)
 		if err != nil {
 			t.Fatalf("Could not vertify %d: %s", i, err.Error())

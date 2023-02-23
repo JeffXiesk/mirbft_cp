@@ -199,28 +199,29 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	pi.checkpointMsgs = make(map[int32]*pb.PbftCheckpoint)
 	pi.checkpointDigests = make(map[string][]int32)
 
-	htnmsg0 := &pb.HtnMessage{
-		Sn:   pi.segment.FirstSN(), ///2023
-		View: pi.view,
-		Htn:  (pi.segment.FirstSN() - int32(pi.segment.SegID()%membership.NumNodes())) / int32(membership.NumNodes()), ///2023一个epoch的初始tn，每个节点都应该一样
-	}
 	/// 1024///1116///1201
 	//htnmember[pi.segment.SegID()] = 0
 	lock.Lock()
 	// TODO: 这个sig能是nil吗
-	htnlog[pi.segment.SegID()] = &pb.HtnMessage{
-		Sn:   (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()),
+	htnmsg0 := &pb.HtnMessage{
+		Sn:   pi.segment.FirstSN(),
 		View: pi.view,
-		Htn:  0,
+		Htn:  (pi.segment.FirstSN() - int32(pi.segment.SegID()%membership.NumNodes())) / int32(membership.NumNodes()),
 		QcMessage: &pb.QcMessage{
 			Sn:   (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()),
 			View: pi.view,
-			Tn:   0,
+			Tn:   (pi.segment.FirstSN() - int32(pi.segment.SegID()%membership.NumNodes())) / int32(membership.NumNodes()),
 		},
 		Qc:        nil,
-		K:         0,
+		K:         membership.OwnID * int32(config.Config.PrivKeyCnt),
 		PrepareQc: nil,
 	} ///2023
+
+	qcData, _ := proto.Marshal(htnmsg0.QcMessage)
+	id, sig, _ := pi.orderer.SignWithKthKey(qcData, htnmsg0.K)
+	htnmsg0.Qc = &pb.Qc{Id: id, Qc: sig}
+
+	htnlog[pi.segment.SegID()] = htnmsg0
 
 	lock.Unlock()
 	pi.vhtnsn[pi.segment.FirstSN()] = true
@@ -551,7 +552,7 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 	// }
 	logger.Debug().Int32("sn", sn).Msgf("Hset is : %v", preprepare.Hset)
 
-	if tn < GetMaxHtn(preprepare.Hset)+1 {
+	if tn < pi.GetMaxHtn(preprepare.Hset)+1 {
 		return fmt.Errorf("invalid tn number %d", tn)
 	}
 
@@ -628,7 +629,7 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 		pi.sendCommit(batch)
 	}
 
-	if !batch.committed && batch.CheckCommits() {
+	if !batch.committed && pi.CheckCommits(batch) {
 
 		////  TODO: Remove this!
 		//// DEBUG
@@ -726,7 +727,7 @@ func (pi *pbftInstance) handlePrepare(prepare *pb.PbftPrepare, msg *pb.ProtocolM
 		pi.sendCommit(batch)
 	}
 
-	if !batch.committed && batch.CheckCommits() {
+	if !batch.committed && pi.CheckCommits(batch) {
 
 		////  TODO: Remove this!
 		//// DEBUG
@@ -791,6 +792,12 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 		Int32("senderID", membership.OwnID).
 		Msg("Sending Htn.")
 
+	qcmessage := &pb.QcMessage{
+		Sn:   batch.preprepareMsg.Sn,
+		View: batch.preprepareMsg.View,
+		Tn:   batch.preprepareMsg.Tn,
+	}
+
 	//if commit.Tn > htnlog[pi.segment.SegID()] {
 	//	htnlog[pi.segment.SegID()] = commit.Tn
 	//}
@@ -798,28 +805,23 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 	lock.Lock()
 	if commit.Tn > htnlog[int(membership.OwnID)].Htn {
 		// TODO: 这里的signature不应该是nil
-		htnlog[int(membership.OwnID)] = &pb.HtnMessage{
-			Sn:   batch.preprepareMsg.Sn,
-			View: pi.view,
-			Htn:  batch.preprepareMsg.Tn,
-			QcMessage: &pb.QcMessage{
-				View: batch.preprepareMsg.View,
-				Sn:   batch.preprepareMsg.Sn,
-				Tn:   batch.preprepareMsg.Tn,
-			},
+		htnmsg := &pb.HtnMessage{
+			Sn:        batch.preprepareMsg.Sn,
+			View:      pi.view,
+			Htn:       batch.preprepareMsg.Tn,
+			QcMessage: qcmessage,
 			Qc:        nil,
-			K:         0,
+			K:         membership.OwnID * int32(config.Config.PrivKeyCnt),
 			PrepareQc: nil,
 		}
+		qcData, _ := proto.Marshal(htnmsg.QcMessage)
+		id, sig, _ := pi.orderer.SignWithKthKey(qcData, htnmsg.K)
+		htnmsg.Qc = &pb.Qc{Id: id, Qc: sig}
+
+		htnlog[int(membership.OwnID)] = htnmsg
 		lock.Unlock()
 	} else {
 		lock.Unlock()
-	}
-
-	qcmessage := &pb.QcMessage{
-		Sn:   batch.preprepareMsg.Sn,
-		View: pi.view,
-		Tn:   batch.preprepareMsg.Tn,
 	}
 
 	// TODO: QcMessage有必要发吗，还是说直接发QcMessage的哈希（data）就可以
@@ -870,19 +872,29 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 }
 
 // /1201
-func GetMaxHtn(ary []*pb.HtnMessage) int32 {
+func (pi *pbftInstance) GetMaxHtn(ary []*pb.HtnMessage) int32 {
 	if len(ary) == 0 {
 		return 0
 	}
-
-	maxVal := ary[0].Htn
+	maxIdx := -1
+	data := []byte("")
 	for i := 1; i < len(ary); i++ {
-		if maxVal < ary[i].Htn {
-			maxVal = ary[i].Htn
+		if data == nil {
+			data, _ = proto.Marshal(ary[i].QcMessage)
+		}
+		err := pi.orderer.CheckSigShare(data, ary[i].K, ary[i].Qc.Qc)
+		if err == nil {
+			if maxIdx == -1 || ary[maxIdx].Htn < ary[i].Htn {
+				maxIdx = i
+			}
 		}
 	}
-
-	return maxVal
+	if maxIdx == -1 {
+		logger.Error().Msg("Can not verify the Qc")
+		return 0
+	} else {
+		return ary[maxIdx].Htn
+	}
 }
 
 // /2023
@@ -920,7 +932,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	if err != nil {
 		logger.Error().Err(err)
 	}
-	err = pi.orderer.CheckSigShare(data, msg.SenderId, htnmsg.K, htnmsg.Qc.Qc)
+	err = pi.orderer.CheckSigShare(data, htnmsg.K, htnmsg.Qc.Qc)
 	if err != nil {
 		logger.Error().Err(err).Msg("CheckSig: BLSSigShareVerification Fail")
 	}
@@ -950,7 +962,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 				Tn:   batch.preprepareMsg.Tn,
 			},
 			Qc:        nil,
-			K:         htn - batch.preprepareMsg.Tn,
+			K:         membership.OwnID*int32(config.Config.PrivKeyCnt) + htn - batch.preprepareMsg.Tn,
 			PrepareQc: nil,
 		}
 		lock.Unlock()
@@ -961,7 +973,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	lock.Unlock()
 	///1116
 	pi.mutex.RLock()
-	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && batch.CheckCommits() && batch.CheckHtns() {
+	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && pi.CheckCommits(batch) && pi.CheckHtns(batch) {
 		pi.mutex.RUnlock()
 		pi.mutex.Lock()
 		pi.vhtnsn[sn+int32(membership.NumNodes())] = true
@@ -1017,7 +1029,7 @@ func (pi *pbftInstance) handleCommit(commit *pb.PbftCommit, msg *pb.ProtocolMess
 	}
 	batch.commitMsgs[senderID] = commit
 
-	if !batch.committed && batch.CheckCommits() {
+	if !batch.committed && pi.CheckCommits(batch) {
 
 		////  TODO: Remove this!
 		//// DEBUG
@@ -1032,7 +1044,7 @@ func (pi *pbftInstance) handleCommit(commit *pb.PbftCommit, msg *pb.ProtocolMess
 	}
 	///1116
 	pi.mutex.RLock()
-	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && batch.CheckCommits() && batch.CheckHtns() {
+	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && pi.CheckCommits(batch) && pi.CheckHtns(batch) {
 		pi.mutex.RUnlock()
 		pi.mutex.Lock()
 		pi.vhtnsn[sn+int32(membership.NumNodes())] = true
@@ -2437,7 +2449,7 @@ func isPrepared(batch *pbftBatch) bool {
 }
 
 // /1116
-func (batch *pbftBatch) CheckHtns() bool {
+func (pi *pbftInstance) CheckHtns(batch *pbftBatch) bool {
 
 	for peerID, htn := range batch.htnMsgs {
 		if htn != nil {
@@ -2449,16 +2461,46 @@ func (batch *pbftBatch) CheckHtns() bool {
 			//htnssn[batch.] = append( ,htn)
 		}
 	}
-
 	// Check if enough valid htn messages are received
 	if len(batch.validHtnMsgs) >= 2*membership.Faults()+1 {
 		return true
 	} else {
 		return false
 	}
+
+	/*
+		sigs := make([][]byte, 0, 0)
+		ids := make([][]byte, 0, 0)
+		data := []byte("")
+		for _, htn := range batch.validHtnMsgs {
+			logger.Debug().Msgf("Qcmessage is %s", htn.QcMessage)
+			logger.Debug().Msgf("id is %s", pi.orderer.DesIdToString(htn.Qc.Id))
+			logger.Debug().Msgf("K is %s", htn.K)
+
+			sigs = append(sigs, htn.Qc.Qc)
+			ids = append(ids, htn.Qc.Id)
+			if data == nil {
+				data, _ = proto.Marshal(htn.QcMessage)
+			}
+		}
+		logger.Debug().Msgf("Length of sigs is %d,Length of ids is %d", len(sigs), len(ids))
+
+		assembleSig, err := pi.orderer.AssembleCert(data, ids, sigs)
+		if err != nil {
+			logger.Error().Msgf("Assemble Signature Fail : %s", err)
+			return false
+		}
+		err = pi.orderer.CheckCert(data, assembleSig)
+		if err != nil {
+			logger.Error().Msgf("Assemble Signature Verify Fail : %s", err)
+			return false
+		} else {
+			return true
+		}
+	*/
 }
 
-func (batch *pbftBatch) CheckCommits() bool {
+func (pi *pbftInstance) CheckCommits(batch *pbftBatch) bool {
 	// Check if the proposal is received
 	if !batch.preprepared {
 		return false

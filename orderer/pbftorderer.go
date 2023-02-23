@@ -304,6 +304,10 @@ func (po *PbftOrderer) killSegment(seg manager.Segment) {
 	}
 }
 
+func (ho *PbftOrderer) DesIdToString(id []byte) string {
+	return crypto.BLSGetIdDecStringByte(id)
+}
+
 // Sign generates a signature share. k represent the k th private key the peer use.
 func (ho *PbftOrderer) Sign(data []byte) ([]byte, error) {
 	return nil, nil
@@ -318,9 +322,9 @@ func (ho *PbftOrderer) SignWithKthKey(data []byte, k int32) ([]byte, []byte, err
 }
 
 // CheckSigShare checks if a signature share is valid.
-func (ho *PbftOrderer) CheckSigShare(data []byte, senderID int32, k int32, signature []byte) error {
+func (ho *PbftOrderer) CheckSigShare(data []byte, k int32, signature []byte) error {
 	//return nil
-	return crypto.BLSSigShareVerification(membership.BLSPubKeyShares[senderID][k%int32(config.Config.PrivKeyCnt)], data, signature)
+	return crypto.BLSSigShareVerification(membership.BLSPubKeyShares[k/int32(config.Config.PrivKeyCnt)][k%int32(config.Config.PrivKeyCnt)], data, signature)
 }
 
 // CheckSig checks if a signature share is valid.
