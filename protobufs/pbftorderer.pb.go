@@ -281,7 +281,7 @@ func (x *PbftCommit) GetTn() int32 {
 	return 0
 }
 
-//1024
+// 1024
 type HtnMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -345,7 +345,7 @@ func (x *HtnMessage) GetHtn() int32 {
 	return 0
 }
 
-//2023
+// 2023
 type EndBlock struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
