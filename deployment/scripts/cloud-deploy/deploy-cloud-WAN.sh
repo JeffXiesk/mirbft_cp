@@ -3,7 +3,7 @@
 ssh_options_cloud='-i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60'
 
 # source shutdown_instances.sh
-num=$(python scripts/cloud-deploy/pyscript/find_insnum.py)
+num=$(python3 scripts/cloud-deploy/pyscript/find_insnum.py)
 num_arr=(`echo $num | tr ',' ' '`)
 totalnum=${num_arr[2]}
 client_num=${num_arr[0]}
@@ -50,7 +50,7 @@ if [ "$1" = "-i" ]; then
     #     --output=text)
     # echo $private_ip
 
-    # write_result=$(python scripts/cloud-deploy/pyscript/write_cloud_instance.py $client_num $peer_num $public_ip $private_ip)
+    # write_result=$(python3 scripts/cloud-deploy/pyscript/write_cloud_instance.py $client_num $peer_num $public_ip $private_ip)
     # echo $write_result
 
     # # show info of instance
@@ -160,7 +160,7 @@ fi
 #     tar -zxvf $tar -C scripts/cloud-deploy/experiment-output/;
 # done
 
-# python scripts/cloud-deploy/Fairness_process/latency_each_stage.py >> scripts/cloud-deploy/Fairness_process/data_analyze.log
+# python3 scripts/cloud-deploy/Fairness_process/latency_each_stage.py >> scripts/cloud-deploy/Fairness_process/data_analyze.log
 
 # # for each_region in ${AWS_REGIONS} ; do 
 # #     aws ec2 import-key-pair \

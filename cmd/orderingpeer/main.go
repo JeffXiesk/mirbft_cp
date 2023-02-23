@@ -5,8 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog"
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/checkpoint"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/crypto"
@@ -19,6 +17,8 @@ import (
 	"github.com/hyperledger-labs/mirbft/request"
 	"github.com/hyperledger-labs/mirbft/statetransfer"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	"github.com/rs/zerolog"
+	logger "github.com/rs/zerolog/log"
 )
 
 // Flag indicating whether profiling is enabled.
@@ -62,7 +62,7 @@ func main() {
 	// - Private key
 	// - Public key for BLS threshold cryptosystem
 	// - Private key share for BLS threshold cryptosystem
-	ownID, nodeIdentities, privateKey, serializedTBLSPubKey, serializedTBLSPrivKeyShare :=
+	ownID, nodeIdentities, privateKey, serializedTBLSPubKey, serializedTBLSPrivKeyShare, serializedBLSPubKey, serializedBLSPrivKeyShare, serializedBLSPubKeyShare, serializedBLSId :=
 		discovery.RegisterPeer(discoveryServAddr, ownPublicIP, ownPrivateIP)
 	membership.OwnID = ownID
 	membership.OwnPrivKey = privateKey
@@ -83,6 +83,29 @@ func main() {
 		logger.Fatal().Msgf("Could not deserialize TBLS private key share %s", err.Error())
 	}
 	membership.TBLSPrivKeyShare = TBLSPrivKeyShare
+
+	crypto.Init()
+	// Desirialize TBLS keys
+	BLSPubKey, err := crypto.BLSPubKeyFromBytes(serializedBLSPubKey)
+	if err != nil {
+		logger.Fatal().Msgf("Could not deserialize BLS public key %s", err.Error())
+	}
+	membership.BLSPublicKey = BLSPubKey
+	BLSPrivKeyShares, err := crypto.BLSPrivKeyShareFromBytes(serializedBLSPrivKeyShare)
+	if err != nil {
+		logger.Fatal().Msgf("Could not deserialize BLS private key share %s", err.Error())
+	}
+	membership.BLSPrivKeyShares = BLSPrivKeyShares
+	BLSId, err := crypto.BLSIdFromBytes(serializedBLSId)
+	if err != nil {
+		logger.Fatal().Msgf("Could not deserialize BLS ID %s", err.Error())
+	}
+	membership.BLSIds = BLSId
+	BLSPubKeyShares, err := crypto.BLSPubKeyShareFromBytes(serializedBLSPubKeyShare)
+	if err != nil {
+		logger.Fatal().Msgf("Could not deserialize BLS public key share %s", err.Error())
+	}
+	membership.BLSPubKeyShares = BLSPubKeyShares
 
 	// Start profiler if necessary
 	// ATTENTION! We first look for argument 6, and only then check argument 5
