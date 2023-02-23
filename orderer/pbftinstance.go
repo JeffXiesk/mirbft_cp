@@ -39,17 +39,17 @@ const (
 	catchupDelay = 400 * time.Millisecond
 )
 
-type htnInfo struct {
-	htn int32
-	k   int32
-	sig []byte
-}
+// type htnInfo struct {
+// 	htn int32
+// 	k   int32
+// 	sig []byte
+// }
 
 var (
 	///1103
 	//htnmember = make(map[int]int32)
 	// TODO: check htnlog's signature
-	htnlog = make(map[int]*htnInfo)
+	htnlog = make(map[int]*pb.HtnMessage)
 	lock   sync.Mutex
 	//vhtnsn = make(map[int32]bool)
 	//htnssn = make(map[int32][]int32)
@@ -208,7 +208,20 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	//htnmember[pi.segment.SegID()] = 0
 	lock.Lock()
 	// TODO: 这个sig能是nil吗
-	htnlog[pi.segment.SegID()] = &htnInfo{(int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()), 0, nil} ///2023
+	htnlog[pi.segment.SegID()] = &pb.HtnMessage{
+		Sn:   (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()),
+		View: pi.view,
+		Htn:  0,
+		QcMessage: &pb.QcMessage{
+			Sn:   (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()),
+			View: pi.view,
+			Tn:   0,
+		},
+		Qc:        nil,
+		K:         0,
+		PrepareQc: nil,
+	} ///2023
+
 	lock.Unlock()
 	pi.vhtnsn[pi.segment.FirstSN()] = true
 	//for _,sn :=range pi.segment.SNs() {
@@ -285,7 +298,7 @@ func (pi *pbftInstance) lead() {
 
 		// Create message to serve as a placeholder for proposing a batch.
 		lock.Lock()
-		htntopropose := htnlog[pi.segment.SegID()].htn + 1
+		htntopropose := htnlog[pi.segment.SegID()].Htn + 1
 		lock.Unlock()
 		snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())
 		pi.mutex.RLock()
@@ -783,9 +796,21 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 	//}
 	///1201///////1212121212
 	lock.Lock()
-	if commit.Tn > htnlog[int(membership.OwnID)].htn {
+	if commit.Tn > htnlog[int(membership.OwnID)].Htn {
 		// TODO: 这里的signature不应该是nil
-		htnlog[int(membership.OwnID)] = &htnInfo{commit.Tn, 0, nil}
+		htnlog[int(membership.OwnID)] = &pb.HtnMessage{
+			Sn:   batch.preprepareMsg.Sn,
+			View: pi.view,
+			Htn:  batch.preprepareMsg.Tn,
+			QcMessage: &pb.QcMessage{
+				View: batch.preprepareMsg.View,
+				Sn:   batch.preprepareMsg.Sn,
+				Tn:   batch.preprepareMsg.Tn,
+			},
+			Qc:        nil,
+			K:         0,
+			PrepareQc: nil,
+		}
 		lock.Unlock()
 	} else {
 		lock.Unlock()
@@ -805,7 +830,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 	lock.Lock()
 
 	// TODO: make 5 into a param
-	k := int32(membership.NumNodes()*config.Config.PrivKeyCnt) + htnlog[int(membership.OwnID)].htn - qcmessage.Tn
+	k := membership.OwnID*int32(config.Config.PrivKeyCnt) + htnlog[int(membership.OwnID)].Htn - qcmessage.Tn
 	lock.Unlock()
 	id, signature, err := pi.orderer.SignWithKthKey(data, k)
 
@@ -818,7 +843,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 	htnmsg := &pb.HtnMessage{
 		Sn:        batch.preprepareMsg.Sn,
 		View:      pi.view,
-		Htn:       htnlog[int(membership.OwnID)].htn,
+		Htn:       htnlog[int(membership.OwnID)].Htn,
 		QcMessage: qcmessage,
 		Qc:        qc,
 		K:         k,
@@ -904,7 +929,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	//	Msg("previous localhtn.")
 	sn := msg.Sn
 	lock.Lock()
-	prehtn := htnlog[pi.segment.SegID()].htn
+	prehtn := htnlog[pi.segment.SegID()].Htn
 	lock.Unlock()
 	htn := htnmsg.Htn
 	///1116
@@ -915,11 +940,23 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	//	pi.tnmsgsn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.tnmsgsn[htnmsg.Sn+int32(membership.NumNodes())], htnmsg)
 	if htn >= prehtn {
 		lock.Lock()
-		htnlog[pi.segment.SegID()] = &htnInfo{htn, 0, nil}
+		htnlog[pi.segment.SegID()] = &pb.HtnMessage{
+			Sn:   sn,
+			View: pi.view,
+			Htn:  htn,
+			QcMessage: &pb.QcMessage{
+				View: batch.preprepareMsg.View,
+				Sn:   batch.preprepareMsg.Sn,
+				Tn:   batch.preprepareMsg.Tn,
+			},
+			Qc:        nil,
+			K:         htn - batch.preprepareMsg.Tn,
+			PrepareQc: nil,
+		}
 		lock.Unlock()
 	}
 	lock.Lock()
-	logger.Debug().Int32("prelocalhtn", prehtn).Int32("newhtn", htnlog[pi.segment.SegID()].htn).Int("segment", pi.segment.SegID()).
+	logger.Debug().Int32("prelocalhtn", prehtn).Int32("newhtn", htnlog[pi.segment.SegID()].Htn).Int("segment", pi.segment.SegID()).
 		Msg("func handleHtnmsg.")
 	lock.Unlock()
 	///1116
