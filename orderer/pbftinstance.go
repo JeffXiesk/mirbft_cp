@@ -33,17 +33,23 @@ import (
 	"github.com/hyperledger-labs/mirbft/statetransfer"
 	"github.com/hyperledger-labs/mirbft/tracing"
 	logger "github.com/rs/zerolog/log"
-	//bls "github.com/herumi/bls-eth-go-binary/bls"
 )
 
 const (
 	catchupDelay = 400 * time.Millisecond
 )
 
+// type htnInfo struct {
+// 	htn int32
+// 	k   int32
+// 	sig []byte
+// }
+
 var (
 	///1103
 	//htnmember = make(map[int]int32)
-	htnlog = make(map[int]int32)
+	// TODO: check htnlog's signature
+	htnlog = make(map[int]*pb.HtnMessage)
 	lock   sync.Mutex
 	//vhtnsn = make(map[int32]bool)
 	//htnssn = make(map[int32][]int32)
@@ -201,7 +207,21 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	/// 1024///1116///1201
 	//htnmember[pi.segment.SegID()] = 0
 	lock.Lock()
-	htnlog[pi.segment.SegID()] = (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()) ///2023
+	// TODO: 这个sig能是nil吗
+	htnlog[pi.segment.SegID()] = &pb.HtnMessage{
+		Sn:   (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()),
+		View: pi.view,
+		Htn:  0,
+		QcMessage: &pb.QcMessage{
+			Sn:   (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()),
+			View: pi.view,
+			Tn:   0,
+		},
+		Qc:        nil,
+		K:         0,
+		PrepareQc: nil,
+	} ///2023
+
 	lock.Unlock()
 	pi.vhtnsn[pi.segment.FirstSN()] = true
 	//for _,sn :=range pi.segment.SNs() {
@@ -228,10 +248,10 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	// Set the starting timestamp
 	pi.startTs = time.Now().UnixNano()
 
-	/* pi.ids = make([]*bls.ID ,N);
-	pi.secs = make([]bls.SecretKey, N);
-	pi.pubs = make([]*bls.PublicKey, N);
-	pi.sigs = make([]*bls.Sign, N); */
+	logger.Debug().Msgf("Key and Id list is :%v , %v", membership.BLSPrivKeyShares, membership.BLSIds)
+	for i := 0; i < config.Config.PrivKeyCnt; i++ {
+		logger.Debug().Int32("membershipID", membership.OwnID).Msgf("blsID is %s", crypto.BLSGetIdDecString(membership.BLSIds[i]))
+	}
 }
 
 // func (pi *pbftInstance) lead(sn int32) {///1201
@@ -278,7 +298,7 @@ func (pi *pbftInstance) lead() {
 
 		// Create message to serve as a placeholder for proposing a batch.
 		lock.Lock()
-		htntopropose := htnlog[pi.segment.SegID()] + 1
+		htntopropose := htnlog[pi.segment.SegID()].Htn + 1
 		lock.Unlock()
 		snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())
 		pi.mutex.RLock()
@@ -290,6 +310,16 @@ func (pi *pbftInstance) lead() {
 					Int32("cursn", cursn).
 					Int("SegID", pi.segment.SegID()).
 					Msg("cursn==snfromhtntopropose")
+
+				// bls.Init(bls.BLS12_381)
+				// bls.SetETHmode(bls.EthModeDraft07)
+				// var sec bls.SecretKey
+				// sec.SetByCSPRNG()
+
+				// pub := sec.GetPublicKey()
+				// sig := sec.Sign("test")
+				// sig.Verify(pub, "test")
+
 				msg := &pb.ProtocolMessage{
 					SenderId: membership.OwnID,
 					Sn:       cursn,
@@ -513,12 +543,13 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 		Int("nReq", len(preprepare.Batch.Requests)).
 		Msg("Handling PREPREPARE.")
 	///1201
-	for i, j := range preprepare.Hset {
-		logger.Info().Int32("sn", sn).
-			Int32("tn", j.Htn).
-			Int("i", i).
-			Msg("Hset.")
-	}
+	// for i, j := range preprepare.Hset {
+	// 	logger.Info().Int32("sn", sn).
+	// 		Int32("tn", j.Htn).
+	// 		Int("i", i).
+	// 		Msg("Hset.")
+	// }
+	logger.Debug().Int32("sn", sn).Msgf("Hset is : %v", preprepare.Hset)
 
 	if tn < GetMaxHtn(preprepare.Hset)+1 {
 		return fmt.Errorf("invalid tn number %d", tn)
@@ -765,21 +796,58 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 	//}
 	///1201///////1212121212
 	lock.Lock()
-	if commit.Tn > htnlog[int(membership.OwnID)] {
-		htnlog[int(membership.OwnID)] = commit.Tn
+	if commit.Tn > htnlog[int(membership.OwnID)].Htn {
+		// TODO: 这里的signature不应该是nil
+		htnlog[int(membership.OwnID)] = &pb.HtnMessage{
+			Sn:   batch.preprepareMsg.Sn,
+			View: pi.view,
+			Htn:  batch.preprepareMsg.Tn,
+			QcMessage: &pb.QcMessage{
+				View: batch.preprepareMsg.View,
+				Sn:   batch.preprepareMsg.Sn,
+				Tn:   batch.preprepareMsg.Tn,
+			},
+			Qc:        nil,
+			K:         0,
+			PrepareQc: nil,
+		}
 		lock.Unlock()
 	} else {
 		lock.Unlock()
 	}
 
-	///1103这里有问题，发送的不应该是这个instance对应的htn，而是在所有链上看到的最高htn，把pi.segment.SegID()改成membership.OwnID
-	lock.Lock()
-	htnmsg := &pb.HtnMessage{
+	qcmessage := &pb.QcMessage{
 		Sn:   batch.preprepareMsg.Sn,
 		View: pi.view,
-		Htn:  htnlog[int(membership.OwnID)],
+		Tn:   batch.preprepareMsg.Tn,
 	}
+
+	// TODO: QcMessage有必要发吗，还是说直接发QcMessage的哈希（data）就可以
+	data, err := proto.Marshal(qcmessage)
+	if err != nil {
+		logger.Error().Err(err)
+	}
+	lock.Lock()
+
+	// TODO: make 5 into a param
+	k := membership.OwnID*int32(config.Config.PrivKeyCnt) + htnlog[int(membership.OwnID)].Htn - qcmessage.Tn
 	lock.Unlock()
+	id, signature, err := pi.orderer.SignWithKthKey(data, k)
+
+	qc := &pb.Qc{
+		Qc: signature,
+		Id: id,
+	}
+
+	///1103这里有问题，发送的不应该是这个instance对应的htn，而是在所有链上看到的最高htn，把pi.segment.SegID()改成membership.OwnID
+	htnmsg := &pb.HtnMessage{
+		Sn:        batch.preprepareMsg.Sn,
+		View:      pi.view,
+		Htn:       htnlog[int(membership.OwnID)].Htn,
+		QcMessage: qcmessage,
+		Qc:        qc,
+		K:         k,
+	}
 
 	msg1 := &pb.ProtocolMessage{
 		SenderId: membership.OwnID,
@@ -844,12 +912,24 @@ func (pi *pbftInstance) handleEndBlock(endblock *pb.EndBlock, msg *pb.ProtocolMe
 }
 
 // /1024///1116
+// TODO: Htn 是不是应该改为htnmsg.QcMessage.Tn + htnmsg.K
+// TODO: 需要确定htnmsg里的内容是否正确
 func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMessage) error {
+	// CheckSig
+	data, err := proto.Marshal(htnmsg.QcMessage)
+	if err != nil {
+		logger.Error().Err(err)
+	}
+	err = pi.orderer.CheckSigShare(data, msg.SenderId, htnmsg.K, htnmsg.Qc.Qc)
+	if err != nil {
+		logger.Error().Err(err).Msg("CheckSig: BLSSigShareVerification Fail")
+	}
+
 	//logger.Debug().Int32("prelocalhtn", htnlog[pi.segment.SegID()]).
 	//	Msg("previous localhtn.")
 	sn := msg.Sn
 	lock.Lock()
-	prehtn := htnlog[pi.segment.SegID()]
+	prehtn := htnlog[pi.segment.SegID()].Htn
 	lock.Unlock()
 	htn := htnmsg.Htn
 	///1116
@@ -860,11 +940,23 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	//	pi.tnmsgsn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.tnmsgsn[htnmsg.Sn+int32(membership.NumNodes())], htnmsg)
 	if htn >= prehtn {
 		lock.Lock()
-		htnlog[pi.segment.SegID()] = htn
+		htnlog[pi.segment.SegID()] = &pb.HtnMessage{
+			Sn:   sn,
+			View: pi.view,
+			Htn:  htn,
+			QcMessage: &pb.QcMessage{
+				View: batch.preprepareMsg.View,
+				Sn:   batch.preprepareMsg.Sn,
+				Tn:   batch.preprepareMsg.Tn,
+			},
+			Qc:        nil,
+			K:         htn - batch.preprepareMsg.Tn,
+			PrepareQc: nil,
+		}
 		lock.Unlock()
 	}
 	lock.Lock()
-	logger.Debug().Int32("prelocalhtn", prehtn).Int32("newhtn", htnlog[pi.segment.SegID()]).Int("segment", pi.segment.SegID()).
+	logger.Debug().Int32("prelocalhtn", prehtn).Int32("newhtn", htnlog[pi.segment.SegID()].Htn).Int("segment", pi.segment.SegID()).
 		Msg("func handleHtnmsg.")
 	lock.Unlock()
 	///1116
@@ -1306,7 +1398,7 @@ func (pi *pbftInstance) sendViewChange() {
 	if err != nil {
 		logger.Error().Err(err)
 	}
-	signature, err := pi.orderer.Sign(data)
+	_, signature, err := pi.orderer.SignWithKthKey(data, 0)
 	if err != nil {
 		logger.Error().Err(err)
 	}
@@ -1821,7 +1913,7 @@ func (pi *pbftInstance) sendNewView() {
 		logger.Error().Err(err)
 		return
 	}
-	signature, err := pi.orderer.Sign(data)
+	_, signature, err := pi.orderer.SignWithKthKey(data, 0)
 	if err != nil {
 		logger.Error().Err(err)
 		return

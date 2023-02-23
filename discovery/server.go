@@ -18,8 +18,8 @@ import (
 	"net"
 	"sync"
 
-	logger "github.com/rs/zerolog/log"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	logger "github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )
 
@@ -41,10 +41,15 @@ type DiscoveryServer struct {
 	peerIdentities       []*pb.NodeIdentity // Used to include in responses to requests. Populated when all peers call RegisterPeer.
 	TBLSPublicKey        []byte             // Public key of the BLS threshold cryptosystem
 	TBLSPrivateKeyShares [][]byte           // Privte key shares of the BLS threshold cryptosystem
+	BLSPublicKey         []byte             // Public key of the BLS threshold cryptosystem
+	BLSPrivateKeyShares  [][][]byte         // Privte key shares of the BLS threshold cryptosystem
+	BLSPublicKeyShares   []*pb.PubKeyMsg    // Public key shares of the BLS threshold cryptosystem
+	BLSIds               [][][]byte         // Ids of the BLS threshold cryptosystem
 	peerWg               sync.WaitGroup     // Used to wait for all peers to be ready to receive the membership list.
 	syncWg               sync.WaitGroup     // Used to wait for all peers to connect to each other.
 	doOnce               sync.Once          // Used to generate response that is sent to all peers.
 	keyGenOnce           sync.Once          // Used to generate the keys for the BLS threshold cryptosystem once, to be included in the response sent to all peers.
+	BLSkeyGenOnce        sync.Once          // Used to generate the keys for the BLS threshold cryptosystem once, to be included in the response sent to all peers.
 
 	// Fields related to master and slaves.
 	slaves sync.Map // Maps slave IDs to slaves. Used as map[int32]*slave
@@ -184,4 +189,5 @@ func (ds *DiscoveryServer) resetPC(numPeers int) {
 	ds.syncWg.Add(numPeers)
 	ds.doOnce = sync.Once{}
 	ds.keyGenOnce = sync.Once{}
+	ds.BLSkeyGenOnce = sync.Once{}
 }
