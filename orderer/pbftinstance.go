@@ -81,6 +81,7 @@ type pbftInstance struct {
 	//localhtn int32///1024
 	//hnsn   map[int32]int32
 	htnssn map[int32][]*pb.HtnMessage ///1116 more than 2f hns for a sn
+	kssn   map[int32][]int32
 	vhtnsn map[int32]bool
 	mutex  *sync.RWMutex
 
@@ -192,6 +193,7 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	//1103
 	//pi.hnsn = make(map[int32]int32)
 	pi.htnssn = make(map[int32][]*pb.HtnMessage)
+	pi.kssn = make(map[int32][]int32)
 	pi.vhtnsn = make(map[int32]bool)
 	pi.mutex = &sync.RWMutex{}
 	// Initialise protocol state
@@ -204,11 +206,11 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	lock.Lock()
 	// TODO: 这个sig能是nil吗
 	htnmsg0 := &pb.HtnMessage{
-		Sn:   pi.segment.FirstSN(),
+		Sn:   pi.segment.FirstSN() - int32(membership.NumNodes()), //pi.segment.FirstSN() - int32(membership.NumNodes()), //pi.segment.FirstSN(),//be careful of this!!!!如果以后增加了验证，这里会通不过!记得考虑init的情况！
 		View: pi.view,
 		Htn:  (pi.segment.FirstSN() - int32(pi.segment.SegID()%membership.NumNodes())) / int32(membership.NumNodes()),
 		QcMessage: &pb.QcMessage{
-			Sn:   (int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()),
+			Sn:   pi.segment.FirstSN() - int32(membership.NumNodes()), //(int32(pi.segment.FirstSN()) - int32(pi.segment.FirstSN())%int32(membership.NumNodes())) / int32(membership.NumNodes()),
 			View: pi.view,
 			Tn:   (pi.segment.FirstSN() - int32(pi.segment.SegID()%membership.NumNodes())) / int32(membership.NumNodes()),
 		},
@@ -315,9 +317,9 @@ func (pi *pbftInstance) lead() {
 				View: pi.view,
 				Htn:  selfhtn,
 				QcMessage: &pb.QcMessage{
-					Sn:   cursn,
+					Sn:   cursn - int32(membership.NumNodes()),
 					View: pi.view,
-					Tn:   selfhtn,
+					Tn:   pi.htnssn[cursn][0].QcMessage.Tn, //TODO to be check
 				},
 				Qc:        nil,
 				K:         membership.OwnID * int32(config.Config.PrivKeyCnt),
@@ -327,7 +329,8 @@ func (pi *pbftInstance) lead() {
 			id, sig, _ := pi.orderer.SignWithKthKey(qcData, htnmsg00.K)
 			htnmsg00.Qc = &pb.Qc{Id: id, Qc: sig}
 			pi.htnssn[cursn] = append(pi.htnssn[cursn], htnmsg00)
-			curhtn := pi.GetMaxHtn(pi.htnssn[cursn])
+			pi.kssn[cursn] = append(pi.kssn[cursn], htnmsg00.K)
+			curhtn := pi.GetMaxHtn(htnmsg00.QcMessage.Tn, pi.kssn[cursn])
 			htntopropose := curhtn + 1
 			snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())
 
@@ -337,6 +340,8 @@ func (pi *pbftInstance) lead() {
 					Int("SegID", pi.segment.SegID()).
 					Msg("cursn==snfromhtntopropose")
 
+				Asm_Qc := pi.AssembleCert(pi.htnssn[cursn])
+				// TODO 2.24 : 检查*pb.QcMessage看是否有重复元素
 				msg := &pb.ProtocolMessage{
 					SenderId: membership.OwnID,
 					Sn:       cursn,
@@ -346,8 +351,14 @@ func (pi *pbftInstance) lead() {
 							Leader: membership.OwnID,
 							Batch:  nil, // This will be filled in by the PBFT instance when this message is serialized.
 							Tn:     htntopropose,
-							Hset:   pi.htnssn[cursn],
 							Skip:   cursn,
+							QcMessage: &pb.QcMessage{
+								Sn:   cursn - int32(membership.NumNodes()),
+								View: pi.view,
+								Tn:   pi.htnssn[cursn][0].QcMessage.Tn,
+							},
+							Hset: Asm_Qc,
+							Ks:   pi.kssn[cursn],
 						},
 					},
 				}
@@ -356,6 +367,7 @@ func (pi *pbftInstance) lead() {
 			}
 			if cursn < snfromhtntopropose && snfromhtntopropose <= pi.segment.LastSN() {
 				logger.Info().Int32("cursn", cursn).Int32("snfromhtntopropose", snfromhtntopropose).Msg("enter block2")
+				Asm_Qc := pi.AssembleCert(pi.htnssn[cursn])
 				msg := &pb.ProtocolMessage{
 					SenderId: membership.OwnID,
 					Sn:       snfromhtntopropose,
@@ -365,8 +377,14 @@ func (pi *pbftInstance) lead() {
 							Leader: membership.OwnID,
 							Batch:  nil, // This will be filled in by the PBFT instance when this message is serialized.
 							Tn:     htntopropose,
-							Hset:   pi.htnssn[cursn],
 							Skip:   cursn,
+							QcMessage: &pb.QcMessage{
+								Sn:   cursn - int32(membership.NumNodes()),
+								View: pi.view,
+								Tn:   pi.htnssn[cursn][0].QcMessage.Tn,
+							},
+							Hset: Asm_Qc,
+							Ks:   pi.kssn[cursn],
 						},
 					},
 				}
@@ -562,15 +580,24 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 		Msg("Handling PREPREPARE.")
 	///1201
 
-	for _, j := range preprepare.Hset {
-		logger.Info().Int32("sn", sn).
-			Int32("tn", j.Htn).
-			Msg("Hset.")
+	// for _, j := range preprepare.Hset {
+	// 	logger.Info().Int32("sn", sn).
+	// 		Int32("tn", j.Htn).
+	// 		Msg("Hset.")
+	// }
+
+	data, err := proto.Marshal(preprepare.QcMessage)
+	if err != nil {
+		return fmt.Errorf("Marshal QcMessage fail: %s", err)
+	}
+	err = pi.orderer.CheckCert(data, preprepare.Hset)
+	if err != nil && preprepare.Skip != pi.segment.FirstSN() {
+		return fmt.Errorf("Signature Verify fail: %s", err)
 	}
 
-	if tn < pi.GetMaxHtn(preprepare.Hset)+1 {
-		return fmt.Errorf("invalid tn number %d", tn)
-	}
+	// if tn < pi.GetMaxHtn(preprepare.QcMessage.Tn, preprepare.Ks)+1 {
+	// 	return fmt.Errorf("invalid tn number %d", tn)
+	// }
 
 	if sn != preprepare.Sn {
 		return fmt.Errorf("malformed message form %d: header sequence number doesn't match", senderID)
@@ -889,29 +916,14 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 
 // /1201
 
-func (pi *pbftInstance) GetMaxHtn(ary []*pb.HtnMessage) int32 {
-	if len(ary) == 0 {
-		return 0
-	}
-	maxIdx := -1
-	var data []byte
-	for i := 0; i < len(ary); i++ {
-		if data == nil {
-			data, _ = proto.Marshal(ary[i].QcMessage)
-		}
-		err := pi.orderer.CheckSigShare(data, ary[i].K, ary[i].Qc.Qc)
-		if err == nil {
-			if maxIdx == -1 || ary[maxIdx].Htn < ary[i].Htn {
-				maxIdx = i
-			}
+func (pi *pbftInstance) GetMaxHtn(tn int32, Ks []int32) int32 {
+	maxK := int32(0)
+	for _, j := range Ks {
+		if maxK == 0 || j%int32(config.Config.PrivKeyCnt) > maxK {
+			maxK = j % int32(config.Config.PrivKeyCnt)
 		}
 	}
-	if maxIdx == -1 {
-		logger.Error().Msg("Can not verify the Qc")
-		return 0
-	} else {
-		return ary[maxIdx].Htn
-	}
+	return maxK + tn
 }
 
 // /2023
@@ -967,6 +979,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	senderID := msg.SenderId
 	batch.htnMsgs[senderID] = htnmsg
 	pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())], htnmsg)
+	pi.kssn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.kssn[htnmsg.Sn+int32(membership.NumNodes())], htnmsg.K)
 	//	pi.tnmsgsn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.tnmsgsn[htnmsg.Sn+int32(membership.NumNodes())], htnmsg)
 	if htn >= prehtn {
 		lock.Lock()
@@ -2486,20 +2499,26 @@ func (pi *pbftInstance) CheckHtns(batch *pbftBatch) bool {
 
 	// Check if enough valid htn messages are received
 
-	// if len(batch.validHtnMsgs) >= 2*membership.Faults()+1 {
-	// 	return true
-	// } else {
-	// 	return false
-	// }
+	if len(batch.validHtnMsgs) >= 2*membership.Faults() {
+		return true
+	} else {
+		return false
+	}
+}
 
+func (pi *pbftInstance) AssembleCert(htnmsgs []*pb.HtnMessage) []byte {
+	// 聚合签名及验证
 	sigs := make([][]byte, 0, 0)
 	ids := make([][]byte, 0, 0)
 	var data []byte
-	for _, htn := range batch.validHtnMsgs {
+	for _, htn := range htnmsgs {
 		if data == nil {
 			data, _ = proto.Marshal(htn.QcMessage)
 			logger.Debug().Msgf("data Initialize")
 		}
+		sigs = append(sigs, htn.Qc.Qc)
+		ids = append(ids, htn.Qc.Id)
+
 		// else {
 		// 	data2, _ := proto.Marshal(htn.QcMessage)
 		// 	if pi.orderer.CompareSig(data, data2) {
@@ -2509,40 +2528,35 @@ func (pi *pbftInstance) CheckHtns(batch *pbftBatch) bool {
 		// 	}
 		// }
 		//
-		// logger.Debug().Msgf("Qcmessage is %d, %d, %d", htn.QcMessage.Sn, htn.QcMessage.Tn, htn.QcMessage.View)
+		logger.Debug().Msgf("Qcmessage is %d, %d, %d", htn.QcMessage.Sn, htn.QcMessage.Tn, htn.QcMessage.View)
 		// logger.Debug().Msgf("Qc is %s", htn.Qc.Qc)
-		// logger.Debug().Msgf("id is %s", pi.orderer.DesIdToString(htn.Qc.Id))
-		// logger.Debug().Msgf("K is %s", htn.K)
-
-		// err := pi.orderer.CheckSigShare(data, htn.K, htn.Qc.Qc)
-		// if err != nil {
-		// 	logger.Error().Msgf("CheckSigShare Fail : %s", err)
-		// } else {
-		// 	logger.Debug().Msgf("CheckSigShare Success")
-		// }
-		//
-
-		sigs = append(sigs, htn.Qc.Qc)
-		ids = append(ids, htn.Qc.Id)
-		if data == nil {
-			data, _ = proto.Marshal(htn.QcMessage)
-			logger.Debug().Msgf("data Initialize")
+		logger.Debug().Msgf("id is %s", pi.orderer.DesIdToString(htn.Qc.Id))
+		logger.Debug().Msgf("K is %s", htn.K)
+		err := pi.orderer.CheckSigShare(data, htn.K, htn.Qc.Qc)
+		if err != nil {
+			logger.Error().Msgf("CheckSigShare Fail : %s", err)
+		} else {
+			logger.Debug().Msgf("CheckSigShare Success")
 		}
+
 	}
 	logger.Debug().Msgf("Length of sigs is %d,Length of ids is %d", len(sigs), len(ids))
 
 	assembleSig, err := pi.orderer.AssembleCert(data, sigs, ids)
 	if err != nil {
 		logger.Error().Msgf("Assemble Signature Fail : %s", err)
-		return false
+		return nil
 	}
-	err = pi.orderer.CheckCert(data, assembleSig)
-	if err != nil {
-		logger.Error().Msgf("Assemble Signature Verify Fail : %s", err)
-		return false
-	} else {
-		return true
-	}
+	return assembleSig
+
+	// 验证签名
+	// err = pi.orderer.CheckCert(data, assembleSig)
+	// if err != nil {
+	// logger.Error().Msgf("Assemble Signature Verify Fail : %s", err)
+	// return false
+	// } else {
+	// return true
+	// }
 }
 
 func (pi *pbftInstance) CheckCommits(batch *pbftBatch) bool {
