@@ -275,24 +275,24 @@ func (pi *pbftInstance) lead() {
 		pi.segment.Buckets().WaitForRequests(batchSize, config.Config.BatchTimeout)
 		logger.Debug().Int("batchSize", pi.segment.BatchSize()).Msg("Batch ready.")
 		logger.Debug().Int32("sn", cursn).Msg("In lead() loop")
-
-		// Create message to serve as a placeholder for proposing a batch.
-		lock.Lock()
-		selfhtn := htnlog[pi.segment.SegID()]
-		lock.Unlock()
-		htnmsg00 := &pb.HtnMessage{
-			Sn:   cursn,
-			View: pi.view,
-			Htn:  selfhtn,
-		}
-		pi.htnssn[cursn] = append(pi.htnssn[cursn], htnmsg00)
-		curhtn := GetMaxHtn(pi.htnssn[cursn])
-		htntopropose := curhtn + 1
-		snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())
 		pi.mutex.RLock()
 		if pi.vhtnsn[cursn] == true { ///收集了足够的tn才能propose
 			pi.mutex.RUnlock()
 			logger.Info().Int32("cursn", cursn).Msg("enter big block")
+			// Create message to serve as a placeholder for proposing a batch.
+			lock.Lock()
+			selfhtn := htnlog[pi.segment.SegID()]
+			lock.Unlock()
+			htnmsg00 := &pb.HtnMessage{
+				Sn:   cursn,
+				View: pi.view,
+				Htn:  selfhtn,
+			}
+			pi.htnssn[cursn] = append(pi.htnssn[cursn], htnmsg00)
+			curhtn := GetMaxHtn(pi.htnssn[cursn])
+			htntopropose := curhtn + 1
+			snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())
+
 			if cursn == snfromhtntopropose {
 				logger.Info().
 					Int32("cursn", cursn).
@@ -522,12 +522,13 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 		Int("nReq", len(preprepare.Batch.Requests)).
 		Msg("Handling PREPREPARE.")
 	///1201
-	for i, j := range preprepare.Hset {
-		logger.Info().Int32("sn", sn).
-			Int32("tn", j.Htn).
-			Int("i", i).
-			Msg("Hset.")
-	}
+	// for i, j := range preprepare.Hset {
+	// 	logger.Info().Int32("sn", sn).
+	// 		Int32("tn", j.Htn).
+	// 		Int("i", i).
+	// 		Msg("Hset.")
+	// }
+	logger.Debug().Int32("sn", sn).Msgf("Hset is : %v", preprepare.Hset)
 
 	if tn != GetMaxHtn(preprepare.Hset)+1 {
 		return fmt.Errorf("invalid tn number %d", tn)
@@ -763,12 +764,6 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 		}
 		messenger.EnqueueMsg(msg, nodeID)
 	}
-	///1024
-	logger.Debug().Int32("sn", batch.preprepareMsg.Sn).
-		Int32("view", pi.view).
-		Int32("senderID", membership.OwnID).
-		Msg("Sending Htn.")
-
 	//if commit.Tn > htnlog[pi.segment.SegID()] {
 	//	htnlog[pi.segment.SegID()] = commit.Tn
 	//}
@@ -781,6 +776,11 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 		lock.Unlock()
 	}
 	if !isLeading(pi.segment, membership.OwnID, pi.view) {
+		logger.Debug().Int32("sn", batch.preprepareMsg.Sn).
+			Int32("view", pi.view).
+			Int32("senderID", membership.OwnID).
+			Msg("Sending Htn.")
+
 		///1103这里有问题，发送的不应该是这个instance对应的htn，而是在所有链上看到的最高htn，把pi.segment.SegID()改成membership.OwnID
 		lock.Lock()
 		htnmsg := &pb.HtnMessage{
@@ -797,7 +797,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 				Htnmsg: htnmsg,
 			},
 		}
-		messenger.EnqueueMsg(msg1, segmentLeader(pi.segment, 0))
+		messenger.EnqueueMsg(msg1, segmentLeader(pi.segment, pi.view))
 	}
 }
 
@@ -869,7 +869,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	lock.Unlock()
 	///1116
 	pi.mutex.RLock()
-	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && batch.CheckCommits() && batch.CheckHtns() {
+	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && batch.CheckHtns() {
 		pi.mutex.RUnlock()
 		pi.mutex.Lock()
 		pi.vhtnsn[sn+int32(membership.NumNodes())] = true
@@ -880,6 +880,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 		for _, x := range batch.validHtnMsgs {
 			logger.Info().Int32("validHtnMsgs", x.Htn).
 				Msg("validHtnMsgs sets.")
+			//pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())], x)
 		}
 
 	} else {
@@ -938,9 +939,9 @@ func (pi *pbftInstance) handleCommit(commit *pb.PbftCommit, msg *pb.ProtocolMess
 		pi.announce(batch, sn, tn, batch.preprepareMsg.Batch, batch.preprepareMsg.Aborted, batch.preprepareMsg.Ts, batch.lastCommitTs)
 		//pi.announce(batch, sn, batch.preprepareMsg.Batch, batch.preprepareMsg.Aborted, batch.preprepareMsg.Ts, batch.lastCommitTs)
 	}
-	///1116
+	/*///1116
 	pi.mutex.RLock()
-	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && batch.CheckCommits() && batch.CheckHtns() {
+	if pi.vhtnsn[sn+int32(membership.NumNodes())] != true && batch.CheckHtns() {
 		pi.mutex.RUnlock()
 		pi.mutex.Lock()
 		pi.vhtnsn[sn+int32(membership.NumNodes())] = true
@@ -950,7 +951,7 @@ func (pi *pbftInstance) handleCommit(commit *pb.PbftCommit, msg *pb.ProtocolMess
 			Msg("Set TRUE.")
 	} else {
 		pi.mutex.RUnlock()
-	}
+	}*/
 	return nil
 }
 
@@ -1013,7 +1014,7 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 	}
 	// If the batch was aborted suspect the first leader of the segment
 	if logEntry.Aborted {
-		logEntry.Suspect = segmentLeader(pi.segment, 0)
+		logEntry.Suspect = segmentLeader(pi.segment, pi.view)
 	}
 
 	if batch.hnsn[sn] != sn { //&& batch.hnsn[sn]%int32(membership.NumNodes())==int32((pi.segment.SegID()%membership.NumNodes()))

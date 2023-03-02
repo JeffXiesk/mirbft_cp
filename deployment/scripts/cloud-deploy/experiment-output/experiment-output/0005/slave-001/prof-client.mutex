@@ -1,0 +1,42 @@
+--- mutex:
+cycles/second=2400093825
+sampling period=0
+4709811003 298 @ 0x484ba9 0x8e0482 0x8dfd85 0x46b9a1
+#	0x484ba8	sync.(*Mutex).Unlock+0x28		/usr/lib/go-1.20/src/sync/mutex.go:223
+#	0x8e0481	main.(*client).registerResponse+0x541	/root/go/src/github.com/hyperledger-labs/mirbft/cmd/orderingclient/client.go:540
+#	0x8dfd84	main.(*client).handleResponses+0x84	/root/go/src/github.com/hyperledger-labs/mirbft/cmd/orderingclient/client.go:480
+
+1040656449 113 @ 0x8df3ca 0x8df3b1 0x46b9a1
+#	0x8df3c9	sync.(*Mutex).Unlock+0x189		/usr/lib/go-1.20/src/sync/mutex.go:223
+#	0x8df3b0	main.(*client).sendRequests.func1+0x170	/root/go/src/github.com/hyperledger-labs/mirbft/cmd/orderingclient/client.go:372
+
+638364156 41 @ 0x8df669 0x8df64b 0x8de896 0x46b9a1
+#	0x8df668	sync.(*Mutex).Unlock+0x168		/usr/lib/go-1.20/src/sync/mutex.go:223
+#	0x8df64a	main.(*client).submitRequest+0x14a	/root/go/src/github.com/hyperledger-labs/mirbft/cmd/orderingclient/client.go:411
+#	0x8de895	main.(*client).Run+0x555		/root/go/src/github.com/hyperledger-labs/mirbft/cmd/orderingclient/client.go:309
+
+187154352 15 @ 0x8df8ea 0x8df8ce 0x8de896 0x46b9a1
+#	0x8df8e9	sync.(*Mutex).Unlock+0x3e9		/usr/lib/go-1.20/src/sync/mutex.go:223
+#	0x8df8cd	main.(*client).submitRequest+0x3cd	/root/go/src/github.com/hyperledger-labs/mirbft/cmd/orderingclient/client.go:431
+#	0x8de895	main.(*client).Run+0x555		/root/go/src/github.com/hyperledger-labs/mirbft/cmd/orderingclient/client.go:309
+
+42066 1 @ 0x484ba9 0x817847 0x824f2f 0x81f8c7 0x83a1c2 0x89d987 0x89e1e6 0x89e8ce 0x8b0dcc 0x8affe5 0x8aecde 0x8afc65 0x8bf5ec 0x8dfd95 0x46b9a1
+#	0x484ba8	sync.(*Mutex).Unlock+0x28								/usr/lib/go-1.20/src/sync/mutex.go:223
+#	0x817846	google.golang.org/grpc/internal/transport.(*inFlow).maybeAdjust+0x106			/root/go/src/google.golang.org/grpc/internal/transport/flowcontrol.go:173
+#	0x824f2e	google.golang.org/grpc/internal/transport.(*http2Client).adjustWindow+0x2e		/root/go/src/google.golang.org/grpc/internal/transport/http2_client.go:1069
+#	0x81f8c6	google.golang.org/grpc/internal/transport.(*http2Client).newStream.func1+0x26		/root/go/src/google.golang.org/grpc/internal/transport/http2_client.go:475
+#	0x83a1c1	google.golang.org/grpc/internal/transport.(*Stream).Read+0x81				/root/go/src/google.golang.org/grpc/internal/transport/transport.go:497
+#	0x89d986	google.golang.org/grpc.(*parser).recvMsg+0x46						/root/go/src/google.golang.org/grpc/rpc_util.go:597
+#	0x89e1e5	google.golang.org/grpc.recvAndDecompress+0x65						/root/go/src/google.golang.org/grpc/rpc_util.go:728
+#	0x89e8cd	google.golang.org/grpc.recv+0x6d							/root/go/src/google.golang.org/grpc/rpc_util.go:794
+#	0x8b0dcb	google.golang.org/grpc.(*csAttempt).recvMsg+0x2cb					/root/go/src/google.golang.org/grpc/stream.go:1063
+#	0x8affe4	google.golang.org/grpc.(*clientStream).RecvMsg.func1+0x24				/root/go/src/google.golang.org/grpc/stream.go:900
+#	0x8aecdd	google.golang.org/grpc.(*clientStream).withRetry+0x3bd					/root/go/src/google.golang.org/grpc/stream.go:735
+#	0x8afc64	google.golang.org/grpc.(*clientStream).RecvMsg+0x124					/root/go/src/google.golang.org/grpc/stream.go:899
+#	0x8bf5eb	github.com/hyperledger-labs/mirbft/protobufs.(*messengerRequestClient).Recv+0x4b	/root/go/src/github.com/hyperledger-labs/mirbft/protobufs/messenger.pb.go:1109
+#	0x8dfd94	main.(*client).handleResponses+0x94							/root/go/src/github.com/hyperledger-labs/mirbft/cmd/orderingclient/client.go:473
+
+24915 1 @ 0x8deaf3 0x8deadc 0x46b9a1
+#	0x8deaf2	sync.(*Mutex).Unlock+0x7b2	/usr/lib/go-1.20/src/sync/mutex.go:223
+#	0x8deadb	main.(*client).Run+0x79b	/root/go/src/github.com/hyperledger-labs/mirbft/cmd/orderingclient/client.go:319
+
