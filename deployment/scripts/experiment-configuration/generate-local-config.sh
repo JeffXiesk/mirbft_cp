@@ -48,6 +48,7 @@ StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggl
 privKeyNumEachPeer=(5) # Using as buffer for lagged instance
 UseSig=(true)
 
+
 reuseFaulty=true  # If true, both correct and faulty peers will have the same tag and will be launched together, with the same config file.
                   # The failure count is only expressed as a parameter in (every peer's) config file, and even the faulty peers will see
                   # Faulty=false in their config file. They need to derive their behavior from the Failures config field (and potentially
