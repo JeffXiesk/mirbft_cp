@@ -32,6 +32,7 @@ type ProtocolMessage struct {
 	SenderId int32 `protobuf:"varint,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	Sn       int32 `protobuf:"varint,2,opt,name=sn,proto3" json:"sn,omitempty"`
 	// Types that are assignable to Msg:
+	//
 	//	*ProtocolMessage_Preprepare
 	//	*ProtocolMessage_Prepare
 	//	*ProtocolMessage_Commit

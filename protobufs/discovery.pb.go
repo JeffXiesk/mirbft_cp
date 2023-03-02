@@ -566,6 +566,7 @@ type MasterCommand struct {
 
 	CmdId int32 `protobuf:"varint,1,opt,name=cmd_id,json=cmdId,proto3" json:"cmd_id,omitempty"`
 	// Types that are assignable to Cmd:
+	//
 	//	*MasterCommand_InitSlave
 	//	*MasterCommand_ExecStart
 	//	*MasterCommand_ExecWait

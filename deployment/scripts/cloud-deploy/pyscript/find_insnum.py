@@ -9,7 +9,7 @@ if __name__=='__main__':
         for line in lines:
             find_client=re.search(r'clients\d+=\"\d',line)
             if find_client is not None:
-                client_num=int(line[find_client.span()[1]-1])
+                client_num=1
                 if line.startswith('clients16'):
                     client_num*=16
                 if line.startswith('clients32'):

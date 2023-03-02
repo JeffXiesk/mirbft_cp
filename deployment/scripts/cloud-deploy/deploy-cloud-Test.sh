@@ -118,7 +118,7 @@ done
 
 
 echo "Start deployment..."
-./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-test-config.sh
+./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-config.sh
 echo "End deployment..."
 
 
@@ -163,4 +163,6 @@ python3 scripts/cloud-deploy/Fairness_process/latency_each_stage.py >> scripts/c
 #     --region $each_region ; 
 # done
 
+
+# scp -r -i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.197.39.240:/root/experiment-output .
 # scp -r -i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@44.199.210.40:/root/experiment-output .
