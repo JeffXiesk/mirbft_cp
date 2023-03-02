@@ -4,6 +4,7 @@ package crypto
 
 import (
 	"testing"
+	"unsafe"
 	// bls "github.com/herumi/bls-eth-go-binary/bls"
 )
 
@@ -36,6 +37,7 @@ func TestBLSRecoverSignature(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Could not vertify %d: %s", i, err.Error())
 		}
+		t.Logf("%d", unsafe.Sizeof(sigShare))
 	}
 
 	signature, err := BLSRecoverSignature(msg, sigShares, idShares, f, n)
@@ -47,6 +49,11 @@ func TestBLSRecoverSignature(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Signature verification failed: %s", err.Error())
 	}
+
+	t.Logf("%d", unsafe.Sizeof(signature))
+	var fakeQC [24]byte
+	// copy(fakeQC[:], "fakeQC")
+	t.Logf("%d", unsafe.Sizeof(fakeQC))
 }
 
 func TestAllSituationBLSRecoverSignature(t *testing.T) {
