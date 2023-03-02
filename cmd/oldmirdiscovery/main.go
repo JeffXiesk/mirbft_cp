@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rs/zerolog"
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/discovery"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	"github.com/rs/zerolog"
+	logger "github.com/rs/zerolog/log"
 )
 
 const (
@@ -54,7 +54,7 @@ func main() {
 		ownPrivateIP := os.Args[4]
 
 		// Register with the discovery server
-		ownID, peerIdentities, _, _, _ := discovery.RegisterPeer(dServAddr, ownPublicIP, ownPrivateIP)
+		ownID, peerIdentities, _, _, _, _, _, _, _ := discovery.RegisterPeer(dServAddr, ownPublicIP, ownPrivateIP)
 
 		// Extract necessary data from server response
 		peerInfo := peerData{
