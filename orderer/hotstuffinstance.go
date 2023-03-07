@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/announcer"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/log"
@@ -31,6 +30,7 @@ import (
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
 	"github.com/hyperledger-labs/mirbft/request"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	logger "github.com/rs/zerolog/log"
 )
 
 // Implements chained HotStuff for the sequence numbers of the segment.
@@ -390,12 +390,14 @@ func (hi *hotStuffInstance) handleProposal(proposal *pb.HotStuffProposal, msg *p
 		hi.locked = new.parent.parent
 	}
 
+	// TODO：如果 new.parent.parent.parent 是空怎么办
 	decided := new.parent.parent.parent
 	if !decided.announced {
 		hi.announce(decided, hi.height2sn[decided.height], decided.batch.Message(), decided.digest, decided.node.Aborted)
 	}
 
 	// Return to serializer the proposal with the next height to be voted.
+	// TODO：backlog有什么用
 	hi.backlog.process(hi.vheight + 1)
 
 	logger.Info().Int32("sn", sn).
@@ -784,6 +786,7 @@ func (hi *hotStuffInstance) addNode(node *hotStuffNode) {
 
 	hi.nodes[node.height] = node
 	// Set timer for timeout
+	// If dummy, no need to set ViewCHangerTimer.
 	if node.dummy {
 		return
 	}
@@ -806,14 +809,14 @@ func (hi *hotStuffInstance) updateHighQC(qc *pb.HotStuffQC) {
 			// Potentially adding dummy nodes inbetween.
 			hi.addNode(leaf)
 			hi.leaf = leaf
-			logger.Debug().Int32("height",hi.leaf.height).Msg("updateHighQC 111")
+			logger.Debug().Int32("height", hi.leaf.height).Msg("updateHighQC 111")
 		} else {
 			hi.leaf = hi.nodes[hi.highQC.Height]
-			logger.Debug().Msgf("hi.node is : %v",hi.nodes)
-			for i:=0;i<len(hi.nodes);i++{
-				logger.Debug().Int32("height",hi.nodes[i].height).Msg("hi.nodes m")
+			logger.Debug().Msgf("hi.node is : %v", hi.nodes)
+			for i := 0; i < len(hi.nodes); i++ {
+				logger.Debug().Int32("height", hi.nodes[i].height).Msg("hi.nodes m")
 			}
-			logger.Debug().Int32("height",hi.leaf.height).Msg("updateHighQC 222")
+			logger.Debug().Int32("height", hi.leaf.height).Msg("updateHighQC 222")
 		}
 	}
 }

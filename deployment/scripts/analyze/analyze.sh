@@ -41,7 +41,8 @@ function analyze() {
       startTimeNs=$(gdate +%s%N 2>/dev/null || date +%s%N) # This is due to a different data command on Mac.
 
       python3 scripts/analyze/run-queries.py "$dir/$dbfile" "$queryFile" "$dir" >> $dir/$queryOutput
-
+      python3 scripts/analyze/run-queries.py "$dir/$dbfile" "$queryFile" "$dir"
+      
       endTimeNs=$(gdate +%s%N 2>/dev/null || date +%s%N) # This is due to a different data command on Mac.
       echo "  > Processed '$queryFile' in $(((endTimeNs - startTimeNs) / 1000000000)) s."
 
