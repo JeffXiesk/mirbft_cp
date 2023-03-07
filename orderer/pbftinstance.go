@@ -2663,6 +2663,7 @@ func isPrepared(batch *pbftBatch) bool {
 }
 
 // /1116
+
 func (pi *pbftInstance) CheckHtns(batch *pbftBatch) bool {
 
 	for peerID, htn := range batch.htnMsgs {
@@ -2682,13 +2683,6 @@ func (pi *pbftInstance) CheckHtns(batch *pbftBatch) bool {
 		return true
 	} else {
 		return false
-	}
-	err = pi.orderer.CheckCert(data, assembleSig)
-	if err != nil {
-		logger.Error().Msgf("Assemble Signature Verify Fail : %s", err)
-		return false
-	} else {
-		return true
 	}
 }
 

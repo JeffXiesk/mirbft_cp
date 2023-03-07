@@ -11,9 +11,9 @@ public_ip=$3
 private_ip=$4
 
 # install dependency
-scp $ssh_options "scripts/cloud-deploy/user-script-slave.sh.template" "root@$public_ip:/root" || exit 6
-scp $ssh_options "scripts/cloud-deploy/global-vars.sh" "root@$public_ip:/root" || exit 7
-ssh $ssh_options root@$public_ip "chmod u+x /root/user-script-slave.sh.template;chmod u+x /root/global-vars.sh;/root/user-script-slave.sh.template"
+# scp $ssh_options "scripts/cloud-deploy/user-script-slave.sh.template" "root@$public_ip:/root" || exit 6
+# scp $ssh_options "scripts/cloud-deploy/global-vars.sh" "root@$public_ip:/root" || exit 7
+# ssh $ssh_options root@$public_ip "chmod u+x /root/user-script-slave.sh.template;chmod u+x /root/global-vars.sh;/root/user-script-slave.sh.template"
 
 
 init_command="
