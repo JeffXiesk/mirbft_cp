@@ -62,7 +62,7 @@ if [ "$1" = "-i" ]; then
        echo "$i"
     done
 
-    # set root login, reference : https://www.youtube.com/watch?v=xE_oaWVhaV4
+    set root login, reference : https://www.youtube.com/watch?v=xE_oaWVhaV4
     echo "Start set root login..."
     for i in "${public_ip_arr[@]}"
     do
@@ -130,17 +130,17 @@ done
 echo 'unsetting bandwidth'
 
 echo "Shutdown all instances..."
-# source shutdown_instances.sh
+source scripts/cloud-deploy/shutdown_instances.sh
 
-rm -rf scripts/cloud-deploy/experiment-output
-mkdir -p scripts/cloud-deploy/experiment-output
+# rm -rf scripts/cloud-deploy/experiment-output
+# mkdir -p scripts/cloud-deploy/experiment-output
 
-echo "fetch result from client and peer"
-for i in "${public_ip_arr[@]:1:totalnum}"
-do
-    scp $ssh_options_cloud root@$i:/root/experiment-output-* scripts/cloud-deploy/experiment-output
-    echo "$i fetch experiment done..."
-done
+# echo "fetch result from client and peer"
+# for i in "${public_ip_arr[@]:1:totalnum}"
+# do
+#     scp $ssh_options_cloud root@$i:/root/experiment-output-* scripts/cloud-deploy/experiment-output
+#     echo "$i fetch experiment done..."
+# done
 
 
 
@@ -152,11 +152,11 @@ done
 # done
 
 
-for tar in scripts/cloud-deploy/experiment-output/*.tar.gz;  do 
-    tar -zxvf $tar -C scripts/cloud-deploy/experiment-output/;
-done
+# for tar in scripts/cloud-deploy/experiment-output/*.tar.gz;  do 
+    # tar -zxvf $tar -C scripts/cloud-deploy/experiment-output/;
+# done
 
-python3 scripts/cloud-deploy/Fairness_process/latency_each_stage.py >> scripts/cloud-deploy/Fairness_process/data_analyze.log
+# python3 scripts/cloud-deploy/Fairness_process/latency_each_stage.py >> scripts/cloud-deploy/Fairness_process/data_analyze.log
 
 # for each_region in ${AWS_REGIONS} ; do 
 #     aws ec2 import-key-pair \
@@ -165,4 +165,4 @@ python3 scripts/cloud-deploy/Fairness_process/latency_each_stage.py >> scripts/c
 #     --region $each_region ; 
 # done
 
-# scp -r -i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@44.199.210.40:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.172.37.22:/root/experiment-output .
