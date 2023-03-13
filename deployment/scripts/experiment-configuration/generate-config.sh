@@ -44,8 +44,8 @@ systemSizes="16" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
 StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
-privKeyNumEachPeer=(5) # Using as buffer for lagged instance
-UseSig=(true)
+privKeyNumEachPeer=(10) # Using as buffer for lagged instance
+UseSig=(false)
 
 
 reuseFaulty=true  # If true, both correct and faulty peers will have the same tag and will be launched together, with the same config file.
@@ -54,7 +54,7 @@ reuseFaulty=true  # If true, both correct and faulty peers will have the same ta
                   # the RandomSeed field).
 
 # Low-level system parameters
-loggingLevel="debug"
+loggingLevel="info"
 peerTag="peers"
 faultyPeerTag="faultyPeers"
 minConcurrentRequests=$((256 * 16384)) # Based on empirical data. At saturation, makes the throughput-latency plot nicely go up (as it is equivalent to may concurrent clients).
@@ -79,7 +79,7 @@ fixedEpochLength=false
 auths="true"
 bucketsPerLeader="16"
 minBuckets="16"
-minEpochLength="64"       # [entries]
+minEpochLength="128"       # [entries]
 nodeConnections="1"
 minConnections="16"
 leaderPolicies="Simple"  # Possible values:
@@ -116,10 +116,10 @@ function skip() {
 }
 
 throughputsAuthPbft=$()
-throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288"
-# throughputsAuthPbft[4]="128"
+throughputsAuthPbft[4]="128 256 512 1024"
+# throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288 24576 32768 40960 49152"
 throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
-throughputsAuthPbft[16]="128 256 512 1024 2048 4096 8192 12288 16384 20480"
+throughputsAuthPbft[16]="512 1024 2048 4096 8192 16384 24576 32768 40960 49152"
 throughputsAuthPbft[32]=""
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""
