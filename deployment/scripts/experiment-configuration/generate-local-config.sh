@@ -45,7 +45,7 @@ failureCounts=(0) # For each system size, the corresponding failure count (on to
 
 
 StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
-privKeyNumEachPeer=(5) # Using as buffer for lagged instance
+privKeyNumEachPeer=(10) # Using as buffer for lagged instance
 UseSig=(false)
 
 
@@ -121,7 +121,7 @@ throughputsAuthPbft=$()
 throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288"
 #throughputsAuthPbft[4]="128"
 throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
-throughputsAuthPbft[16]="128 256 512 1024 2048 4096"
+throughputsAuthPbft[16]="128 256 512 1024 2048 4096 8192 12288 16384 20480"
 throughputsAuthPbft[32]=""
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""

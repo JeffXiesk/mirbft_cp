@@ -311,7 +311,7 @@ func (ds *DiscoveryServer) generateBLSKeys() {
 	t := 2*f + 1
 	// Already have been serialized
 	// TO define num of private keys peer hold
-	pubKey, privKeyShares, pubKeyShares_, ids := crypto.BLSKeyGeneration(t, n, 5)
+	pubKey, privKeyShares, pubKeyShares_, ids := crypto.BLSKeyGeneration(t, n, 10)
 
 	ds.BLSPublicKey = pubKey
 	ds.BLSPrivateKeyShares = privKeyShares
