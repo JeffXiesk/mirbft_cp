@@ -50,8 +50,10 @@ var (
 	///1103
 	//htnmember = make(map[int]int32)
 	// TODO: check htnlog's signature
-	htnlog = make(map[int]*pb.HtnMessage)
-	lock   sync.Mutex
+	htnlog   = make(map[int]*pb.HtnMessage)
+	lock     sync.Mutex
+	fakesig_ [24]byte
+	fakesig  []byte
 	//vhtnsn = make(map[int32]bool)
 	//htnssn = make(map[int32][]int32)
 )
@@ -207,6 +209,7 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	var fakeQc_ [24]byte
 	var fakeQc []byte
 	copy(fakeQc, fakeQc_[:])
+	copy(fakesig, fakesig_[:])
 	logger.Debug().Int("size", int(unsafe.Sizeof(fakeQc))).Msg("size of fakeQc")
 	lock.Lock()
 	// TODO: 这个sig能是nil吗
@@ -218,6 +221,7 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 		Qc:        nil, // sig
 		K:         -1,  // sig
 		PrepareQc: fakeQc,
+		Fakesig:   fakesig,
 	} ///2023
 
 	if config.Config.UseSig {
@@ -339,6 +343,7 @@ func (pi *pbftInstance) lead() {
 				Qc:        nil,
 				K:         -1,
 				PrepareQc: fakeQc,
+				Fakesig:   fakesig,
 			}
 
 			if config.Config.UseSig {
@@ -371,7 +376,10 @@ func (pi *pbftInstance) lead() {
 				curhtn = pi.GetMaxHtn(htnmsg00.Tn, pi.kssn[cursn])
 				htnqc = fakeQc
 			} else {
-				htnqc, curhtn = pi.GetMaxHtnSet(pi.htnssn[cursn])
+				htnqc, curhtn = pi.GetMaxHtnSet(hset)
+				for _, x := range hset {
+					x.PrepareQc = nil
+				}
 			}
 
 			htntopropose := curhtn + 1
@@ -396,6 +404,7 @@ func (pi *pbftInstance) lead() {
 						Hset:      nil, //unsig
 						HsetQc:    nil, //sig
 						Ks:        nil, //sig
+						Fakesig:   fakesig,
 					},
 				}
 				if config.Config.UseSig {
@@ -432,6 +441,7 @@ func (pi *pbftInstance) lead() {
 						QcMessage: nil,
 						HsetQc:    nil,
 						Ks:        nil,
+						Fakesig:   fakesig,
 					},
 				}
 				if config.Config.UseSig {
@@ -473,6 +483,7 @@ func (pi *pbftInstance) lead() {
 						QcMessage: nil,
 						HsetQc:    nil,
 						Ks:        nil,
+						Fakesig:   fakesig,
 					},
 				}
 				if config.Config.UseSig {
@@ -823,10 +834,11 @@ func (pi *pbftInstance) sendPrepare(batch *pbftBatch) {
 
 	// Create message
 	prepare := &pb.PbftPrepare{
-		Sn:     batch.preprepareMsg.Sn,
-		View:   pi.view,
-		Digest: batch.digest,
-		Tn:     batch.preprepareMsg.Tn, //0922
+		Sn:      batch.preprepareMsg.Sn,
+		View:    pi.view,
+		Digest:  batch.digest,
+		Tn:      batch.preprepareMsg.Tn, //0922
+		Fakesig: fakesig,
 	}
 
 	msg := &pb.ProtocolMessage{
@@ -916,10 +928,11 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 
 	// Create message
 	commit := &pb.PbftCommit{
-		Sn:     batch.preprepareMsg.Sn,
-		View:   pi.view,
-		Digest: batch.digest,
-		Tn:     batch.preprepareMsg.Tn, //0922
+		Sn:      batch.preprepareMsg.Sn,
+		View:    pi.view,
+		Digest:  batch.digest,
+		Tn:      batch.preprepareMsg.Tn, //0922
+		Fakesig: fakesig,
 	}
 
 	msg := &pb.ProtocolMessage{
@@ -976,6 +989,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 			Qc:        nil,
 			K:         -1,
 			PrepareQc: fakeQc,
+			Fakesig:   fakesig,
 		}
 		// Sign the message
 		if config.Config.UseSig {
@@ -1014,6 +1028,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 			Qc:        nil,
 			K:         -1,
 			PrepareQc: fakeQc,
+			Fakesig:   fakesig,
 		}
 		lock.Unlock()
 
@@ -1084,36 +1099,35 @@ func (pi *pbftInstance) GetMaxHtnSet(ary []*pb.HtnMessage) ([]byte, int32) {
 }
 
 // /2023
-func (pi *pbftInstance) handleEndBlock(endblock *pb.EndBlock, msg *pb.ProtocolMessage) error {
-	sn := msg.Sn
-	logEntry := &log.Entry{
-		Sn:        sn,
-		ProposeTs: 0,
-		CommitTs:  0,
-		Aborted:   false,
-		//Digest:    batch.digest,
-	}
-	logger.Info().Int32("logEntry.Sn", logEntry.Sn).
-		Int("SegID", pi.segment.SegID()).
-		Msg("Get logEntry.Sn from tn. Nil Blocks. END Blocks")
-	announcer.Announce(logEntry)
-	pi.batches[pi.view][sn].committed = true
-	batch := pi.batches[pi.view][sn]
-	if batch.viewChangeTimer != nil {
-		notFired := batch.viewChangeTimer.Stop()
-		if !notFired {
-			// This is harmelss, since the timeout, even though generated, will be ignored.
-			logger.Warn().Int32("sn", logEntry.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
-		}
-	}
-	return nil
-}
+// func (pi *pbftInstance) handleEndBlock(endblock *pb.EndBlock, msg *pb.ProtocolMessage) error {
+// 	sn := msg.Sn
+// 	logEntry := &log.Entry{
+// 		Sn:        sn,
+// 		ProposeTs: 0,
+// 		CommitTs:  0,
+// 		Aborted:   false,
+// 		//Digest:    batch.digest,
+// 	}
+// 	logger.Info().Int32("logEntry.Sn", logEntry.Sn).
+// 		Int("SegID", pi.segment.SegID()).
+// 		Msg("Get logEntry.Sn from tn. Nil Blocks. END Blocks")
+// 	announcer.Announce(logEntry)
+// 	pi.batches[pi.view][sn].committed = true
+// 	batch := pi.batches[pi.view][sn]
+// 	if batch.viewChangeTimer != nil {
+// 		notFired := batch.viewChangeTimer.Stop()
+// 		if !notFired {
+// 			// This is harmelss, since the timeout, even though generated, will be ignored.
+// 			logger.Warn().Int32("sn", logEntry.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
+// 		}
+// 	}
+// 	return nil
+// }
 
 // /1024///1116
 
 // TODO: Htn 是不是应该改为htnmsg.QcMessage.Tn + htnmsg.K
 // TODO: 需要确定htnmsg里的内容是否正确
-// !!!全部需要修改
 func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMessage) error {
 	// CheckSig
 	if config.Config.UseSig {
@@ -1168,6 +1182,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 			Qc:        nil,
 			K:         -1,
 			PrepareQc: fakeQc,
+			Fakesig:   fakesig,
 		}
 		if config.Config.UseSig {
 			htnlog[pi.segment.SegID()].Tn = batch.preprepareMsg.Tn
@@ -1464,6 +1479,7 @@ func (pi *pbftInstance) sendCheckpoint() {
 
 	chkpMsg := &pb.PbftCheckpoint{
 		Digests: digests,
+		Fakesig: fakesig,
 	}
 	// Create checkpoint message
 	msg := &pb.ProtocolMessage{
@@ -1618,6 +1634,7 @@ func (pi *pbftInstance) sendViewChange() {
 		Qset:     q,
 		Pset:     p,
 		SenderId: membership.OwnID,
+		Fakesig:  fakesig,
 	}
 	data, err := proto.Marshal(viewchange)
 	if err != nil {
@@ -1968,7 +1985,8 @@ func (pi *pbftInstance) requestMissingPreprepare(sn int32, sources []int32, view
 		SenderId: membership.OwnID,
 		Sn:       sn,
 		Msg: &pb.ProtocolMessage_MissingPreprepareReq{MissingPreprepareReq: &pb.PbftMissingPreprepareRequest{
-			View: views[0],
+			View:    views[0],
+			Fakesig: fakesig,
 		}},
 	}
 
@@ -2009,6 +2027,7 @@ func (pi *pbftInstance) handleMissingPreprepareRequest(req *pb.PbftMissingPrepre
 			Sn:       msg.Sn,
 			Msg: &pb.ProtocolMessage_MissingPreprepare{MissingPreprepare: &pb.PbftMissingPreprepare{
 				Preprepare: batch.preprepareMsg,
+				Fakesig:    fakesig,
 			}},
 		}
 
@@ -2131,6 +2150,7 @@ func (pi *pbftInstance) sendNewView() {
 		Vset:       vset,
 		Xset:       xset,
 		Checkpoint: vci.checkpoint,
+		Fakesig:    fakesig,
 	}
 
 	data, err := proto.Marshal(vci.newView)
@@ -2525,15 +2545,15 @@ func (pi *pbftInstance) handleMessage(msg *pb.ProtocolMessage) {
 				Msg("PbftOrderer cannot handle Htnmsg message.")
 		}
 		//2023
-	case *pb.ProtocolMessage_EndBlock:
-		err := pi.handleEndBlock(m.EndBlock, msg)
-		if err != nil {
-			logger.Debug().
-				Err(err).
-				Int32("sn", msg.Sn).
-				Int32("senderID", msg.SenderId).
-				Msg("PbftOrderer cannot handle EndBlock message.")
-		}
+	// case *pb.ProtocolMessage_EndBlock:
+	// 	err := pi.handleEndBlock(m.EndBlock, msg)
+	// 	if err != nil {
+	// 		logger.Debug().
+	// 			Err(err).
+	// 			Int32("sn", msg.Sn).
+	// 			Int32("senderID", msg.SenderId).
+	// 			Msg("PbftOrderer cannot handle EndBlock message.")
+	// 	}
 	case *pb.ProtocolMessage_PbftCheckpoint:
 		err := pi.handlePBFTCheckpoint(m.PbftCheckpoint, msg.SenderId)
 		if err != nil {
