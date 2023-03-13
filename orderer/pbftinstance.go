@@ -40,7 +40,7 @@ const (
 )
 
 var (
-	fakeQc []byte
+	fakeSig []byte
 )
 
 // TODO: Consolidate the segment-internal and the global checkpoints.
@@ -186,9 +186,9 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	// Set the starting timestamp
 	pi.startTs = time.Now().UnixNano()
 
-	// To fill a fakeQc
-	var fakeQc_ [24]byte
-	copy(fakeQc, fakeQc_[:])
+	// To fill a fakeSig
+	var fakeSig_ [24]byte
+	copy(fakeSig, fakeSig_[:])
 }
 
 func (pi *pbftInstance) lead() {
@@ -234,7 +234,7 @@ func (pi *pbftInstance) lead() {
 					View:   0,
 					Leader: membership.OwnID,
 					Batch:  nil, // This will be filled in by the PBFT instance when this message is serialized.
-					FakeQc: fakeQc,
+					FakeSig: fakeSig,
 				},
 			},
 			Type: "ProtocolMessage_Newseqno",
@@ -443,7 +443,7 @@ func (pi *pbftInstance) sendPrepare(batch *pbftBatch) {
 		Sn:     batch.preprepareMsg.Sn,
 		View:   pi.view,
 		Digest: batch.digest,
-		FakeQc: fakeQc,
+		FakeSig: fakeSig,
 	}
 
 	msg := &pb.ProtocolMessage{
@@ -530,7 +530,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 		Sn:     batch.preprepareMsg.Sn,
 		View:   pi.view,
 		Digest: batch.digest,
-		FakeQc: fakeQc,
+		FakeSig: fakeSig,
 	}
 
 	msg := &pb.ProtocolMessage{
@@ -724,6 +724,7 @@ func (pi *pbftInstance) sendCheckpoint() {
 
 	chkpMsg := &pb.PbftCheckpoint{
 		Digests: digests,
+		FakeSig: fakeSig,
 	}
 	// Create checkpoint message
 	msg := &pb.ProtocolMessage{
@@ -850,10 +851,10 @@ func (pi *pbftInstance) sendViewChange() {
 		}
 		for _, batch := range pi.batches[v] {
 			if batch.prepared {
-				p[batch.preprepareMsg.Sn] = &pb.PbftPrepare{Sn: batch.preprepareMsg.Sn, View: batch.preprepareMsg.View, Digest: batch.digest,FakeQc: fakeQc}
+				p[batch.preprepareMsg.Sn] = &pb.PbftPrepare{Sn: batch.preprepareMsg.Sn, View: batch.preprepareMsg.View, Digest: batch.digest,FakeSig: fakeSig}
 			}
 			if batch.preprepareMsg != nil {
-				q[batch.preprepareMsg.Sn] = &pb.PbftPrepare{Sn: batch.preprepareMsg.Sn, View: batch.preprepareMsg.View, Digest: batch.digest,FakeQc: fakeQc}
+				q[batch.preprepareMsg.Sn] = &pb.PbftPrepare{Sn: batch.preprepareMsg.Sn, View: batch.preprepareMsg.View, Digest: batch.digest,FakeSig: fakeSig}
 			}
 		}
 	}
@@ -878,6 +879,7 @@ func (pi *pbftInstance) sendViewChange() {
 		Qset:     q,
 		Pset:     p,
 		SenderId: membership.OwnID,
+		FakeSig: fakeSig,
 	}
 	data, err := proto.Marshal(viewchange)
 	if err != nil {
@@ -1100,7 +1102,7 @@ func (pi *pbftInstance) maybeSendNewView(view int32) {
 						// Since there is no original preprepare message, we set the timestamp to
 						// when we started the segment.
 						Ts: pi.startTs,
-						FakeQc: fakeQc,
+						FakeSig: fakeSig,
 					}
 					vci.reproposeBatches[sn] = &pbftBatch{
 						preprepareMsg: emptyPreprepare,
@@ -1164,7 +1166,7 @@ func (pi *pbftInstance) maybeSendNewView(view int32) {
 								// Since there is no original preprepare message, we set the timestamp to
 								// when we started the segment.
 								Ts: pi.startTs,
-								FakeQc: fakeQc,
+								FakeSig: fakeSig,
 							}
 							batch = &pbftBatch{
 								preprepareMsg: newPreprepare,
@@ -1231,6 +1233,7 @@ func (pi *pbftInstance) requestMissingPreprepare(sn int32, sources []int32, view
 		Sn:       sn,
 		Msg: &pb.ProtocolMessage_MissingPreprepareReq{MissingPreprepareReq: &pb.PbftMissingPreprepareRequest{
 			View: views[0],
+			FakeSig: fakeSig,
 		}},
 	}
 
@@ -1271,6 +1274,7 @@ func (pi *pbftInstance) handleMissingPreprepareRequest(req *pb.PbftMissingPrepre
 			Sn:       msg.Sn,
 			Msg: &pb.ProtocolMessage_MissingPreprepare{MissingPreprepare: &pb.PbftMissingPreprepare{
 				Preprepare: batch.preprepareMsg,
+				FakeSig: fakeSig,
 			}},
 		}
 
@@ -1325,7 +1329,7 @@ func (pi *pbftInstance) handleMissingPreprepare(preprepare *pb.PbftPreprepare, m
 					Batch:   preprepare.Batch,
 					Aborted: preprepare.Aborted,
 					Ts:      pi.startTs,
-					FakeQc: fakeQc,
+					FakeSig: fakeSig,
 				}
 				batch.batch = request.NewBatch(preprepare.Batch)
 				if batch == nil {
@@ -1394,6 +1398,7 @@ func (pi *pbftInstance) sendNewView() {
 		Vset:       vset,
 		Xset:       xset,
 		Checkpoint: vci.checkpoint,
+		FakeSig: fakeSig,
 	}
 
 	data, err := proto.Marshal(vci.newView)
