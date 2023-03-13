@@ -15,12 +15,14 @@ message PbftPreprepare {
     Batch batch = 4;
     bool aborted = 5;
     int64 ts = 6; // Timestamp to be set by the receiver at message reception.
+    bytes fakeQc = 7;
 }
 
 message PbftPrepare {
     int32 sn = 1;
     int32 view = 2;
     bytes digest = 3;
+    bytes fakeQc = 4;
 }
 
 message PbftCommit {
@@ -28,6 +30,7 @@ message PbftCommit {
     int32 view = 2;
     bytes digest = 3;
     int64 ts = 4; // Timestamp to be set by the receiver at message reception.
+    bytes fakeQc = 5;
 }
 
 message PbftCheckpoint {

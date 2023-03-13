@@ -39,6 +39,10 @@ const (
 	catchupDelay = 400 * time.Millisecond
 )
 
+var (
+	fakeQc []byte
+)
+
 // TODO: Consolidate the segment-internal and the global checkpoints.
 
 // Represents a PBFT instance implementation.
@@ -181,6 +185,10 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 
 	// Set the starting timestamp
 	pi.startTs = time.Now().UnixNano()
+
+	// To fill a fakeQc
+	var fakeQc_ [24]byte
+	copy(fakeQc, fakeQc_[:])
 }
 
 func (pi *pbftInstance) lead() {
@@ -226,6 +234,7 @@ func (pi *pbftInstance) lead() {
 					View:   0,
 					Leader: membership.OwnID,
 					Batch:  nil, // This will be filled in by the PBFT instance when this message is serialized.
+					FakeQc: fakeQc,
 				},
 			},
 			Type: "ProtocolMessage_Newseqno",
@@ -264,7 +273,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	batchSize := pi.segment.BatchSize()
 	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 			// we cut an empty batch to maximize damage
-			batchSize = 1024
+			batchSize = 0
 	}
 
 	// Create the actual request batch. The timeout is 0, since the we already waited for the batch in pi.lead().
@@ -434,6 +443,7 @@ func (pi *pbftInstance) sendPrepare(batch *pbftBatch) {
 		Sn:     batch.preprepareMsg.Sn,
 		View:   pi.view,
 		Digest: batch.digest,
+		FakeQc: fakeQc,
 	}
 
 	msg := &pb.ProtocolMessage{
@@ -520,6 +530,7 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 		Sn:     batch.preprepareMsg.Sn,
 		View:   pi.view,
 		Digest: batch.digest,
+		FakeQc: fakeQc,
 	}
 
 	msg := &pb.ProtocolMessage{
@@ -839,10 +850,10 @@ func (pi *pbftInstance) sendViewChange() {
 		}
 		for _, batch := range pi.batches[v] {
 			if batch.prepared {
-				p[batch.preprepareMsg.Sn] = &pb.PbftPrepare{Sn: batch.preprepareMsg.Sn, View: batch.preprepareMsg.View, Digest: batch.digest}
+				p[batch.preprepareMsg.Sn] = &pb.PbftPrepare{Sn: batch.preprepareMsg.Sn, View: batch.preprepareMsg.View, Digest: batch.digest,FakeQc: fakeQc}
 			}
 			if batch.preprepareMsg != nil {
-				q[batch.preprepareMsg.Sn] = &pb.PbftPrepare{Sn: batch.preprepareMsg.Sn, View: batch.preprepareMsg.View, Digest: batch.digest}
+				q[batch.preprepareMsg.Sn] = &pb.PbftPrepare{Sn: batch.preprepareMsg.Sn, View: batch.preprepareMsg.View, Digest: batch.digest,FakeQc: fakeQc}
 			}
 		}
 	}
@@ -1089,6 +1100,7 @@ func (pi *pbftInstance) maybeSendNewView(view int32) {
 						// Since there is no original preprepare message, we set the timestamp to
 						// when we started the segment.
 						Ts: pi.startTs,
+						FakeQc: fakeQc,
 					}
 					vci.reproposeBatches[sn] = &pbftBatch{
 						preprepareMsg: emptyPreprepare,
@@ -1152,6 +1164,7 @@ func (pi *pbftInstance) maybeSendNewView(view int32) {
 								// Since there is no original preprepare message, we set the timestamp to
 								// when we started the segment.
 								Ts: pi.startTs,
+								FakeQc: fakeQc,
 							}
 							batch = &pbftBatch{
 								preprepareMsg: newPreprepare,
@@ -1312,6 +1325,7 @@ func (pi *pbftInstance) handleMissingPreprepare(preprepare *pb.PbftPreprepare, m
 					Batch:   preprepare.Batch,
 					Aborted: preprepare.Aborted,
 					Ts:      pi.startTs,
+					FakeQc: fakeQc,
 				}
 				batch.batch = request.NewBatch(preprepare.Batch)
 				if batch == nil {
