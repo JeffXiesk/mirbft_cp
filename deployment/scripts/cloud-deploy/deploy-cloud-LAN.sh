@@ -62,28 +62,32 @@ if [ "$1" = "-i" ]; then
        echo "$i"
     done
 
-    set root login, reference : https://www.youtube.com/watch?v=xE_oaWVhaV4
-    echo "Start set root login..."
-    for i in "${public_ip_arr[@]}"
-    do
-        # send local 'sshd_config' ssh config file to instance
-        scp $ssh_options_cloud scripts/cloud-deploy/sshd_config ubuntu@$i:~
-        # set root login
-        ssh $ssh_options_cloud ubuntu@$i "sudo cp ~/.ssh/authorized_keys /root/.ssh/authorized_keys;sudo cp ~/sshd_config /etc/ssh/sshd_config"
-        echo "$i set root login done..."
-    done
-    echo "End set root login..."
+    if [ "$1" = "-k" ]; then
+        # set root login, reference : https://www.youtube.com/watch?v=xE_oaWVhaV4
+        echo "Start set root login..."
+        for i in "${public_ip_arr[@]}"
+        do
+            # send local 'sshd_config' ssh config file to instance
+            scp $ssh_options_cloud scripts/cloud-deploy/sshd_config ubuntu@$i:~
+            # set root login
+            ssh $ssh_options_cloud ubuntu@$i "sudo cp ~/.ssh/authorized_keys /root/.ssh/authorized_keys;sudo cp ~/sshd_config /etc/ssh/sshd_config"
+            echo "$i set root login done..."
+        done
+        echo "End set root login..."
 
-    echo "Start set ssh key..."
-    for i in "${public_ip_arr[@]}"
-    do
-        # send local 'sshd_config' ssh config file to instance
-        scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa' root@$i:/root/.ssh
-        scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa.pub' root@$i:/root/.ssh
-        ssh $ssh_options_cloud root@$i 'chmod 600 /root/.ssh/id_rsa;chmod 600 /root/.ssh/id_rsa.pub;echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3JeK5VQ3cRMLp5nHeMgIDTbbOvytBR6BDy4TK0QOqzyrGIlaSt966JkTsUfxXLw7Gc/cGRwpjVcszE3nGEvcquAEHuFOfYmt8Pat3cHuLgH4p/GPwBMbvKgrLNGrkRphFugK30IPN5yRvsUhpVzi/XJJN6iL68fRzdFzmOjQWgvmOcWPTVy7VV0GjX3XoO5XcmQU3/B52nZotypxCmDN91eJyNeVjpGgDdwT+Pc6eqr1yAx4PH/PDPOSQlrFC7x8zsuiwz+F+cLaUyVNmp5G/NSzcNoYKbxohnj11JVdVgnUj/CocG9dJjpxY4+NSCAaIRJ5kczF+9VVrzfhyId4D niu@niu-Standard-PC-i440FX-PIIX-1996 >> /root/.ssh/authorized_keys'
-        echo "$i sent ssh key done..."
-    done
-    echo "End set ssh key..."
+        echo "Start set ssh key..."
+        for i in "${public_ip_arr[@]}"
+        do
+            # send local 'sshd_config' ssh config file to instance
+            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa' root@$i:/root/.ssh
+            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa.pub' root@$i:/root/.ssh
+            ssh $ssh_options_cloud root@$i 'chmod 600 /root/.ssh/id_rsa;chmod 600 /root/.ssh/id_rsa.pub;echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3JeK5VQ3cRMLp5nHeMgIDTbbOvytBR6BDy4TK0QOqzyrGIlaSt966JkTsUfxXLw7Gc/cGRwpjVcszE3nGEvcquAEHuFOfYmt8Pat3cHuLgH4p/GPwBMbvKgrLNGrkRphFugK30IPN5yRvsUhpVzi/XJJN6iL68fRzdFzmOjQWgvmOcWPTVy7VV0GjX3XoO5XcmQU3/B52nZotypxCmDN91eJyNeVjpGgDdwT+Pc6eqr1yAx4PH/PDPOSQlrFC7x8zsuiwz+F+cLaUyVNmp5G/NSzcNoYKbxohnj11JVdVgnUj/CocG9dJjpxY4+NSCAaIRJ5kczF+9VVrzfhyId4D niu@niu-Standard-PC-i440FX-PIIX-1996 >> /root/.ssh/authorized_keys'
+            echo "$i sent ssh key done..."
+        done
+        echo "End set ssh key..."
+    else
+        sleep 0.1
+    fi
 else
     echo "Not init"
 fi

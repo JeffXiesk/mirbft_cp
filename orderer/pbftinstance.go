@@ -54,6 +54,8 @@ var (
 	lock     sync.Mutex
 	fakesig_ [24]byte
 	fakesig  []byte
+	fakeQc_ [24]byte
+	fakeQc []byte
 	//vhtnsn = make(map[int32]bool)
 	//htnssn = make(map[int32][]int32)
 )
@@ -206,8 +208,7 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 
 	/// 1024///1116///1201
 	//htnmember[pi.segment.SegID()] = 0
-	var fakeQc_ [24]byte
-	var fakeQc []byte
+
 	copy(fakeQc, fakeQc_[:])
 	copy(fakesig, fakesig_[:])
 	logger.Debug().Int("size", int(unsafe.Sizeof(fakeQc))).Msg("size of fakeQc")
@@ -332,9 +333,6 @@ func (pi *pbftInstance) lead() {
 				selfhtn = htnlog[pi.segment.SegID()].Htn
 			}
 			lock.Unlock()
-			var fakeQc_ [24]byte
-			var fakeQc []byte
-			copy(fakeQc, fakeQc_[:])
 			htnmsg00 := &pb.HtnMessage{
 				Sn:        cursn - int32(membership.NumNodes()),
 				View:      pi.view,
@@ -978,9 +976,6 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 	lock.Unlock()
 	if commit.Tn > htn {
 		// TODO: 这里的signature不应该是nil
-		var fakeQc_ [24]byte
-		var fakeQc []byte
-		copy(fakeQc, fakeQc_[:])
 		htnmsg := &pb.HtnMessage{
 			Sn:        batch.preprepareMsg.Sn,
 			View:      pi.view,
@@ -1016,9 +1011,6 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 			Int32("senderID", membership.OwnID).
 			Msg("Sending Htn.")
 
-		var fakeQc_ [24]byte
-		var fakeQc []byte
-		copy(fakeQc, fakeQc_[:])
 		lock.Lock()
 		htnmsg := &pb.HtnMessage{
 			Sn:        batch.preprepareMsg.Sn,
@@ -1170,9 +1162,6 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())], htnmsg)
 
 	if htn >= prehtn {
-		var fakeQc_ [24]byte
-		var fakeQc []byte
-		copy(fakeQc, fakeQc_[:])
 		lock.Lock()
 		htnlog[pi.segment.SegID()] = &pb.HtnMessage{
 			Sn:        sn,
