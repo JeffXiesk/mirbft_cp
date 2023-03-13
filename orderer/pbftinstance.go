@@ -280,7 +280,7 @@ func (pi *pbftInstance) lead() {
 	//if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 	if int32(pi.segment.SegID())%int32(membership.NumNodes()) == 0 && config.Config.CrashTiming == "Straggler" {
 		//if config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(0.05 * float64(config.Config.ViewChangeTimeoutMs))
+		config.Config.BatchTimeoutMs = int(0.0333 * float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs).Msg("byzantine effected !")
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
@@ -365,17 +365,13 @@ func (pi *pbftInstance) lead() {
 			//}
 			//curhtn := pi.GetMaxHtn(nowTn, pi.kssn[cursn])
 			curhtn := int32(0)
+			var htnqc []byte
 			hset := pi.htnssn[cursn]
 			if config.Config.UseSig {
 				curhtn = pi.GetMaxHtn(htnmsg00.Tn, pi.kssn[cursn])
+				htnqc = fakeQc
 			} else {
-				maxi := 0
-				maxi, curhtn = pi.GetMaxHtnSet(pi.htnssn[cursn])
-				for i, j := range hset {
-					if i != maxi {
-						j.PrepareQc = nil
-					}
-				}
+				htnqc, curhtn = pi.GetMaxHtnSet(pi.htnssn[cursn])
 			}
 
 			htntopropose := curhtn + 1
@@ -394,6 +390,7 @@ func (pi *pbftInstance) lead() {
 						Leader:    membership.OwnID,
 						Batch:     nil, // This will be filled in by the PBFT instance when this message is serialized.
 						Tn:        htntopropose,
+						TnQc:      htnqc,
 						Skip:      cursn,
 						QcMessage: nil, //sig
 						Hset:      nil, //unsig
@@ -430,6 +427,7 @@ func (pi *pbftInstance) lead() {
 						Leader:    membership.OwnID,
 						Batch:     nil, // This will be filled in by the PBFT instance when this message is serialized.
 						Tn:        htntopropose,
+						TnQc:      htnqc,
 						Skip:      cursn,
 						QcMessage: nil,
 						HsetQc:    nil,
@@ -470,6 +468,7 @@ func (pi *pbftInstance) lead() {
 						Leader:    membership.OwnID,
 						Batch:     nil, // This will be filled in by the PBFT instance when this message is serialized.
 						Tn:        (pi.segment.LastSN()-int32(pi.segment.SegID()%membership.NumNodes()))/int32(membership.NumNodes()) + 1,
+						TnQc:      htnqc,
 						Skip:      cursn,
 						QcMessage: nil,
 						HsetQc:    nil,
@@ -1068,20 +1067,20 @@ func (pi *pbftInstance) GetMaxHtn(tn int32, Ks []int32) int32 {
 	return maxK + tn
 }
 
-func (pi *pbftInstance) GetMaxHtnSet(ary []*pb.HtnMessage) (int, int32) {
+func (pi *pbftInstance) GetMaxHtnSet(ary []*pb.HtnMessage) ([]byte, int32) {
 	if len(ary) == 0 {
-		return -1, 0
+		return nil, 0
 	}
-	maxi := 0
+	var qc []byte
 	maxVal := ary[0].Htn
 	for i := 1; i < len(ary); i++ {
 		if maxVal < ary[i].Htn {
 			maxVal = ary[i].Htn
-			maxi = i
+			qc = ary[i].PrepareQc
 		}
 	}
 
-	return maxi, maxVal
+	return qc, maxVal
 }
 
 // /2023

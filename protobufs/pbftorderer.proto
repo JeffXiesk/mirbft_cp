@@ -16,11 +16,12 @@ message PbftPreprepare {
     bool aborted = 5;
     int64 ts = 6; // Timestamp to be set by the receiver at message reception.
     int32 tn = 7;///
-    int32 skip = 8;
-    QcMessage qc_message = 9;
-    repeated HtnMessage hset = 10; ///1201set of htn messages
-    bytes hset_qc = 11; ///1201set of htn messages
-    repeated int32 Ks = 12;
+    bytes tn_qc= 8;///
+    int32 skip = 9;
+    QcMessage qc_message = 10;
+    repeated HtnMessage hset = 11; ///1201set of htn messages
+    bytes hset_qc = 12; ///1201set of htn messages
+    repeated int32 Ks = 13;
 }
 
 message PbftPrepare {
