@@ -46,7 +46,7 @@ failureCounts=(0) # For each system size, the corresponding failure count (on to
 
 StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 privKeyNumEachPeer=(10) # Using as buffer for lagged instance
-UseSig=(false)
+UseSig=(true)
 
 
 

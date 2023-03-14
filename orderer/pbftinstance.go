@@ -54,8 +54,8 @@ var (
 	lock     sync.Mutex
 	fakesig_ [24]byte
 	fakesig  []byte
-	fakeQc_ [24]byte
-	fakeQc []byte
+	fakeQc_  [24]byte
+	fakeQc   []byte
 	//vhtnsn = make(map[int32]bool)
 	//htnssn = make(map[int32][]int32)
 )
@@ -1163,22 +1163,23 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 
 	if htn >= prehtn {
 		lock.Lock()
-		htnlog[pi.segment.SegID()] = &pb.HtnMessage{
-			Sn:        sn,
-			View:      pi.view,
-			Htn:       -1,
-			Tn:        -1,
-			Qc:        nil,
-			K:         -1,
-			PrepareQc: fakeQc,
-			Fakesig:   fakesig,
-		}
-		if config.Config.UseSig {
-			htnlog[pi.segment.SegID()].Tn = batch.preprepareMsg.Tn
-			htnlog[pi.segment.SegID()].K = membership.OwnID*int32(config.Config.PrivKeyCnt) + htn - batch.preprepareMsg.Tn
-		} else {
-			htnlog[pi.segment.SegID()].Htn = htn
-		}
+		htnlog[pi.segment.SegID()] = htnmsg
+		// htnlog[pi.segment.SegID()] = &pb.HtnMessage{
+		// 	Sn:        sn,
+		// 	View:      pi.view,
+		// 	Htn:       -1,
+		// 	Tn:        -1,
+		// 	Qc:        nil,
+		// 	K:         -1,
+		// 	PrepareQc: fakeQc,
+		// 	Fakesig:   fakesig,
+		// }
+		// if config.Config.UseSig {
+		// 	htnlog[pi.segment.SegID()].Tn = batch.preprepareMsg.Tn
+		// 	htnlog[pi.segment.SegID()].K = membership.OwnID*int32(config.Config.PrivKeyCnt) + htn - batch.preprepareMsg.Tn
+		// } else {
+		// 	htnlog[pi.segment.SegID()].Htn = htn
+		// }
 		lock.Unlock()
 	}
 	lock.Lock()
@@ -1426,7 +1427,7 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 		for i := 0; i < len(reqBatch.Requests); i++ {
 			req_id[i] = (reqBatch.Requests[i].RequestId.ClientSn)
 		}
-		logger.Debug().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
+		logger.Info().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
 	}
 	// Start new view change timeout
 	// for the fist uncommitted sequence number in the segment

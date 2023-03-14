@@ -49,7 +49,7 @@ def merge(lst1, lst2):
 if __name__=='__main__':
 
     experiment_num=[]
-    for dirPath, dirNames, fileNames in os.walk("scripts/cloud-deploy/experiment-output/experiment-output/"):
+    for dirPath, dirNames, fileNames in os.walk("scripts/cloud-deploy/experiment-output/"):
         # print(dirNames)
         experiment_num=dirNames
         break
@@ -59,7 +59,7 @@ if __name__=='__main__':
     for num in experiment_num:
         print('-------------')
         name='fairness_res_'+num
-        path='./scripts/cloud-deploy/experiment-output/experiment-output/'+num
+        path='./scripts/cloud-deploy/experiment-output/'+num
         g=0.0
         # if len(sys.argv)>=3:
         #     g=float(sys.argv[2])
@@ -78,11 +78,18 @@ if __name__=='__main__':
                 if is_client==False:
                     peer_dir.append(path+'/'+d+'/peer.log')
                 else:
-                    str_format="{an:03d}"
-                    # print(str_format.format(an=len(client_dir)))
-                    # client_dir.append(path+'/'+d+'/client-'+str_format.format(an=len(client_dir))+'.log')
-                    print(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
-                    client_dir.append(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
+                    # print(d)
+                    cli_dir = os.listdir(path+'/'+d)
+                    for cli in cli_dir:
+                        if re.match('client-\d+\.log',cli):
+                            print(cli)
+                            client_dir.append(path+'/'+d+'/'+cli)
+
+                    # str_format="{an:03d}"
+                    # # print(str_format.format(an=len(client_dir)))
+                    # # client_dir.append(path+'/'+d+'/client-'+str_format.format(an=len(client_dir))+'.log')
+                    # print(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
+                    # client_dir.append(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
 
         print(client_dir)
         print(len(peer_dir))
@@ -96,8 +103,8 @@ if __name__=='__main__':
             f = open(i)
             lines = f.readlines()
             # print(lines)
-            pattern=r'Request finished \(out of order\)\. clSeqNr='
-            pattern_finish=r'Submitted request. clSeqNr='
+            pattern_finish=r'Request finished \(out of order\)\. clSeqNr='
+            pattern=r'Submitted request. clSeqNr='
             for line in lines:
                 # print(line)
                 find_=re.search(pattern,line)
@@ -118,6 +125,9 @@ if __name__=='__main__':
 
         # print('req_submit info: ')
         # print(req_submit)
+
+        # print('req_finish info: ')
+        # print(req_finish)
 
         # sn_to_req={}
         originsn_propose={}
