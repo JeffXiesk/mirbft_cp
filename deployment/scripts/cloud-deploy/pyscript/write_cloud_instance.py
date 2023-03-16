@@ -1,7 +1,12 @@
 import sys
 
+regionCnt = 4    
 client_num=int(sys.argv[1])
+eachRegionClient=client_num//regionCnt
 peer_num=int(sys.argv[2])
+eachRegionPeer=peer_num//regionCnt
+eachRegionCnt = (client_num+peer_num)//regionCnt
+
 num=int((len(sys.argv)-3)/2)
 
 with open('scripts/cloud-deploy/cloud-instance-info','w') as f:
@@ -12,9 +17,37 @@ with open('scripts/cloud-deploy/cloud-instance-info','w') as f:
         client_str='16clients'
     if client_num==32:
         client_str='32clients'
-    for i in range(client_num):
-        f.write('client '+sys.argv[i+4]+' '+sys.argv[num+4+i]+' '+client_str+' us-west-2a\n')
-    for i in range(peer_num):
-        f.write('p'+str(i+1)+' '+sys.argv[i+client_num+4]+' '+sys.argv[client_num+num+4+i]+' peers us-west-2a\n')
+
+    public = sys.argv[4:num+3]
+    private = sys.argv[num+4:num+num+3]
+    
+    print(client_num)
+    print(peer_num)
+    print(public)
+    print(private)
+    
+    for i in range(regionCnt):
+        if client_num==1:
+            f.write('client '+public[0]+' '+private[0]+' '+client_str+' us-west-2a\n')
+            public.pop(0)
+            private.pop(0)
+            
+            print(public)
+            print(private)
+
+            break
+        else:
+            for j in range(eachRegionClient):
+                print('client '+public[j+i*eachRegionCnt]+' '+private[j+i*eachRegionCnt]+' '+client_str+' us-west-2a\n')
+                f.write('client '+public[j+i*eachRegionCnt]+' '+private[j+i*eachRegionCnt]+' '+client_str+' us-west-2a\n')
+        
+    peercnt=1
+    for i in range(regionCnt):
+        for j in range(eachRegionPeer):
+            print('p'+str(peercnt)+' '+public[j+eachRegionClient+i*eachRegionCnt]+' '+private[j+eachRegionClient+i*eachRegionCnt]+' peers us-west-2a\n')
+            f.write('p'+str(peercnt)+' '+public[j+eachRegionClient+i*eachRegionCnt]+' '+private[j+eachRegionClient+i*eachRegionCnt]+' peers us-west-2a\n')
+            peercnt+=1
         
     print('Write \'cloud-instance-info\' successfully !')
+    
+    

@@ -106,12 +106,12 @@ echo $bandwidth
 
 echo 'setting bandwidth'
 echo $public_ip_arr
-for ((c=0;c<$totalnum;c++))
-do
-    # 为每个数据包添加 100ms 的延迟和 30ms 的抖动
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev ens5 root ; tc qdisc add dev ens5 root netem delay 100ms 30ms rate 1000mbit'
-    echo ${public_ip_arr[c]} '1000mbit'
-done
+# for ((c=0;c<$totalnum;c++))
+# do
+#     # 为每个数据包添加 100ms 的延迟和 30ms 的抖动
+#     ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev ens5 root ; tc qdisc add dev ens5 root netem delay 100ms 30ms rate 1000mbit'
+#     echo ${public_ip_arr[c]} '1000mbit'
+# done
 
 for ((c=1+$client_num;c<1+$client_num+$bandwidth_cnt;c++))    
 do
@@ -132,8 +132,8 @@ for ((c=0;c<$peer_num;c++)) do
 done
 echo 'unsetting bandwidth'
 
-# echo "Shutdown all instances..."
-# source scripts/cloud-deploy/shutdown_instances.sh
+echo "Shutdown all instances..."
+source scripts/cloud-deploy/shutdown_instances.sh
 
 
 
@@ -171,4 +171,4 @@ echo 'unsetting bandwidth'
 #     --region $each_region ; 
 # done
 
-# scp -r -i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@34.207.111.116:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@34.207.111.116:/root/experiment-output .

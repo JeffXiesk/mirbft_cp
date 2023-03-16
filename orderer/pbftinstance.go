@@ -245,7 +245,9 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	//for _,sn :=range pi.segment.SNs() {
 	//	pi.hnsn[sn]=sn
 	//}
+	pi.mutex.Lock()
 	pi.htnssn[int32(pi.segment.FirstSN())] = append(pi.htnssn[int32(pi.segment.FirstSN())], htnmsg0) ///1201
+	pi.mutex.Unlock()
 
 	// Non initializing final digests. Checked for nil in the code.
 	pi.startView(0)
@@ -344,7 +346,9 @@ func (pi *pbftInstance) lead() {
 			}
 
 			if config.Config.UseSig {
+				pi.mutex.RLock()
 				htnmsg00.Tn = pi.htnssn[cursn][0].Tn
+				pi.mutex.RUnlock()
 				htnmsg00.K = membership.OwnID*int32(config.Config.PrivKeyCnt) + selfhtn - htnmsg00.Tn
 				message := &pb.QcMessage{
 					Sn:   htnmsg00.Sn,
@@ -357,8 +361,11 @@ func (pi *pbftInstance) lead() {
 			} else {
 				htnmsg00.Htn = selfhtn
 			}
+			pi.mutex.Lock()
 			pi.htnssn[cursn] = append(pi.htnssn[cursn], htnmsg00)
 			pi.kssn[cursn] = append(pi.kssn[cursn], htnmsg00.K)
+			pi.mutex.Unlock()
+
 
 			//nowTn := int32(0)
 			//if cursn != pi.segment.FirstSN() {
@@ -368,9 +375,13 @@ func (pi *pbftInstance) lead() {
 			//curhtn := pi.GetMaxHtn(nowTn, pi.kssn[cursn])
 			curhtn := int32(0)
 			var htnqc []byte
+			pi.mutex.Lock()
 			hset := pi.htnssn[cursn]
+			pi.mutex.Unlock()
 			if config.Config.UseSig {
+				pi.mutex.RLock()
 				curhtn = pi.GetMaxHtn(htnmsg00.Tn, pi.kssn[cursn])
+				pi.mutex.RUnlock()
 				htnqc = fakeQc
 			} else {
 				htnqc, curhtn = pi.GetMaxHtnSet(hset)
@@ -405,6 +416,7 @@ func (pi *pbftInstance) lead() {
 					},
 				}
 				if config.Config.UseSig {
+					pi.mutex.RLock()
 					newseqno.Newseqno.Ks = pi.kssn[cursn]
 					newseqno.Newseqno.QcMessage = &pb.QcMessage{
 						Sn:   cursn - int32(membership.NumNodes()),
@@ -412,6 +424,7 @@ func (pi *pbftInstance) lead() {
 						Tn:   pi.htnssn[cursn][0].Tn,
 					}
 					Asm_Qc := pi.AssembleCert(pi.htnssn[cursn])
+					pi.mutex.RUnlock()
 					newseqno.Newseqno.HsetQc = Asm_Qc
 				} else {
 					newseqno.Newseqno.Hset = hset
@@ -442,6 +455,7 @@ func (pi *pbftInstance) lead() {
 					},
 				}
 				if config.Config.UseSig {
+					pi.mutex.RLock()
 					newseqno.Newseqno.Ks = pi.kssn[cursn]
 					Asm_Qc := pi.AssembleCert(pi.htnssn[cursn])
 					newseqno.Newseqno.QcMessage = &pb.QcMessage{
@@ -449,6 +463,7 @@ func (pi *pbftInstance) lead() {
 						View: pi.view,
 						Tn:   pi.htnssn[cursn][0].Tn,
 					}
+					pi.mutex.RUnlock()
 					newseqno.Newseqno.HsetQc = Asm_Qc
 
 				} else {
@@ -460,7 +475,9 @@ func (pi *pbftInstance) lead() {
 					Sn:       snfromhtntopropose,
 					Msg:      newseqno,
 				}
+				pi.mutex.Lock()
 				pi.htnssn[snfromhtntopropose] = pi.htnssn[cursn]
+				pi.mutex.Unlock()
 				pi.serializer.serialize(msg)
 				<-pi.cutBatch
 				i += int((snfromhtntopropose - cursn) / int32(membership.NumNodes()))
@@ -484,6 +501,7 @@ func (pi *pbftInstance) lead() {
 					},
 				}
 				if config.Config.UseSig {
+					pi.mutex.RLock()
 					newseqno.Newseqno.Ks = pi.kssn[cursn]
 					Asm_Qc := pi.AssembleCert(pi.htnssn[cursn])
 					newseqno.Newseqno.QcMessage = &pb.QcMessage{
@@ -491,6 +509,7 @@ func (pi *pbftInstance) lead() {
 						View: pi.view,
 						Tn:   pi.htnssn[cursn][0].Tn,
 					}
+					pi.mutex.RUnlock()
 					newseqno.Newseqno.HsetQc = Asm_Qc
 
 				} else {
@@ -502,7 +521,9 @@ func (pi *pbftInstance) lead() {
 					Sn:       pi.segment.LastSN(),
 					Msg:      newseqno,
 				}
+				pi.mutex.Lock()
 				pi.htnssn[pi.segment.LastSN()] = pi.htnssn[cursn]
+				pi.mutex.Unlock()
 				pi.serializer.serialize(msg)
 				<-pi.cutBatch
 				i += int((pi.segment.LastSN() - cursn) / int32(membership.NumNodes()))
@@ -1137,7 +1158,9 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 		if err != nil {
 			logger.Error().Int32("htnmsg.K", htnmsg.K).Err(err).Msg("CheckSig: BLSSigShareVerification Fail")
 		}
+		pi.mutex.Lock()
 		pi.kssn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.kssn[htnmsg.Sn+int32(membership.NumNodes())], htnmsg.K)
+		pi.mutex.Unlock()
 	}
 
 	//logger.Debug().Int32("prelocalhtn", htnlog[pi.segment.SegID()]).
@@ -1159,7 +1182,9 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 	batch := pi.batches[pi.view][msg.Sn]
 	senderID := msg.SenderId
 	batch.htnMsgs[senderID] = htnmsg
+	pi.mutex.Lock()
 	pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())], htnmsg)
+	pi.mutex.Unlock()
 
 	if htn >= prehtn {
 		lock.Lock()
@@ -1198,7 +1223,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 			//[]Int32("validHtnMsgs", batch.validHtnMsgs.Htn).
 			Msg("Set TRUE.")
 		for _, x := range batch.validHtnMsgs {
-			logger.Info().Int32("validHtnMsgs", x.Htn).
+			logger.Debug().Int32("validHtnMsgs", x.Htn).
 				Msg("validHtnMsgs sets.")
 			//pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())], x)
 		}
