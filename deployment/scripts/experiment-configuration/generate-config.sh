@@ -45,7 +45,7 @@ failureCounts=(0) # For each system size, the corresponding failure count (on to
 
 StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 privKeyNumEachPeer=(10) # Using as buffer for lagged instance
-UseSig=(true)
+UseSig=(false)
 
 
 reuseFaulty=true  # If true, both correct and faulty peers will have the same tag and will be launched together, with the same config file.
@@ -79,7 +79,7 @@ fixedEpochLength=false
 auths="true"
 bucketsPerLeader="16"
 minBuckets="16"
-minEpochLength="128"       # [entries]
+minEpochLength="512"       # [entries]
 nodeConnections="1"
 minConnections="16"
 leaderPolicies="Simple"  # Possible values:
@@ -119,9 +119,9 @@ throughputsAuthPbft=$()
 throughputsAuthPbft[4]="32768 40960 49152 60000"
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288 24576 32768 40960 49152 60000"
 throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
-throughputsAuthPbft[16]="512 1024 2048 4096 8192 16384 24576"
+throughputsAuthPbft[16]="16384 32768 65536 98304 131072"
 # throughputsAuthPbft[16]="32768 40960 49152"
-throughputsAuthPbft[32]=""
+throughputsAuthPbft[32]="8192 16384 32768 65536 98304 131072"
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""
 throughputsNoAuthPbft=$()

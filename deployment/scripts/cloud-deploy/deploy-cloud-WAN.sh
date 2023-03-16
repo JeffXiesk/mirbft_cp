@@ -65,22 +65,22 @@ if [ "$1" = "-i" ]; then
     public_ip_arr=(`echo $public_ip | tr ',' ' '`)
     private_ip_arr=(`echo $private_ip | tr ',' ' '`)
 
-    size=$totalnum
-    max=$(( 32768 / size * size ))
-    for ((i=size-1; i>1; i--)); do
-        while (( (rand=$RANDOM) >= max )); do :; done
-        rand=$(( rand % (i+1) ))
-        if [[ "$rand" == 0 ]]; then
-            ((i++))
-            continue
-        fi
-        tmp=${public_ip_arr[i]}  # swap i and rand-th element
-        public_ip_arr[i]=${public_ip_arr[rand]}
-        public_ip_arr[rand]=$tmp
-        tmp=${private_ip_arr[i]}  # swap i and rand-th element in the second array
-        private_ip_arr[i]=${private_ip_arr[rand]}
-        private_ip_arr[rand]=$tmp
-    done
+    # size=$totalnum
+    # max=$(( 32768 / size * size ))
+    # for ((i=size-1; i>1; i--)); do
+    #     while (( (rand=$RANDOM) >= max )); do :; done
+    #     rand=$(( rand % (i+1) ))
+    #     if [[ "$rand" == 0 ]]; then
+    #         ((i++))
+    #         continue
+    #     fi
+    #     tmp=${public_ip_arr[i]}  # swap i and rand-th element
+    #     public_ip_arr[i]=${public_ip_arr[rand]}
+    #     public_ip_arr[rand]=$tmp
+    #     tmp=${private_ip_arr[i]}  # swap i and rand-th element in the second array
+    #     private_ip_arr[i]=${private_ip_arr[rand]}
+    #     private_ip_arr[rand]=$tmp
+    # done
     
     echo ${public_ip_arr[@]}
     echo ${private_ip_arr[@]}
@@ -188,9 +188,22 @@ if [ "$1" = "-s" ]; then
     done
 fi
 
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.168.130.147:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.249.222.217:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@35.180.172.38:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@52.62.0.245:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@3.112.19.96:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@18.183.82.100:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@13.39.161.225:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@13.55.77.215:/root/experiment-output .
+
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@18.179.35.174:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@43.207.235.17:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@18.181.192.194:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.178.50.10:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@13.39.163.133:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@15.188.246.209:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@13.38.75.151:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@15.237.26.47:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@3.25.192.254:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@3.25.169.74:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.79.195.248:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.79.137.119:/root/experiment-output .
 
 # ssh -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=DEBUG -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 ubuntu@3.134.108.62

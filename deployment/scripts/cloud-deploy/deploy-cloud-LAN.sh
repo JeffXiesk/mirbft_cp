@@ -1,6 +1,6 @@
 #!/bin/bash
 # in deploy folder run.
-ssh_options_cloud='-i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60'
+ssh_options_cloud='-i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60'
 
 # source shutdown_instances.sh
 num=$(python3 scripts/cloud-deploy/pyscript/find_insnum.py)

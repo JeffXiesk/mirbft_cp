@@ -212,7 +212,6 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	copy(fakeQc, fakeQc_[:])
 	copy(fakesig, fakesig_[:])
 	logger.Debug().Int("size", int(unsafe.Sizeof(fakeQc))).Msg("size of fakeQc")
-	lock.Lock()
 	// TODO: 这个sig能是nil吗
 	htnmsg0 := &pb.HtnMessage{
 		Sn:        pi.segment.FirstSN() - int32(membership.NumNodes()),
@@ -239,8 +238,8 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	} else {
 		htnmsg0.Htn = (pi.segment.FirstSN() - int32(pi.segment.SegID()%membership.NumNodes())) / int32(membership.NumNodes())
 	}
+	lock.Lock()
 	htnlog[pi.segment.SegID()] = htnmsg0
-
 	lock.Unlock()
 	pi.vhtnsn[pi.segment.FirstSN()] = true
 	//for _,sn :=range pi.segment.SNs() {
@@ -1011,7 +1010,6 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 			Int32("senderID", membership.OwnID).
 			Msg("Sending Htn.")
 
-		lock.Lock()
 		htnmsg := &pb.HtnMessage{
 			Sn:        batch.preprepareMsg.Sn,
 			View:      pi.view,
@@ -1022,7 +1020,6 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 			PrepareQc: fakeQc,
 			Fakesig:   fakesig,
 		}
-		lock.Unlock()
 
 		if config.Config.UseSig {
 			qcmessage := &pb.QcMessage{
@@ -1030,7 +1027,9 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 				View: batch.preprepareMsg.View,
 				Tn:   batch.preprepareMsg.Tn,
 			}
+			lock.Lock()
 			htnmsg.K = membership.OwnID*int32(config.Config.PrivKeyCnt) + htnlog[int(membership.OwnID)].K%int32(config.Config.PrivKeyCnt) + htnlog[int(membership.OwnID)].Tn - qcmessage.Tn
+			lock.Unlock()
 			data, err := proto.Marshal(qcmessage)
 			if err != nil {
 				logger.Error().Err(err)
@@ -1046,7 +1045,9 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 			htnmsg.Tn = qcmessage.Tn
 			htnmsg.Qc = qc
 		} else {
+			lock.Lock()
 			htnmsg.Htn = htnlog[int(membership.OwnID)].Htn
+			lock.Unlock()
 		}
 
 		///1103这里有问题，发送的不应该是这个instance对应的htn，而是在所有链上看到的最高htn，把pi.segment.SegID()改成membership.OwnID
@@ -1152,7 +1153,6 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 		prehtn = htnlog[pi.segment.SegID()].Htn
 		htn = htnmsg.Htn
 	}
-
 	lock.Unlock()
 
 	///1116
