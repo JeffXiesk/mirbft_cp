@@ -285,7 +285,7 @@ func (pi *pbftInstance) lead() {
 	//if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 	if int32(pi.segment.SegID())%int32(membership.NumNodes()) == 0 && config.Config.CrashTiming == "Straggler" {
 		//if config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(0.0333 * float64(config.Config.ViewChangeTimeoutMs))
+		config.Config.BatchTimeoutMs = int(0.083333 * float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs).Msg("byzantine effected !")
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
@@ -310,10 +310,10 @@ func (pi *pbftInstance) lead() {
 		// However, as we know that the batch is ready (by having waited here), we will set the timeout of the actual
 		// batch cutting to 0. The signatures still need to be verified though, but the configuration option of early
 		// request verification should alleviate this problem.
-		logger.Debug().Int("batchSize", pi.segment.BatchSize()).Msg("Waiting for batch.")
+		// logger.Debug().Int("batchSize", pi.segment.BatchSize()).Msg("Waiting for batch.")
 		pi.segment.Buckets().WaitForRequests(batchSize, config.Config.BatchTimeout)
-		logger.Debug().Int("batchSize", pi.segment.BatchSize()).Msg("Batch ready.")
-		logger.Debug().Int32("sn", cursn).Msg("In lead() loop")
+		// logger.Debug().Int("batchSize", pi.segment.BatchSize()).Msg("Batch ready.")
+		// logger.Debug().Int32("sn", cursn).Msg("In lead() loop")
 
 		// Create message to serve as a placeholder for proposing a batch.
 		// lock.Lock()
@@ -1134,7 +1134,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 		}
 		err = pi.orderer.CheckSigShare(data, htnmsg.K, htnmsg.Qc.Qc)
 		if err != nil {
-			logger.Error().Err(err).Msg("CheckSig: BLSSigShareVerification Fail")
+			logger.Error().Int32("htnmsg.K", htnmsg.K).Err(err).Msg("CheckSig: BLSSigShareVerification Fail")
 		}
 		pi.kssn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.kssn[htnmsg.Sn+int32(membership.NumNodes())], htnmsg.K)
 	}
@@ -2728,7 +2728,7 @@ func (pi *pbftInstance) AssembleCert(htnmsgs []*pb.HtnMessage) []byte {
 		logger.Debug().Msgf("K is %s", htn.K)
 		err := pi.orderer.CheckSigShare(data, htn.K, htn.Qc.Qc)
 		if err != nil {
-			logger.Error().Msgf("CheckSigShare Fail : %s", err)
+			logger.Error().Int32("htn.K", htn.K).Msgf("c: %s", err)
 		} else {
 			logger.Debug().Msgf("CheckSigShare Success")
 		}

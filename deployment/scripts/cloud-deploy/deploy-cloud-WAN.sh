@@ -12,8 +12,8 @@ peer_num=${num_arr[1]}
 # echo $client_num
 # echo $peer_num
 
-region_list=("us-east-2" "ca-central-1" "ap-east-1" "ap-northeast-1" "eu-west-2" "eu-north-1" "me-south-1" "sa-east-1")
-LaunchTemplateId_list=("lt-0e560d976efbab859" "lt-0974be0cafc150ce7" "lt-041665c4f5d3fb126" "lt-0caead15e0ffbe385" "lt-02621b1435fdd7f28" "lt-0b90050831fb1bc71" "lt-06b07607d7849dbb7" "lt-068ebae72458b55d3")
+region_list=("us-east-2" "ap-northeast-1" "eu-west-3" "ap-southeast-2")
+LaunchTemplateId_list=("lt-0e560d976efbab859" "lt-0caead15e0ffbe385" "lt-09d0c9f2409b1ed85" "lt-0a82b62ee3edca658")
 
 if [ "$1" = "-i" ]; then
     echo "Init"
@@ -23,7 +23,8 @@ if [ "$1" = "-i" ]; then
         # totalnum=6
         for ((c=0;c<$totalnum;c++))    
         do
-            i=$(($c%8))
+            echo "Region count is ${#region_list[@]}"
+            i=$(($c%${#region_list[@]}))
             echo "i is $i"
             aws configure set region ${region_list[$i]}
             new_instance_info=$(aws ec2 run-instances \
@@ -31,63 +32,91 @@ if [ "$1" = "-i" ]; then
              --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value="Parallel-bft-instance"}]')
         done
 
-        echo "sleep 60 seconds"
+        echo "sleep 30 seconds"
         sleep 60
     else
         sleep 0.1
     fi
-    # public_ip=$(
-    #     aws ec2 describe-instances   \
-    #     --filter "Name=network-interface.status,Values=available,in-use"   \
-    #     --query "Reservations[*].Instances[*].PublicIpAddress"   \
-    #     --output=text)
-    # echo $public_ip
 
-    # private_ip=$(
-    #     aws ec2 describe-instances   \
-    #     --filter "Name=network-interface.status,Values=available,in-use"   \
-    #     --query "Reservations[*].Instances[*].PrivateIpAddress"   \
-    #     --output=text)
-    # echo $private_ip
+    public_ip=""
+    private_ip=""
+    for region in "${region_list[@]}"
+    do
+        aws configure set region $region
+        public_ip+=$(
+        aws ec2 describe-instances   \
+        --filter "Name=network-interface.status,Values=available,in-use"   \
+        --query "Reservations[*].Instances[*].PublicIpAddress"   \
+        --output=text)
+        public_ip+=" "
+        
+        private_ip+=$(
+        aws ec2 describe-instances   \
+        --filter "Name=network-interface.status,Values=available,in-use"   \
+        --query "Reservations[*].Instances[*].PrivateIpAddress"   \
+        --output=text)
+        private_ip+=" "
+    done
+    
+    echo $public_ip
+    echo $private_ip
 
-    # write_result=$(python3 scripts/cloud-deploy/pyscript/write_cloud_instance.py $client_num $peer_num $public_ip $private_ip)
-    # echo $write_result
+    # show info of instance
+    public_ip_arr=(`echo $public_ip | tr ',' ' '`)
+    private_ip_arr=(`echo $private_ip | tr ',' ' '`)
 
-    # # show info of instance
-    # public_ip_arr=(`echo $public_ip | tr ',' ' '`)
-    # for i in "${public_ip_arr[@]}"
-    # do
-    #    echo "$i"
-    # done
+    size=$totalnum
+    max=$(( 32768 / size * size ))
+    for ((i=size-1; i>1; i--)); do
+        while (( (rand=$RANDOM) >= max )); do :; done
+        rand=$(( rand % (i+1) ))
+        if [[ "$rand" == 0 ]]; then
+            ((i++))
+            continue
+        fi
+        tmp=${public_ip_arr[i]}  # swap i and rand-th element
+        public_ip_arr[i]=${public_ip_arr[rand]}
+        public_ip_arr[rand]=$tmp
+        tmp=${private_ip_arr[i]}  # swap i and rand-th element in the second array
+        private_ip_arr[i]=${private_ip_arr[rand]}
+        private_ip_arr[rand]=$tmp
+    done
+    
+    echo ${public_ip_arr[@]}
+    echo ${private_ip_arr[@]}
 
-    # private_ip_arr=(`echo $private_ip | tr ',' ' '`)
-    # for i in "${private_ip_arr[@]}"
-    # do
-    #    echo "$i"
-    # done
+    write_result=$(python3 scripts/cloud-deploy/pyscript/write_cloud_instance.py $client_num $peer_num ${public_ip_arr[@]} ${private_ip_arr[@]})
+    echo $write_result
 
-    # # set root login, reference : https://www.youtube.com/watch?v=xE_oaWVhaV4
-    # echo "Start set root login..."
-    # for i in "${public_ip_arr[@]}"
-    # do
-    #     # send local 'sshd_config' ssh config file to instance
-    #     scp $ssh_options_cloud scripts/cloud-deploy/sshd_config ubuntu@$i:~
-    #     # set root login
-    #     ssh $ssh_options_cloud ubuntu@$i "sudo cp ~/.ssh/authorized_keys /root/.ssh/authorized_keys;sudo cp ~/sshd_config /etc/ssh/sshd_config"
-    #     echo "$i set root login done..."
-    # done
-    # echo "End set root login..."
 
-    # echo "Start set ssh key..."
-    # for i in "${public_ip_arr[@]}"
-    # do
-    #     # send local 'sshd_config' ssh config file to instance
-    #     scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa' root@$i:/root/.ssh
-    #     scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa.pub' root@$i:/root/.ssh
-    #     ssh $ssh_options_cloud root@$i 'chmod 600 /root/.ssh/id_rsa;chmod 600 /root/.ssh/id_rsa.pub;echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3JeK5VQ3cRMLp5nHeMgIDTbbOvytBR6BDy4TK0QOqzyrGIlaSt966JkTsUfxXLw7Gc/cGRwpjVcszE3nGEvcquAEHuFOfYmt8Pat3cHuLgH4p/GPwBMbvKgrLNGrkRphFugK30IPN5yRvsUhpVzi/XJJN6iL68fRzdFzmOjQWgvmOcWPTVy7VV0GjX3XoO5XcmQU3/B52nZotypxCmDN91eJyNeVjpGgDdwT+Pc6eqr1yAx4PH/PDPOSQlrFC7x8zsuiwz+F+cLaUyVNmp5G/NSzcNoYKbxohnj11JVdVgnUj/CocG9dJjpxY4+NSCAaIRJ5kczF+9VVrzfhyId4D niu@niu-Standard-PC-i440FX-PIIX-1996 >> /root/.ssh/authorized_keys'
-    #     echo "$i sent ssh key done..."
-    # done
-    # echo "End set ssh key..."
+    if [ "$1" = "-k" ]; then
+        shift
+        # set root login, reference : https://www.youtube.com/watch?v=xE_oaWVhaV4
+        echo "Start set root login..."
+        for i in "${public_ip_arr[@]}"
+        do
+            # send local 'sshd_config' ssh config file to instance
+            scp $ssh_options_cloud scripts/cloud-deploy/sshd_config ubuntu@$i:~
+            # set root login
+            ssh $ssh_options_cloud ubuntu@$i "sudo cp ~/.ssh/authorized_keys /root/.ssh/authorized_keys;sudo cp ~/sshd_config /etc/ssh/sshd_config"
+            echo "$i set root login done..."
+        done
+        echo "End set root login..."
+
+        echo "Start set ssh key..."
+        for i in "${public_ip_arr[@]}"
+        do
+            # send local 'sshd_config' ssh config file to instance
+            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa' root@$i:/root/.ssh
+            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa.pub' root@$i:/root/.ssh
+            ssh $ssh_options_cloud root@$i 'chmod 600 /root/.ssh/id_rsa;chmod 600 /root/.ssh/id_rsa.pub;echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3JeK5VQ3cRMLp5nHeMgIDTbbOvytBR6BDy4TK0QOqzyrGIlaSt966JkTsUfxXLw7Gc/cGRwpjVcszE3nGEvcquAEHuFOfYmt8Pat3cHuLgH4p/GPwBMbvKgrLNGrkRphFugK30IPN5yRvsUhpVzi/XJJN6iL68fRzdFzmOjQWgvmOcWPTVy7VV0GjX3XoO5XcmQU3/B52nZotypxCmDN91eJyNeVjpGgDdwT+Pc6eqr1yAx4PH/PDPOSQlrFC7x8zsuiwz+F+cLaUyVNmp5G/NSzcNoYKbxohnj11JVdVgnUj/CocG9dJjpxY4+NSCAaIRJ5kczF+9VVrzfhyId4D niu@niu-Standard-PC-i440FX-PIIX-1996 >> /root/.ssh/authorized_keys'
+            echo "$i sent ssh key done..."
+        done
+        echo "End set ssh key..."
+    else 
+        sleep 0.1
+    fi
+
 else
     echo "Not init"
 fi
@@ -123,18 +152,17 @@ fi
 
 
 
-# echo "Start deployment..."
-# ./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-config.sh
-# echo "End deployment..."
-
+if [ "$1" = "-d" ]; then
+    shift
+    echo "Start deployment..."
+    ./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-config.sh
+    echo "End deployment..."
+fi
 
 # for ((c=0;c<$peer_num;c++)) do
 #     ssh $ssh_options_cloud root@${public_ip_arr[c+bandwidth_cnt]} 'tc qdisc del dev ens5 root'
 # done
 # echo 'unsetting bandwidth'
-
-# echo "Shutdown all instances..."
-# # source shutdown_instances.sh
 
 # rm -rf scripts/cloud-deploy/experiment-output
 # mkdir -p scripts/cloud-deploy/experiment-output
@@ -146,35 +174,23 @@ fi
 #     echo "$i fetch experiment done..."
 # done
 
-
-
-# # for each_region in ${AWS_REGIONS} ; do 
-# #     aws ec2 import-key-pair \
-# #     --key-name MyKeyPair \
-# #     --public-key-material fileb://$HOME/.ssh/id_rsa_MyKeyPair.pub \
-# #     --region $each_region ; 
-# # done
-
-
-# for tar in scripts/cloud-deploy/experiment-output/*.tar.gz;  do 
-#     tar -zxvf $tar -C scripts/cloud-deploy/experiment-output/;
-# done
-
 # python3 scripts/cloud-deploy/Fairness_process/latency_each_stage.py >> scripts/cloud-deploy/Fairness_process/data_analyze.log
 
-# # for each_region in ${AWS_REGIONS} ; do 
-# #     aws ec2 import-key-pair \
-# #     --key-name MyKeyPair \
-# #     --public-key-material fileb://$HOME/.ssh/id_rsa_MyKeyPair.pub \
-# #     --region $each_region ; 
-# # done
 
 
-for i in "${region_list[@]}" ; do
-    aws configure set region $i
-    scripts/cloud-deploy/shutdown_instances.sh
-done
 
-# # scp -r -i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@3.237.193.123:/root/experiment-output .
+
+if [ "$1" = "-s" ]; then
+    shift
+    for i in "${region_list[@]}" ; do
+        aws configure set region $i
+        scripts/cloud-deploy/shutdown_instances.sh
+    done
+fi
+
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.168.130.147:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.249.222.217:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@35.180.172.38:/root/experiment-output .
+# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@52.62.0.245:/root/experiment-output .
 
 # ssh -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=DEBUG -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 ubuntu@3.134.108.62

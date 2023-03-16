@@ -99,24 +99,23 @@ if [ "$1" = "-b" ]; then
     # echo 'in -b'
     bandwidth_cnt=$1
     shift
-    bandwidth=$1mbit
+    bandwidth=5mbit
 fi
 echo $bandwidth_cnt  
 echo $bandwidth 
 
 echo 'setting bandwidth'
 echo $public_ip_arr
-for ((c=0;c<$peer_num;c++))
+for ((c=0;c<$totalnum;c++))
 do
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev ens5 root'
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc add dev ens5 root tbf rate 1000mbit burst 320kbit latency 100ms'
+    # 为每个数据包添加 100ms 的延迟和 30ms 的抖动
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev ens5 root ; tc qdisc add dev ens5 root netem delay 100ms 30ms rate 1000mbit'
     echo ${public_ip_arr[c]} '1000mbit'
 done
 
 for ((c=1+$client_num;c<1+$client_num+$bandwidth_cnt;c++))    
 do
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} 'tc qdisc del dev ens5 root'
-    ssh $ssh_options_cloud root@${public_ip_arr[c]} "tc qdisc add dev ens5 root tbf rate $bandwidth burst 320kbit latency 100ms"
+    ssh $ssh_options_cloud root@${public_ip_arr[c]} "tc qdisc del dev ens5 root ; tc qdisc add dev ens5 root netem delay 100ms 30ms rate 5mbit"
     echo ${public_ip_arr[c]} $bandwidth 
     # Limiting the Egress Traffic
 done

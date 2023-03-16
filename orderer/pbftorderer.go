@@ -18,7 +18,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
+	"fmt"
 	"sort"
 
 	"github.com/hyperledger-labs/mirbft/config"
@@ -324,6 +324,11 @@ func (ho *PbftOrderer) SignWithKthKey(data []byte, k int32) ([]byte, []byte, err
 // CheckSigShare checks if a signature share is valid.
 func (ho *PbftOrderer) CheckSigShare(data []byte, k int32, signature []byte) error {
 	//return nil
+	logger.Info().Int32("k", k).Msg("In CheckSigShare")
+	if k/int32(config.Config.PrivKeyCnt) >= int32(len(membership.BLSPubKeyShares)) {
+		return fmt.Errorf("K out of bound.")
+	}
+
 	return crypto.BLSSigShareVerification(membership.BLSPubKeyShares[k/int32(config.Config.PrivKeyCnt)][k%int32(config.Config.PrivKeyCnt)], data, signature)
 }
 
