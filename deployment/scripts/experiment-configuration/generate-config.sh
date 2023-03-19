@@ -38,8 +38,8 @@ faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 da
 
 # number of client instances per node for 1/16/32 client machines
 clients1=""    # deploys 1 client machine which run the specified number of client instances
-clients16="4"    # deploys 16 client machine which run the specified number of client instances
-clients32=""    # deploys 32 client machine which run the specified number of client instances
+clients16=""    # deploys 16 client machine which run the specified number of client instances
+clients32="8"    # deploys 32 client machine which run the specified number of client instances
 systemSizes="16" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
@@ -116,10 +116,10 @@ function skip() {
 }
 
 throughputsAuthPbft=$()
-throughputsAuthPbft[4]="32768 40960 49152 60000"
+throughputsAuthPbft[4]="12288 24576 32768 40960 49152 60000"
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288 24576 32768 40960 49152 60000"
 throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
-throughputsAuthPbft[16]="16384 32768 65536"
+throughputsAuthPbft[16]="12288 24576 32768 50000 65536 80000 100000 110000 120000 130000"
 # throughputsAuthPbft[16]="32768 40960 49152"
 throughputsAuthPbft[32]="8192 16384 32768 65536 98304 131072"
 throughputsAuthPbft[64]=""

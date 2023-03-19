@@ -92,8 +92,8 @@ echo "Installing Ubuntu packages."
 
 echo "Obtaining own public IP address."
 # Obtain public and private IP from instance detail.
-own_public_ip=$(jq -r '.primaryIpAddress' < "$detail_file")
-own_private_ip=$(jq -r '.primaryBackendIpAddress' < "$detail_file")
+# own_public_ip=$(jq -r '.primaryIpAddress' < "$detail_file")
+# own_private_ip=$(jq -r '.primaryBackendIpAddress' < "$detail_file")
 #own_tag=$(jq -r '.tagReferences[0].tag.name' < "$detail_file")
 # Get tag from a separately uploaded file, in order not to rely on the cloud tagging system.
 own_tag=$(cat "$instance_tag_file")

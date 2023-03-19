@@ -17,18 +17,14 @@ if [ "$1" = "-i" ]; then
     shift
     if [ "$1" = "-r" ]; then
         shift
-        # totalnum=6
-        for ((c=1;c<=$totalnum;c++))    
-        do
-            new_instance_info=$(aws ec2 run-instances \
+        aws configure set region us-east-1
+        new_instance_info=$(aws ec2 run-instances \
+            --count $totalnum \
             --launch-template LaunchTemplateId=lt-0854465890b2cf8e9 \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value="test"}]')
-        done
-            # --launch-template LaunchTemplateId=lt-0052a4dd500c7b168 \
-            # --launch-template LaunchTemplateId=lt-0f484f5c1d4158d0e \
-
-        echo "sleep 60 seconds"
-        sleep 60
+        # echo $new_instance_info
+        echo "sleep 30 seconds"
+        sleep 30
     else
         sleep 0.1
     fi
@@ -63,34 +59,50 @@ if [ "$1" = "-i" ]; then
     done
 
     if [ "$1" = "-k" ]; then
+        shift
         # set root login, reference : https://www.youtube.com/watch?v=xE_oaWVhaV4
         echo "Start set root login..."
         for i in "${public_ip_arr[@]}"
         do
             # send local 'sshd_config' ssh config file to instance
-            scp $ssh_options_cloud scripts/cloud-deploy/sshd_config ubuntu@$i:~
-            # set root login
-            ssh $ssh_options_cloud ubuntu@$i "sudo cp ~/.ssh/authorized_keys /root/.ssh/authorized_keys;sudo cp ~/sshd_config /etc/ssh/sshd_config"
-            echo "$i set root login done..."
+            scp $ssh_options_cloud scripts/cloud-deploy/sshd_config ubuntu@$i:~ &
         done
+        wait
+
+        for i in "${public_ip_arr[@]}"
+        do
+            # set root login
+            ssh $ssh_options_cloud ubuntu@$i "sudo cp ~/.ssh/authorized_keys /root/.ssh/authorized_keys;sudo cp ~/sshd_config /etc/ssh/sshd_config;sudo service sshd restart" &
+        done
+        wait
+
         echo "End set root login..."
 
         echo "Start set ssh key..."
         for i in "${public_ip_arr[@]}"
         do
             # send local 'sshd_config' ssh config file to instance
-            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa' root@$i:/root/.ssh
-            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa.pub' root@$i:/root/.ssh
-            ssh $ssh_options_cloud root@$i 'chmod 600 /root/.ssh/id_rsa;chmod 600 /root/.ssh/id_rsa.pub;echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3JeK5VQ3cRMLp5nHeMgIDTbbOvytBR6BDy4TK0QOqzyrGIlaSt966JkTsUfxXLw7Gc/cGRwpjVcszE3nGEvcquAEHuFOfYmt8Pat3cHuLgH4p/GPwBMbvKgrLNGrkRphFugK30IPN5yRvsUhpVzi/XJJN6iL68fRzdFzmOjQWgvmOcWPTVy7VV0GjX3XoO5XcmQU3/B52nZotypxCmDN91eJyNeVjpGgDdwT+Pc6eqr1yAx4PH/PDPOSQlrFC7x8zsuiwz+F+cLaUyVNmp5G/NSzcNoYKbxohnj11JVdVgnUj/CocG9dJjpxY4+NSCAaIRJ5kczF+9VVrzfhyId4D niu@niu-Standard-PC-i440FX-PIIX-1996 >> /root/.ssh/authorized_keys'
+            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa' root@$i:/root/.ssh &
+            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa.pub' root@$i:/root/.ssh &
             echo "$i sent ssh key done..."
         done
+        wait
+
+        for i in "${public_ip_arr[@]}"
+        do
+            ssh $ssh_options_cloud root@$i 'chmod 600 /root/.ssh/id_rsa;chmod 600 /root/.ssh/id_rsa.pub;echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3JeK5VQ3cRMLp5nHeMgIDTbbOvytBR6BDy4TK0QOqzyrGIlaSt966JkTsUfxXLw7Gc/cGRwpjVcszE3nGEvcquAEHuFOfYmt8Pat3cHuLgH4p/GPwBMbvKgrLNGrkRphFugK30IPN5yRvsUhpVzi/XJJN6iL68fRzdFzmOjQWgvmOcWPTVy7VV0GjX3XoO5XcmQU3/B52nZotypxCmDN91eJyNeVjpGgDdwT+Pc6eqr1yAx4PH/PDPOSQlrFC7x8zsuiwz+F+cLaUyVNmp5G/NSzcNoYKbxohnj11JVdVgnUj/CocG9dJjpxY4+NSCAaIRJ5kczF+9VVrzfhyId4D niu@niu-Standard-PC-i440FX-PIIX-1996 >> /root/.ssh/authorized_keys' &
+            echo "$i sent ssh key done..."
+        done
+        wait
+
         echo "End set ssh key..."
-    else
+    else 
         sleep 0.1
     fi
 else
     echo "Not init"
 fi
+
 
 bandwidth_cnt=0
 bandwidth=1000mbit
@@ -122,20 +134,33 @@ done
 
 
 
-echo "Start deployment..."
-./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-config.sh
-echo "End deployment..."
+if [ "$1" = "-d" ]; then
+    shift
+    echo "Start deployment..."
+    ./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-config.sh
+    echo "End deployment..."
+fi
 
 
-for ((c=0;c<$peer_num;c++)) do
-    ssh $ssh_options_cloud root@${public_ip_arr[c+bandwidth_cnt]} 'tc qdisc del dev ens5 root'
-done
 echo 'unsetting bandwidth'
+for ((c=0;c<$peer_num;c++)) do
+    ssh $ssh_options_cloud root@${public_ip_arr[c+bandwidth_cnt]} 'tc qdisc del dev ens5 root' &
+done
+wait 
 
-echo "Shutdown all instances..."
-source scripts/cloud-deploy/shutdown_instances.sh
+if [ "$1" = "-sd" ]; then
+    shift
+    echo "Shutdown all instances..."
+    aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
+    # source scripts/cloud-deploy/shutdown_instances.sh
+fi
 
-
+if [ "$1" = "-st" ]; then
+    shift
+    echo "Stop all instances..."
+    aws ec2 stop-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
+    # source scripts/cloud-deploy/shutdown_instances.sh
+fi
 
 
 # rm -rf scripts/cloud-deploy/experiment-output
@@ -170,5 +195,3 @@ source scripts/cloud-deploy/shutdown_instances.sh
 #     --public-key-material fileb://$HOME/.ssh/id_rsa_MyKeyPair.pub \
 #     --region $each_region ; 
 # done
-
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@34.207.111.116:/root/experiment-output .

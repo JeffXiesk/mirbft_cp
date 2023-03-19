@@ -13,6 +13,8 @@ peer_num=${num_arr[1]}
 # echo $peer_num
 
 region_list=("us-east-2" "ap-northeast-1" "eu-west-3" "ap-southeast-2")
+region_cnt=${#region_list[@]}
+region_need_add_one=$(($totalnum%$region_cnt))
 LaunchTemplateId_list=("lt-0e560d976efbab859" "lt-0caead15e0ffbe385" "lt-09d0c9f2409b1ed85" "lt-0a82b62ee3edca658")
 
 if [ "$1" = "-i" ]; then
@@ -20,16 +22,23 @@ if [ "$1" = "-i" ]; then
     shift
     if [ "$1" = "-r" ]; then
         shift
-        # totalnum=6
-        for ((c=0;c<$totalnum;c++))    
+        echo "Region count is $region_cnt"
+        echo "region_need_add_one is $region_need_add_one"
+        for ((i=0;i<$region_cnt;i++))    
         do
-            echo "Region count is ${#region_list[@]}"
-            i=$(($c%${#region_list[@]}))
-            echo "i is $i"
+            count=$(($totalnum/$region_cnt))
+            if [ $region_need_add_one -gt $i ]; then
+                echo "region_need_add_one is $region_need_add_one, i is $i"
+                echo "add one"
+                count=$(($count+1))
+            fi
+            echo "Region is ${region_list[$i]}, count is $count"
+            
             aws configure set region ${region_list[$i]}
             new_instance_info=$(aws ec2 run-instances \
              --launch-template LaunchTemplateId=${LaunchTemplateId_list[$i]} \
-             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value="Parallel-bft-instance"}]')
+             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value="Parallel-bft-instance"}]' \
+             --count $count)
         done
 
         echo "sleep 30 seconds"
@@ -96,22 +105,36 @@ if [ "$1" = "-i" ]; then
         for i in "${public_ip_arr[@]}"
         do
             # send local 'sshd_config' ssh config file to instance
-            scp $ssh_options_cloud scripts/cloud-deploy/sshd_config ubuntu@$i:~
-            # set root login
-            ssh $ssh_options_cloud ubuntu@$i "sudo cp ~/.ssh/authorized_keys /root/.ssh/authorized_keys;sudo cp ~/sshd_config /etc/ssh/sshd_config"
-            echo "$i set root login done..."
+            scp $ssh_options_cloud scripts/cloud-deploy/sshd_config ubuntu@$i:~ &
         done
+        wait
+
+        for i in "${public_ip_arr[@]}"
+        do
+            # set root login
+            ssh $ssh_options_cloud ubuntu@$i "sudo cp ~/.ssh/authorized_keys /root/.ssh/authorized_keys;sudo cp ~/sshd_config /etc/ssh/sshd_config;sudo service sshd restart" &
+        done
+        wait
+
         echo "End set root login..."
 
         echo "Start set ssh key..."
         for i in "${public_ip_arr[@]}"
         do
             # send local 'sshd_config' ssh config file to instance
-            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa' root@$i:/root/.ssh
-            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa.pub' root@$i:/root/.ssh
-            ssh $ssh_options_cloud root@$i 'chmod 600 /root/.ssh/id_rsa;chmod 600 /root/.ssh/id_rsa.pub;echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3JeK5VQ3cRMLp5nHeMgIDTbbOvytBR6BDy4TK0QOqzyrGIlaSt966JkTsUfxXLw7Gc/cGRwpjVcszE3nGEvcquAEHuFOfYmt8Pat3cHuLgH4p/GPwBMbvKgrLNGrkRphFugK30IPN5yRvsUhpVzi/XJJN6iL68fRzdFzmOjQWgvmOcWPTVy7VV0GjX3XoO5XcmQU3/B52nZotypxCmDN91eJyNeVjpGgDdwT+Pc6eqr1yAx4PH/PDPOSQlrFC7x8zsuiwz+F+cLaUyVNmp5G/NSzcNoYKbxohnj11JVdVgnUj/CocG9dJjpxY4+NSCAaIRJ5kczF+9VVrzfhyId4D niu@niu-Standard-PC-i440FX-PIIX-1996 >> /root/.ssh/authorized_keys'
+            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa' root@$i:/root/.ssh &
+            scp $ssh_options_cloud 'scripts/cloud-deploy/key/id_rsa.pub' root@$i:/root/.ssh &
             echo "$i sent ssh key done..."
         done
+        wait
+
+        for i in "${public_ip_arr[@]}"
+        do
+            ssh $ssh_options_cloud root@$i 'chmod 600 /root/.ssh/id_rsa;chmod 600 /root/.ssh/id_rsa.pub;echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3JeK5VQ3cRMLp5nHeMgIDTbbOvytBR6BDy4TK0QOqzyrGIlaSt966JkTsUfxXLw7Gc/cGRwpjVcszE3nGEvcquAEHuFOfYmt8Pat3cHuLgH4p/GPwBMbvKgrLNGrkRphFugK30IPN5yRvsUhpVzi/XJJN6iL68fRzdFzmOjQWgvmOcWPTVy7VV0GjX3XoO5XcmQU3/B52nZotypxCmDN91eJyNeVjpGgDdwT+Pc6eqr1yAx4PH/PDPOSQlrFC7x8zsuiwz+F+cLaUyVNmp5G/NSzcNoYKbxohnj11JVdVgnUj/CocG9dJjpxY4+NSCAaIRJ5kczF+9VVrzfhyId4D niu@niu-Standard-PC-i440FX-PIIX-1996 >> /root/.ssh/authorized_keys' &
+            echo "$i sent ssh key done..."
+        done
+        wait
+
         echo "End set ssh key..."
     else 
         sleep 0.1
@@ -180,29 +203,21 @@ fi
 
 
 
-if [ "$1" = "-s" ]; then
+if [ "$1" = "-sd" ]; then
     shift
     for i in "${region_list[@]}" ; do
         aws configure set region $i
-        scripts/cloud-deploy/shutdown_instances.sh
+        aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
+        # scripts/cloud-deploy/shutdown_instances.sh
     done
 fi
 
+if [ "$1" = "-st" ]; then
+    shift
+    for i in "${region_list[@]}" ; do
+        aws configure set region $i
+        aws ec2 stop-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
+        # scripts/cloud-deploy/shutdown_instances.sh
+    done
+fi
 # scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@35.180.54.180:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@13.37.224.57:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@15.237.139.145:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@15.236.224.98:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@15.188.78.110:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@35.180.124.127:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@13.38.80.155:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@13.39.112.111:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@13.54.129.248:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.66.136.172:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@3.104.121.105:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.206.122.235:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@3.24.134.144:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@52.65.29.11:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@13.236.137.208:/root/experiment-output .
-# scp -r -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 root@54.252.140.226:/root/experiment-output .
-
-# ssh -i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=DEBUG -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 ubuntu@3.134.108.62

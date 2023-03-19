@@ -10,16 +10,30 @@ CREATE TABLE request_truncated as
 SELECT *
 FROM request
 WHERE
-  ts - 2000000 >= (SELECT max(t)
+  ts >= (SELECT t
     FROM (SELECT min(ts) as t
       FROM request
       WHERE event = 'REQ_FINISHED'
-      GROUP BY nodeId))
-  AND ts + 2000000 <= (SELECT min(t)
+      GROUP BY nodeId) as tb1
+    ORDER BY t
+    LIMIT 1
+    OFFSET (SELECT COUNT(*)
+            FROM (SELECT min(ts) as t
+      FROM request
+      WHERE event = 'REQ_FINISHED'
+      GROUP BY nodeId)) / 2)
+  AND ts <= (SELECT t
     FROM (SELECT max(ts) as t
       FROM request
       WHERE event = 'REQ_SEND'
-      GROUP BY nodeId))
+      GROUP BY nodeId) as tb1
+    ORDER BY t
+    LIMIT 1
+    OFFSET (SELECT COUNT(*)
+            FROM (SELECT min(ts) as t
+      FROM request
+      WHERE event = 'REQ_SEND'
+      GROUP BY nodeId)) / 2);
 
 -- Do the same as above with the protocol table.
 -- Note that the truncation times are still taken from the request table.
@@ -27,16 +41,30 @@ CREATE TABLE protocol_truncated as
 SELECT *
 FROM protocol
 WHERE
-  ts - 2000000 >= (SELECT max(t)
+  ts >= (SELECT t
     FROM (SELECT min(ts) as t
       FROM request
       WHERE event = 'REQ_FINISHED'
-      GROUP BY nodeId))
-  AND ts + 2000000 <= (SELECT min(t)
+      GROUP BY nodeId) as tb1
+    ORDER BY t
+    LIMIT 1
+    OFFSET (SELECT COUNT(*)
+            FROM (SELECT min(ts) as t
+      FROM request
+      WHERE event = 'REQ_FINISHED'
+      GROUP BY nodeId)) / 2)
+  AND ts <= (SELECT t
     FROM (SELECT max(ts) as t
       FROM request
       WHERE event = 'REQ_SEND'
-      GROUP BY nodeId))
+      GROUP BY nodeId) as tb1
+    ORDER BY t
+    LIMIT 1
+    OFFSET (SELECT COUNT(*)
+            FROM (SELECT min(ts) as t
+      FROM request
+      WHERE event = 'REQ_SEND'
+      GROUP BY nodeId)) / 2);
 
 -- Do the same as above with the CPU usage table.
 -- Note that the truncation times are still taken from the request table.
@@ -44,17 +72,30 @@ CREATE TABLE cpuusage_truncated as
 SELECT *
 FROM cpuusage
 WHERE
-            ts - 2000000 >= (SELECT max(t)
-                             FROM (SELECT min(ts) as t
-                                   FROM request
-                                   WHERE event = 'REQ_FINISHED'
-                                   GROUP BY nodeId))
-  AND ts + 2000000 <= (SELECT min(t)
-                       FROM (SELECT max(ts) as t
-                             FROM request
-                             WHERE event = 'REQ_SEND'
-                             GROUP BY nodeId))
-
+  ts >= (SELECT t
+    FROM (SELECT min(ts) as t
+      FROM request
+      WHERE event = 'REQ_FINISHED'
+      GROUP BY nodeId) as tb1
+    ORDER BY t
+    LIMIT 1
+    OFFSET (SELECT COUNT(*)
+            FROM (SELECT min(ts) as t
+      FROM request
+      WHERE event = 'REQ_FINISHED'
+      GROUP BY nodeId)) / 2)
+  AND ts <= (SELECT t
+    FROM (SELECT max(ts) as t
+      FROM request
+      WHERE event = 'REQ_SEND'
+      GROUP BY nodeId) as tb1
+    ORDER BY t
+    LIMIT 1
+    OFFSET (SELECT COUNT(*)
+            FROM (SELECT min(ts) as t
+      FROM request
+      WHERE event = 'REQ_SEND'
+      GROUP BY nodeId)) / 2)
 
 -- Total CPU usage (average over all peers), truncated data
 -- export cpu-total.val
