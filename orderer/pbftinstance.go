@@ -113,6 +113,7 @@ type pbftBatch struct {
 	committed       bool        // Is true if 2f+1 unique commit messages and a matching proposal received
 	viewChangeTimer *time.Timer // Timer to start a view change
 	hnsn            map[int32]int32
+	goodblock       bool
 }
 
 type viewChangeInfo struct {
@@ -300,6 +301,7 @@ func (pi *pbftInstance) lead() {
 	// for _, sn := range pi.segment.SNs() {
 	count := int32(0)
 	tnoflastblock := int32(-1)
+	snoflastgoodblock := int32(-1)
 	for i := 0; i < len(pi.segment.SNs()); i++ { ///2023待修改。需要在epoch结束的时候停止propose
 		cursn := pi.segment.SNs()[i]
 		//pi.sendproposal(sn, batchSize)
@@ -322,7 +324,9 @@ func (pi *pbftInstance) lead() {
 		// lock.Unlock()
 		// snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())
 		// pi.mutex.RLock()
-		currentvhtnsn, _ := pi.vhtnsn.Get(strconv.Itoa(int(cursn)))
+		a, _ := pi.vhtnsn.Get(strconv.Itoa(int(cursn)))
+		b, _ := pi.vhtnsn.Get(strconv.Itoa(int(snoflastgoodblock + int32(membership.NumNodes()))))
+		currentvhtnsn := a || b
 		if currentvhtnsn == true { ///收集了足够的tn才能propose
 			// pi.mutex.RUnlock()
 			logger.Info().Int32("cursn", cursn).Msg("enter big block")
@@ -376,7 +380,13 @@ func (pi *pbftInstance) lead() {
 				htnmsg00.Htn = selfhtn
 			}
 			// pi.mutex.Lock()
-			oldssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
+			var oldssn []*pb.HtnMessage
+			if a == true {
+				oldssn, _ = pi.htnssn.Get(strconv.Itoa(int(cursn)))
+			} else {
+				oldssn, _ = pi.htnssn.Get(strconv.Itoa(int(snoflastgoodblock + int32(membership.NumNodes()))))
+			}
+
 			pi.htnssn.Set(strconv.Itoa(int(cursn)), append(oldssn, htnmsg00))
 
 			oldkssn, _ := pi.kssn.Get(strconv.Itoa(int(cursn)))
@@ -393,11 +403,11 @@ func (pi *pbftInstance) lead() {
 			var htnqc []byte
 			var hset []*pb.HtnMessage
 			// pi.mutex.Lock()
-			currentssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
+			//currentssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
 			if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" && count != 0 {
 				hset = append(hset, htnmsg00)
 			} else {
-				hset = currentssn
+				hset = oldssn
 			}
 
 			// pi.mutex.Unlock()
@@ -437,7 +447,12 @@ func (pi *pbftInstance) lead() {
 						HsetQc:    nil, //sig
 						Ks:        nil, //sig
 						Fakesig:   fakesig,
+						Goodblock: false,
 					},
+				}
+				if count == 0 {
+					newseqno.Newseqno.Goodblock = true
+					snoflastgoodblock = snfromhtntopropose
 				}
 				if config.Config.UseSig {
 					// pi.mutex.RLock()
@@ -465,8 +480,9 @@ func (pi *pbftInstance) lead() {
 				<-pi.cutBatch
 				tnoflastblock = htntopropose
 				count++
-				if count <= 3 && msg.Sn != pi.segment.LastSN() {
+				if count < 3 && msg.Sn != pi.segment.LastSN() {
 					pi.vhtnsn.Set(strconv.Itoa(int(msg.Sn+int32(membership.NumNodes()))), true)
+					logger.Info().Int32("count", count).Int32("sn", msg.Sn+int32(membership.NumNodes())).Msg("set true directly")
 					continue
 				} else {
 					count = 0
@@ -486,7 +502,12 @@ func (pi *pbftInstance) lead() {
 						HsetQc:    nil,
 						Ks:        nil,
 						Fakesig:   fakesig,
+						Goodblock: false,
 					},
+				}
+				if count == 0 {
+					newseqno.Newseqno.Goodblock = true
+					snoflastgoodblock = snfromhtntopropose
 				}
 				if config.Config.UseSig {
 					// pi.mutex.RLock()
@@ -520,8 +541,9 @@ func (pi *pbftInstance) lead() {
 				i += int((snfromhtntopropose - cursn) / int32(membership.NumNodes()))
 				tnoflastblock = htntopropose
 				count++
-				if count <= 3 && msg.Sn != pi.segment.LastSN() {
+				if count < 3 && msg.Sn != pi.segment.LastSN() {
 					pi.vhtnsn.Set(strconv.Itoa(int(msg.Sn+int32(membership.NumNodes()))), true)
+					logger.Info().Int32("count", count).Int32("sn", msg.Sn+int32(membership.NumNodes())).Msg("set true directly")
 					continue
 				} else {
 					count = 0
@@ -543,7 +565,12 @@ func (pi *pbftInstance) lead() {
 						HsetQc:    nil,
 						Ks:        nil,
 						Fakesig:   fakesig,
+						Goodblock: false,
 					},
+				}
+				if count == 0 {
+					newseqno.Newseqno.Goodblock = true
+					//snoflastgoodblock =
 				}
 				if config.Config.UseSig {
 					// pi.mutex.RLock()
@@ -789,6 +816,7 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 	batch.preprepareMsg = preprepare
 	batch.preprepared = true
 	batch.hnsn[sn] = preprepare.Skip
+	batch.goodblock = preprepare.Goodblock
 	// logger.Debug().Int32("sn",sn).Msgf("pi.batched[pi.view] is %v",pi.batches[pi.view])
 
 	pi.sendPrepare(batch)

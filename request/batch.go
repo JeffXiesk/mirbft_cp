@@ -19,11 +19,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/crypto"
 	"github.com/hyperledger-labs/mirbft/membership"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	logger "github.com/rs/zerolog/log"
 )
 
 // Represents a batch of requests.
@@ -83,6 +83,9 @@ func (b *Batch) CheckSignatures() error {
 // Creates a batch from a protobuf message and tries to add the requests of the message to their buffer.
 // If the request is not added successfully (Add returns nil) this method also returns nil
 func NewBatch(msg *pb.Batch) *Batch {
+	if msg == nil {
+		return &Batch{Requests: make([]*Request, 0, 0)}
+	}
 
 	logger.Debug().Int("nReq", len(msg.Requests)).Msg("Creating new Batch.")
 
