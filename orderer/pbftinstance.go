@@ -206,9 +206,6 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	pi.checkpointMsgs = make(map[int32]*pb.PbftCheckpoint)
 	pi.checkpointDigests = make(map[string][]int32)
 
-	/// 1024///1116///1201
-	//htnmember[pi.segment.SegID()] = 0
-
 	copy(fakeQc, fakeQc_[:])
 	copy(fakesig, fakesig_[:])
 	logger.Debug().Int("size", int(unsafe.Sizeof(fakeQc))).Msg("size of fakeQc")
@@ -285,7 +282,7 @@ func (pi *pbftInstance) lead() {
 	//if membership.SimulatedCrashes[membership.OwnID] != nil && config.Config.CrashTiming == "Straggler" {
 	///1031
 	//if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
-	if int32(pi.segment.SegID())%int32(membership.NumNodes()) == 0 && config.Config.CrashTiming == "Straggler" {
+	if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" {
 		//if config.Config.CrashTiming == "Straggler" {
 		config.Config.BatchTimeoutMs = int(0.083333 * float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
@@ -301,6 +298,8 @@ func (pi *pbftInstance) lead() {
 
 	// Send a proposal for each sequence number in the Segment.
 	// for _, sn := range pi.segment.SNs() {
+	count := int32(0)
+	tnoflastblock := int32(-1)
 	for i := 0; i < len(pi.segment.SNs()); i++ { ///2023待修改。需要在epoch结束的时候停止propose
 		cursn := pi.segment.SNs()[i]
 		//pi.sendproposal(sn, batchSize)
@@ -337,6 +336,12 @@ func (pi *pbftInstance) lead() {
 				htnlogItem, _ := htnlog.Get(strconv.Itoa(pi.segment.SegID()))
 				selfhtn = htnlogItem.Htn
 			}
+			if selfhtn < tnoflastblock {
+				selfhtn = tnoflastblock
+			}
+			if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" {
+				selfhtn = tnoflastblock
+			}
 			// lock.Unlock()
 			htnmsg00 := &pb.HtnMessage{
 				Sn:        cursn - int32(membership.NumNodes()),
@@ -351,8 +356,12 @@ func (pi *pbftInstance) lead() {
 
 			if config.Config.UseSig {
 				// pi.mutex.RLock()
-				currentssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
-				htnmsg00.Tn = currentssn[0].Tn
+				if currentssn, ok := pi.htnssn.Get(strconv.Itoa(int(cursn))); ok {
+					//currentssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
+					htnmsg00.Tn = currentssn[0].Tn
+				} else {
+					htnmsg00.Tn = selfhtn
+				}
 				// pi.mutex.RUnlock()
 				htnmsg00.K = membership.OwnID*int32(config.Config.PrivKeyCnt) + selfhtn - htnmsg00.Tn
 				message := &pb.QcMessage{
@@ -382,9 +391,15 @@ func (pi *pbftInstance) lead() {
 			//curhtn := pi.GetMaxHtn(nowTn, pi.kssn[cursn])
 			curhtn := int32(0)
 			var htnqc []byte
+			var hset []*pb.HtnMessage
 			// pi.mutex.Lock()
 			currentssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
-			hset := currentssn
+			if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" && count != 0 {
+				hset = append(hset, htnmsg00)
+			} else {
+				hset = currentssn
+			}
+
 			// pi.mutex.Unlock()
 			if config.Config.UseSig {
 				// pi.mutex.RLock()
@@ -448,6 +463,14 @@ func (pi *pbftInstance) lead() {
 
 				pi.serializer.serialize(msg)
 				<-pi.cutBatch
+				tnoflastblock = htntopropose
+				count++
+				if count <= 3 && msg.Sn != pi.segment.LastSN() {
+					pi.vhtnsn.Set(strconv.Itoa(int(msg.Sn+int32(membership.NumNodes()))), true)
+					continue
+				} else {
+					count = 0
+				}
 			}
 			if cursn < snfromhtntopropose && snfromhtntopropose <= pi.segment.LastSN() {
 				logger.Info().Int32("cursn", cursn).Int32("snfromhtntopropose", snfromhtntopropose).Msg("enter block2")
@@ -495,6 +518,14 @@ func (pi *pbftInstance) lead() {
 				pi.serializer.serialize(msg)
 				<-pi.cutBatch
 				i += int((snfromhtntopropose - cursn) / int32(membership.NumNodes()))
+				tnoflastblock = htntopropose
+				count++
+				if count <= 3 && msg.Sn != pi.segment.LastSN() {
+					pi.vhtnsn.Set(strconv.Itoa(int(msg.Sn+int32(membership.NumNodes()))), true)
+					continue
+				} else {
+					count = 0
+				}
 			}
 
 			///202303epoch结束的时候直接propose最后一个sn
@@ -545,80 +576,8 @@ func (pi *pbftInstance) lead() {
 				<-pi.cutBatch
 				i += int((pi.segment.LastSN() - cursn) / int32(membership.NumNodes()))
 			}
-			///2023epoch结束的时候不再propose,并且补齐剩余的sn，但这个sn不应该马上补齐，对一个instance来说必须按顺序Announce
-			// if snfromhtntopropose > pi.segment.LastSN() {
-			// 	for j := cursn; j <= pi.segment.LastSN(); j = j + int32(membership.NumNodes()) {
-			// 		logEntry1 := &log.Entry{
-			// 			Sn:        j,   ///1103
-			// 			Batch:     nil, ///1205
-			// 			ProposeTs: 0,
-			// 			CommitTs:  0,
-			// 			Aborted:   false,
-			// 			//Digest:    batch.digest,
-			// 		}
-			// 		logger.Info().
-			// 			Int32("logEntry.Sn", logEntry1.Sn).
-			// 			Int("SegID", pi.segment.SegID()).
-			// 			Msg("Get logEntry.Sn from tn. Nil Blocks. END Blocks")
-			// 		announcer.Announce(logEntry1)
-			// 		pi.batches[pi.view][logEntry1.Sn].committed = true
-			// 		batch := pi.batches[pi.view][logEntry1.Sn]
-			// 		if batch.viewChangeTimer != nil {
-			// 			notFired := batch.viewChangeTimer.Stop()
-			// 			if !notFired {
-			// 				// This is harmelss, since the timeout, even though generated, will be ignored.
-			// 				logger.Warn().Int32("sn", logEntry1.Sn).Msg("Timer fired concurrently with being canceled.") ///1101
-			// 			}
-			// 		}
-			// 		// Create message
-			// 		endblock := &pb.EndBlock{
-			// 			Sn: j,
-			// 		}
-			// 		msg := &pb.ProtocolMessage{
-			// 			SenderId: membership.OwnID,
-			// 			Sn:       j,
-			// 			Msg: &pb.ProtocolMessage_EndBlock{
-			// 				EndBlock: endblock,
-			// 			},
-			// 		}
-			// 		logger.Debug().Int32("sn", msg.Sn).
-			// 			Msg("func EndBlock")
 
-			// 		// Enqueue the message for all other nodes
-			// 		for _, nodeID := range pi.segment.Followers() {
-			// 			if nodeID == membership.OwnID {
-			// 				continue
-			// 			}
-			// 			messenger.EnqueueMsg(msg, nodeID)
-			// 		}
-			// 		// Start new view change timeout
-			// 		// for the fist uncommitted sequence number in the segment
-			// 		finished := true // Will be set to false if any SN is still uncommitted
-			// 		for _, sn := range pi.segment.SNs() {
-			// 			if !pi.batches[pi.view][sn].committed {
-			// 				pi.setViewChangeTimer(sn, 0)
-			// 				finished = false
-			// 				break
-			// 			}
-			// 		}
-
-			// 		// Submit own checkpoint message if all entries of the segment just have been committed.
-			// 		if finished {
-
-			// 			pi.sendCheckpoint()
-
-			// 			// If no segment checkpoint exists yet, start a timer for a view change if the checkpoint is not created soon.
-			// 			// This is required to help other peers that might be stuck in a future view. The high-level checkpoints are
-			// 			// not sufficient for this, as multiple segments might be blocking each other.
-			// 			if pi.finalDigests == nil {
-			// 				pi.setCheckpointTimer()
-			// 			}
-			// 		}
-			// 	}
-			// 	break
-			// }
 		} else {
-			// pi.mutex.RUnlock()
 			i--
 		}
 

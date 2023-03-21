@@ -55,6 +55,7 @@ type configuration struct {
 	StragglerCnt      int    `yaml:"StragglerCnt"`
 	PrivKeyCnt        int    `yaml:"PrivKeyCnt"`
 	UseSig            bool   `yaml:"UseSig"`
+	TnCheckpointCnt   int    `yaml:"TnCheckpointCnt"`
 	CrashTiming       string `yaml:"CrashTiming"`
 	RandomSeed        int64  `yaml:"RandomSeed"`
 	NodeToLeaderRatio int    `yaml:"NodeToLeaderRatio"`
@@ -146,6 +147,7 @@ func LoadFile(configFileName string) {
 	logger.Debug().Int("StragglerCnt", Config.StragglerCnt).Msg("Config")
 	logger.Debug().Int("PrivKeyCnt", Config.PrivKeyCnt).Msg("Config")
 	logger.Debug().Bool("UseSig", Config.UseSig).Msg("Config")
+	logger.Debug().Int("TnCheckpointCnt", Config.TnCheckpointCnt).Msg("Config")
 	logger.Debug().Str("CrashTiming", Config.CrashTiming).Msg("Config")
 	logger.Debug().Int("CheckpointInterval", Config.CheckpointInterval).Msg("Config")
 	logger.Debug().Int("WatermarkWindowSize", Config.WatermarkWindowSize).Msg("Config")

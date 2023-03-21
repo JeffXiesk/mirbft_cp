@@ -117,9 +117,16 @@ func InitNodeIdentities(identities []*pb.NodeIdentity) {
 	for _, p := range allNodeIDs[:config.Config.Failures] {
 		SimulatedCrashes[p] = nodeIdentities[p]
 	}
-	for _, p := range allNodeIDs[:config.Config.StragglerCnt] {
-		SimulatedStraggler[p] = 1
+	rand.Seed(config.Config.RandomSeed)
+	for i := 0; i < config.Config.StragglerCnt; i++ {
+		randi := int32(rand.Intn(len(allNodeIDs)))
+		for SimulatedStraggler[randi] == 1 {
+			randi = int32(rand.Intn(len(allNodeIDs)))
+		}
+		SimulatedStraggler[randi] = 1
 	}
+	logger.Debug().Msgf("SimulatedStraggler is %v", SimulatedStraggler)
+
 }
 
 // Return full node identity
