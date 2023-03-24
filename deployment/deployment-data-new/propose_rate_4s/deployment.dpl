@@ -1,0 +1,68 @@
+# Generated deployment file
+# 
+# systemSizes:      16
+# machineType:      cloud-machine-templates/small-machine
+# bandwidths:       1gbit
+# 
+# segmentLengths:   16
+# bucketsPerLeader: 16
+# batchsizes:       4096
+# auths:            true
+# clients8:         
+# clients16:        
+# duration:         
+# peerTag:          peers
+
+machine: cloud-machine-templates/small-machine-fra05.cmt
+deploy 16 16clients
+machine: cloud-machine-templates/small-machine-fra05.cmt
+deploy 16 16extraclients
+
+
+# Parameters: exp,peers,nlr,failures,numStraggler,numPrivCnt,UseSig,crash-timing,vctimeout,datacenters,bandwidth,num-connections,orderer,clients,instances,client-threads,leader-policy,segment,epoch,batchsize,batchtimeout,batchrate,msgbatchperiod,buckets,leader-buckets,authentication,verify-early,throughput-cap,target-throughput,rate-per-client,hard-rate-limit,requests,cl-watermarks,batch-verifier,request-handlers,req-buffer-size
+
+
+# ========================================
+#        Peers: 16
+#       Faulty: 0
+#    Straggler: 1
+#   PrivKeyNum: 10
+# UseSignature: false
+#        Reuse: true
+# ========================================
+machine: cloud-machine-templates/small-machine-fra05.cmt
+deploy 16 peers
+
+bandwidth: 1gbit
+bandwidth: 1gbit
+bandwidth: 1gbit
+# 0000,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,12288,48,false,1440,16384,external,32,8192
+run 0000 config: config-0000.yml   peers: peers   clients: 16clients 16extraclients
+
+# 0001,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,24576,96,false,2880,16384,external,32,8192
+run 0001 config: config-0001.yml   peers: peers   clients: 16clients 16extraclients
+
+# 0002,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,32768,128,false,3840,16384,external,32,8192
+run 0002 config: config-0002.yml   peers: peers   clients: 16clients 16extraclients
+
+# 0003,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,50000,195,false,5859,16384,external,32,8192
+run 0003 config: config-0003.yml   peers: peers   clients: 16clients 16extraclients
+
+# 0004,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,65536,256,false,7680,16384,external,32,8192
+run 0004 config: config-0004.yml   peers: peers   clients: 16clients 16extraclients
+
+# 0005,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,80000,312,false,9375,16384,external,32,8192
+run 0005 config: config-0005.yml   peers: peers   clients: 16clients 16extraclients
+
+# 0006,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,100000,390,false,11718,16384,external,32,8192
+run 0006 config: config-0006.yml   peers: peers   clients: 16clients 16extraclients
+
+# 0007,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,110000,429,false,12890,16384,external,32,8192
+run 0007 config: config-0007.yml   peers: peers   clients: 16clients 16extraclients
+
+# 0008,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,120000,468,false,14062,16384,external,32,8192
+run 0008 config: config-0008.yml   peers: peers   clients: 16clients 16extraclients
+
+# 0009,16,0,1,10,false,60000,1,1gbit,1,Pbft,Signing,32,8,256,32,Simple,512,4096,4000,32,4,256,16,true,false,131072000,130000,507,false,15234,16384,external,32,8192
+run 0009 config: config-0009.yml   peers: peers   clients: 16clients 16extraclients
+
