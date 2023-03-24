@@ -619,6 +619,7 @@ func (pi *pbftInstance) lead() {
 			// }
 		} else {
 			// pi.mutex.RUnlock()
+			time.Sleep(100 * time.Millisecond)
 			i--
 		}
 
