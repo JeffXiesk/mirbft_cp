@@ -40,7 +40,7 @@ WHERE
       FROM request
       WHERE event = 'REQ_SEND'
       GROUP BY nodeId)) / 2);
-Query time: 0.220 seconds
+Query time: 0.234 seconds
 Rows returned: 0
 
 -- Do the same as above with the protocol table.
@@ -73,7 +73,7 @@ WHERE
       FROM request
       WHERE event = 'REQ_SEND'
       GROUP BY nodeId)) / 2);
-Query time: 0.128 seconds
+Query time: 0.127 seconds
 Rows returned: 0
 
 -- Do the same as above with the CPU usage table.
@@ -106,7 +106,7 @@ WHERE
       FROM request
       WHERE event = 'REQ_SEND'
       GROUP BY nodeId)) / 2)
-Query time: 0.128 seconds
+Query time: 0.124 seconds
 Rows returned: 0
 
 -- Total CPU usage (average over all peers), truncated data
@@ -116,7 +116,7 @@ from cpuusage_truncated
 WHERE event = 'CPU_USAGE'
 -- (totalcpu[%])
 Query time: 0.000 seconds
-19.442307692307693
+20.02027027027027
 Rows returned: 1
 
 -- System CPU usage (average over all peers), truncated data
@@ -127,7 +127,7 @@ from cpuusage_truncated
 WHERE event = 'CPU_USAGE'
 -- (systemcpu[%])
 Query time: 0.000 seconds
-5.4639423076923075
+5.752252252252252
 Rows returned: 1
 
 -- End-to-end average request latency, all requests
@@ -142,8 +142,8 @@ FROM request r1 JOIN request r2 ON r1.nodeId = r2.nodeId
                             FROM request r1
                             WHERE event = 'REQ_SEND')
 -- (avg[ms])
-Query time: 0.175 seconds
-1640.389466746276
+Query time: 0.166 seconds
+1618.4496418393783
 Rows returned: 1
 
 -- End-to-end average request latency, all requests
@@ -167,8 +167,8 @@ LIMIT 1
             WHERE r1.ts - 30000000 < (SELECT min(r1.ts)
                             FROM request r1
                             WHERE event = 'REQ_SEND'))* 95 / 100;
-Query time: 0.374 seconds
-2607.596
+Query time: 0.356 seconds
+2717.69
 Rows returned: 1
 
 -- (latency[ms])
@@ -182,8 +182,8 @@ SELECT avg(latency) / 1000.0
 FROM request
 WHERE event = 'REQ_FINISHED'
 -- (avg[ms])
-Query time: 0.022 seconds
-1640.389466746276
+Query time: 0.021 seconds
+1618.4496418393783
 Rows returned: 1
 
 -- Latency standard deviation, all requests
@@ -193,8 +193,8 @@ SELECT stdev(latency) / 1000.0
 FROM request
 WHERE event = 'REQ_FINISHED'
 -- (stdev[ms])
-Query time: 0.057 seconds
-484.0835722921028
+Query time: 0.055 seconds
+486.0797332702832
 Rows returned: 1
 
 -- End-to-end average request latency, truncated requests
@@ -204,8 +204,8 @@ SELECT avg(latency) / 1000.0
 FROM request_truncated
 WHERE event = 'REQ_FINISHED'
 -- (avg[ms])
-Query time: 0.019 seconds
-1609.870877305042
+Query time: 0.018 seconds
+1569.960414058222
 Rows returned: 1
 
 -- Latency standard deviation, truncated requests
@@ -215,8 +215,8 @@ SELECT stdev(latency) / 1000.0
 FROM request_truncated
 WHERE event = 'REQ_FINISHED'
 -- (stdev[ms])
-Query time: 0.051 seconds
-474.834344251334
+Query time: 0.049 seconds
+427.1439751660638
 Rows returned: 1
 
 -- 95th percentile request latency, all requests
@@ -232,7 +232,7 @@ LIMIT 1
             WHERE event = 'REQ_FINISHED') * 95 / 100;
 -- (latency[ms])
 Query time: 0.072 seconds
-2607.596
+2717.69
 Rows returned: 1
 
 -- 95th percentile request latency, truncated requests
@@ -247,8 +247,8 @@ LIMIT 1
             FROM request_truncated
             WHERE event = 'REQ_FINISHED') * 95 / 100;
 -- (latency[ms])
-Query time: 0.067 seconds
-2609.733
+Query time: 0.074 seconds
+2371.735
 Rows returned: 1
 
 -- End-to-end average request latency, all requests
@@ -258,8 +258,8 @@ SELECT avg(latency) / 1000.0
 FROM request
 WHERE event = 'ENOUGH_RESP'
 -- (avg[ms])
-Query time: 0.022 seconds
-1640.355567924223
+Query time: 0.024 seconds
+1618.4163768620465
 Rows returned: 1
 
 -- Latency standard deviation, all requests
@@ -269,8 +269,8 @@ SELECT stdev(latency) / 1000.0
 FROM request
 WHERE event = 'ENOUGH_RESP'
 -- (stdev[ms])
-Query time: 0.056 seconds
-484.0775724076375
+Query time: 0.055 seconds
+486.0763075893698
 Rows returned: 1
 
 -- End-to-end average request latency, truncated requests
@@ -280,8 +280,8 @@ SELECT avg(latency) / 1000.0
 FROM request_truncated
 WHERE event = 'ENOUGH_RESP'
 -- (avg[ms])
-Query time: 0.019 seconds
-1609.8370781581536
+Query time: 0.018 seconds
+1569.9270785727322
 Rows returned: 1
 
 -- Latency standard deviation, truncated requests
@@ -291,8 +291,8 @@ SELECT stdev(latency) / 1000.0
 FROM request_truncated
 WHERE event = 'ENOUGH_RESP'
 -- (stdev[ms])
-Query time: 0.053 seconds
-474.82782171738916
+Query time: 0.048 seconds
+427.13934155525794
 Rows returned: 1
 
 -- 95th percentile request latency, all requests
@@ -307,8 +307,8 @@ LIMIT 1
             FROM request
             WHERE event = 'ENOUGH_RESP') * 95 / 100;
 -- (latency[ms])
-Query time: 0.084 seconds
-2607.566
+Query time: 0.071 seconds
+2717.678
 Rows returned: 1
 
 -- 95th percentile request latency, truncated requests
@@ -323,8 +323,8 @@ LIMIT 1
             FROM request_truncated
             WHERE event = 'ENOUGH_RESP') * 95 / 100;
 -- (latency[ms])
-Query time: 0.065 seconds
-2609.702
+Query time: 0.062 seconds
+2371.689
 Rows returned: 1
 
 -- Average client slack per request, all clients
@@ -335,7 +335,7 @@ FROM request
 WHERE event = 'CLIENT_SLACK'
 -- (avg[us])
 Query time: 0.021 seconds
-7382.951424870466
+7382.68306751943
 Rows returned: 1
 
 -- Average client slack, truncated requests
@@ -345,8 +345,8 @@ SELECT avg(latency)
 FROM request_truncated
 WHERE event = 'CLIENT_SLACK'
 -- (avg[us])
-Query time: 0.019 seconds
-7435.616465523496
+Query time: 0.018 seconds
+7429.193115256376
 Rows returned: 1
 
 -- Client slack standard deviation, all requests
@@ -356,8 +356,8 @@ SELECT stdev(latency)
 FROM request
 WHERE event = 'CLIENT_SLACK'
 -- (avg[us])
-Query time: 0.056 seconds
-829.0236023227835
+Query time: 0.054 seconds
+621.0705132842774
 Rows returned: 1
 
 -- Client slack standard deviation, all requests
@@ -367,8 +367,8 @@ SELECT stdev(latency)
 FROM request_truncated
 WHERE event = 'CLIENT_SLACK'
 -- (avg[us])
-Query time: 0.047 seconds
-679.4948995964705
+Query time: 0.049 seconds
+319.71554252212775
 Rows returned: 1
 
 -- 1st percentile client slack, all requests
@@ -384,7 +384,7 @@ LIMIT 1
             WHERE event = 'CLIENT_SLACK') * 1 / 100;
 -- (slack[us])
 Query time: 0.042 seconds
-6671
+6675
 Rows returned: 1
 
 -- 1st percentile client slack, truncated requests
@@ -399,8 +399,8 @@ LIMIT 1
             FROM request
             WHERE event = 'CLIENT_SLACK') * 1 / 100;
 -- (slack[us])
-Query time: 0.040 seconds
-6703
+Query time: 0.039 seconds
+6704
 Rows returned: 1
 
 -- Experiment duration in seconds
@@ -411,7 +411,7 @@ FROM request
 WHERE event = 'REQ_FINISHED'
 -- (duration[sec])
 Query time: 0.022 seconds
-16.879023
+16.551598
 Rows returned: 1
 
 -- Experiment duration in seconds, truncated data
@@ -421,8 +421,8 @@ SELECT (max(ts) - min(ts))/1000000.0
 FROM request_truncated
 WHERE event = 'REQ_FINISHED'
 -- (duration[sec])
-Query time: 0.020 seconds
-12.785826
+Query time: 0.019 seconds
+13.087307
 Rows returned: 1
 
 -- Total number of requests (good for sanity checks whether everything has been delivered)
@@ -444,7 +444,7 @@ FROM request_truncated
 WHERE event = 'REQ_FINISHED'
 -- (count[req])
 Query time: 0.017 seconds
-45715
+43832
 Rows returned: 1
 
 -- Throughput (without cutting off start and end)
@@ -457,7 +457,7 @@ FROM request
 WHERE event = 'REQ_FINISHED'
 -- (throughput[req/sec])
 Query time: 0.023 seconds
-29271.836409014904
+29850.894155355876
 Rows returned: 1
 
 -- Throughput, using truncated request data
@@ -469,8 +469,8 @@ SELECT 10 * 1000000.0 * count() / (max(ts) - min(ts))
 FROM request_truncated
 WHERE event = 'REQ_FINISHED'
 -- (throughput[req/sec])
-Query time: 0.021 seconds
-35754.436201462464
+Query time: 0.020 seconds
+33491.99342538538
 Rows returned: 1
 
 -- Average batch size
@@ -519,7 +519,7 @@ FROM protocol
 WHERE event = 'PROPOSE'
 -- (rate[batches/sec])
 Query time: 0.001 seconds
-14.609894973688208
+15.903801878388101
 Rows returned: 1
 
 -- average proposal rate, truncated data
@@ -529,7 +529,7 @@ FROM protocol_truncated
 WHERE event = 'PROPOSE'
 -- (rate[batches/sec])
 Query time: 0.000 seconds
-17.41091370480122
+17.15282678585431
 Rows returned: 1
 
 -- average commit rate
@@ -539,7 +539,7 @@ FROM protocol
 WHERE event = 'COMMIT'
 -- (rate[batches/sec])
 Query time: 0.001 seconds
-242.2268166730348
+248.58874603060642
 Rows returned: 1
 
 -- average commit rate, truncated data
@@ -549,7 +549,7 @@ FROM protocol_truncated
 WHERE event = 'COMMIT'
 -- (rate[batches/sec])
 Query time: 0.001 seconds
-276.82451801740314
+273.0547053055549
 Rows returned: 1
 
 -- average message batch, truncated data
@@ -559,7 +559,7 @@ FROM protocol_truncated
 where event = 'MSG_BATCH'
 -- (batchsize[msg])
 Query time: 0.000 seconds
-1.6517857142857142
+1.7463414634146341
 Rows returned: 1
 
 -- minimal number of epochs
@@ -616,7 +616,7 @@ Query time: 0.001 seconds
 0.0
 Rows returned: 1
 
-Total running time: 1.965 seconds
+Total running time: 1.927 seconds
 -- Truncate request table to include only rows with timestamps between:
 --   the first response obtained by the last client to obtain a response
 --   and

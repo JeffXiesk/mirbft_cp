@@ -66,7 +66,7 @@ ClientWatermarkWindowSize: 16384
 ClientRequestBacklogSize: 16384 # The number of requests beyond client's current window that are backlogged.
 
 # Leader and failure handling
-RandomSeed: 1202     # Should be set to a random integer.
+RandomSeed: 29346     # Should be set to a random integer.
 LeaderPolicy: Simple # Leader selection policy. One of {Simple, Single, Backoff, Blacklist, Combined}
 NodeToLeaderRatio: 1        # Total number of nodes devided by this number gives number of leaders
 DefaultLeaderBan: 2        # The default number of epochs a node is excluded from the leaderset once suspected.
@@ -75,7 +75,7 @@ DefaultLeaderBan: 2        # The default number of epochs a node is excluded fro
 # Orderer config
 NumBuckets: 256         # Total number of buckets. Should be at least as many as the number of potential leaders.
 BatchSize: 2048        # Maximum number of requests per batch
-BatchTimeout: 3000  # Timeout (ms) to cut batch when the bucket has less requests than the BatchSize.
+BatchTimeout: 2000  # Timeout (ms) to cut batch when the bucket has less requests than the BatchSize.
 
 # PBFT Instance config
 DisabledViewChange: false # This flag disables the view change messages and nodes instead panic, so that bugs in the normal case operation can be detected.
