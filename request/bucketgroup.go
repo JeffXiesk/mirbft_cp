@@ -175,7 +175,7 @@ func (bg *BucketGroup) waitForRequestsLocked(numRequests int, timeout time.Durat
 	bg.totalRequests = int32(bg.CountRequests())
 
 	// If there are enough requests in the bucket, return immediately.
-	if int(bg.totalRequests) >= numRequests || (timeout == 0) {
+	if timeout == 0 {
 		return
 	}
 
