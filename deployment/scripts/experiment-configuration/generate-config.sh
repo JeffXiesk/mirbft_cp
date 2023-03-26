@@ -43,7 +43,7 @@ clients32="8"    # deploys 32 client machine which run the specified number of c
 systemSizes="16" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
-StragglerCnt=(0) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 privKeyNumEachPeer=(10) # Using as buffer for lagged instance
 UseSig=(false)
 
@@ -119,8 +119,8 @@ throughputsAuthPbft=$()
 throughputsAuthPbft[4]="12288 24576 32768 40960 49152 60000"
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288 24576 32768 40960 49152 60000"
 throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
-throughputsAuthPbft[16]="5000 5000 5000 5000 5000 10000 10000 10000 10000 10000 15000 15000 15000 15000 15000 20000 20000 20000 20000 20000 25000 25000 25000 25000 25000 30000 30000 30000 30000 30000 35000 35000 35000 35000 35000 40000 40000 40000 40000 40000 45000 45000 45000 45000 45000 50000 50000 50000 50000 50000"
-# throughputsAuthPbft[16]="32768 40960 49152"
+# throughputsAuthPbft[16]="5000 5000 5000 5000 5000 10000 10000 10000 10000 10000 15000 15000 15000 15000 15000 20000 20000 20000 20000 20000 25000 25000 25000 25000 25000 30000 30000 30000 30000 30000 35000 35000 35000 35000 35000 40000 40000 40000 40000 40000 45000 45000 45000 45000 45000 50000 50000 50000 50000 50000"
+throughputsAuthPbft[16]="55000 55000 55000 55000 55000 60000 60000 60000 60000 60000"
 throughputsAuthPbft[32]="8192 16384 32768 65536 98304 131072"
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""
