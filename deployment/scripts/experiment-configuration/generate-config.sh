@@ -40,10 +40,10 @@ faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 da
 clients1=""    # deploys 1 client machine which run the specified number of client instances
 clients16=""    # deploys 16 client machine which run the specified number of client instances
 clients32="8"    # deploys 32 client machine which run the specified number of client instances
-systemSizes="16" # Must be sorted in ascending order!
+systemSizes="32" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
-StragglerCnt=(5) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+StragglerCnt=(0) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 
 reuseFaulty=true  # If true, both correct and faulty peers will have the same tag and will be launched together, with the same config file.
                   # The failure count is only expressed as a parameter in (every peer's) config file, and even the faulty peers will see
@@ -121,7 +121,7 @@ throughputsAuthPbft[16]="130000 150000"
 # throughputsAuthPbft[16]="5000 5000 5000 5000 5000 10000 10000 10000 10000 10000 15000 15000 15000 15000 15000 20000 20000 20000 20000 20000"
 # throughputsAuthPbft[16]=" 25000 25000 25000 25000 25000 30000 30000 30000 30000 30000 35000 35000 35000 35000 35000 65000 65000 65000 65000 65000 70000 70000 70000 70000 70000"
 # throughputsAuthPbft[32]="1024 2048 4096 8192 16384 32768 65536 98304 131072"
-throughputsAuthPbft[32]="130000"
+throughputsAuthPbft[32]="5000 10000 15000 20000 25000 30000 35000 40000 45000 50000 55000 60000 65000 70000"
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""
 throughputsNoAuthPbft=$()
