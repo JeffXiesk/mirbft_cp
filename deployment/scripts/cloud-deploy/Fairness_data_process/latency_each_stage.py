@@ -49,20 +49,21 @@ def merge(lst1, lst2):
 if __name__=='__main__':
 
     experiment_num=[]
-    for dirPath, dirNames, fileNames in os.walk("scripts/cloud-deploy/experiment-output/experiment-output/"):
+    for dirPath, dirNames, fileNames in os.walk(sys.argv[1]):
         # print(dirNames)
         experiment_num=dirNames
         break
-    print('-------------')
-    # sys.exit()
+    
+    print('------------------------------------')
+    g=0.0
+    if len(sys.argv)>=3:
+        g=float(sys.argv[2])
+    print('g is '+str(g))
+    print('------------------------------------')
 
     for num in experiment_num:
-        print('-------------')
         name='fairness_res_'+num
-        path='./scripts/cloud-deploy/experiment-output/experiment-output/'+num
-        g=0.0
-        # if len(sys.argv)>=3:
-        #     g=float(sys.argv[2])
+        path=sys.argv[1]+'/'+num
 
         dir = os.listdir(path)
         peer_dir=[]
@@ -78,14 +79,21 @@ if __name__=='__main__':
                 if is_client==False:
                     peer_dir.append(path+'/'+d+'/peer.log')
                 else:
-                    str_format="{an:03d}"
-                    # print(str_format.format(an=len(client_dir)))
-                    # client_dir.append(path+'/'+d+'/client-'+str_format.format(an=len(client_dir))+'.log')
-                    print(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
-                    client_dir.append(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
+                    # print(d)
+                    cli_dir = os.listdir(path+'/'+d)
+                    for cli in cli_dir:
+                        if re.match('client-\d+\.log',cli):
+                            # print(cli)
+                            client_dir.append(path+'/'+d+'/'+cli)
 
-        print(client_dir)
-        print(len(peer_dir))
+                    # str_format="{an:03d}"
+                    # # print(str_format.format(an=len(client_dir)))
+                    # # client_dir.append(path+'/'+d+'/client-'+str_format.format(an=len(client_dir))+'.log')
+                    # print(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
+                    # client_dir.append(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
+
+        # print(client_dir)
+        # print(len(peer_dir))
         req_submit={}
         req_finish={}
 
@@ -96,8 +104,8 @@ if __name__=='__main__':
             f = open(i)
             lines = f.readlines()
             # print(lines)
-            pattern=r'Request finished \(out of order\)\. clSeqNr='
-            pattern_finish=r'Submitted request. clSeqNr='
+            pattern_finish=r'Request finished \(out of order\)\. clSeqNr='
+            pattern=r'Submitted request. clSeqNr='
             for line in lines:
                 # print(line)
                 find_=re.search(pattern,line)
@@ -118,6 +126,9 @@ if __name__=='__main__':
 
         # print('req_submit info: ')
         # print(req_submit)
+
+        # print('req_finish info: ')
+        # print(req_finish)
 
         # sn_to_req={}
         originsn_propose={}
@@ -239,35 +250,36 @@ if __name__=='__main__':
         deliver_ls=[]
 
         # print(sn_deliver)
-        print('batch length is '+str(len(sn_deliver)))
+        print('batch cnt is '+str(len(sn_deliver)))
+        print('------------------------------------')
 
         # for i in req_info.keys():
             # print(req_info[0])
         # print(req_submit[0])
         # print(sn_propose)
-        for i in req_info.keys():
-            sn=req_info[i]['sn']
-            # print(sn)
-            if (i in req_submit.keys()):
-                base = req_submit[i]
-            else:
-                continue
-            req_info[i]['submit']=req_submit[i]-base
-            req_info[i]['propose']=sn_propose[sn]-base
-            req_info[i]['commit']=np.array(sn_commit[sn]).mean()-base
-            req_info[i]['deliver']=np.array(sn_deliver[sn]).mean()-base
-            req_info[i]['finish']=req_finish[i]-base
-            submit_ls.append(req_info[i]['submit'])
-            propose_ls.append(req_info[i]['propose'])
-            commit_ls.append(req_info[i]['commit'])
-            deliver_ls.append(req_info[i]['deliver'])
+        # for i in req_info.keys():
+        #     sn=req_info[i]['sn']
+        #     # print(sn)
+        #     if (i in req_submit.keys()):
+        #         base = req_submit[i]
+        #     else:
+        #         continue
+        #     req_info[i]['submit']=req_submit[i]-base
+        #     req_info[i]['propose']=sn_propose[sn]-base
+        #     req_info[i]['commit']=np.array(sn_commit[sn]).mean()-base
+        #     req_info[i]['deliver']=np.array(sn_deliver[sn]).mean()-base
+        #     req_info[i]['finish']=req_finish[i]-base
+        #     submit_ls.append(req_info[i]['submit'])
+        #     propose_ls.append(req_info[i]['propose'])
+        #     commit_ls.append(req_info[i]['commit'])
+        #     deliver_ls.append(req_info[i]['deliver'])
 
-        submit_ls_avg=np.array(submit_ls).mean()
-        propose_ls_avg=np.array(propose_ls).mean()
-        commit_ls_avg=np.array(commit_ls).mean()
-        deliver_ls_avg=np.array(deliver_ls).mean()
-        print('The average stage timecost is :')
-        print('Average stage timecost: {\'submit\': '+str(submit_ls_avg)+', \'propose\': '+str(propose_ls_avg)+', \'commit\': '+str(commit_ls_avg)+', \'deliver\': '+str(deliver_ls_avg)+'}')
+        # submit_ls_avg=np.array(submit_ls).mean()
+        # propose_ls_avg=np.array(propose_ls).mean()
+        # commit_ls_avg=np.array(commit_ls).mean()
+        # deliver_ls_avg=np.array(deliver_ls).mean()
+        # print('The average stage timecost is :')
+        # print('Average stage timecost: {\'submit\': '+str(submit_ls_avg)+', \'propose\': '+str(propose_ls_avg)+', \'commit\': '+str(commit_ls_avg)+', \'deliver\': '+str(deliver_ls_avg)+'}')
 
         # for i in range(len(req_info)):
         #     print('req_num:'+str(i)+': '+str(req_info[i]))
@@ -277,9 +289,8 @@ if __name__=='__main__':
         #     for i in range(len(req_info)):
         #         o.write('req_num_'+str(i)+': '+str(req_info[i])+'\n')
 
-        print('------------------------------------')
-        print('Stage latency analyze result have been written to '+name)
-        print('------------------------------------')
+        # print('Stage latency analyze result have been written to '+name)
+        # print('------------------------------------')
 
 
 
@@ -301,24 +312,27 @@ if __name__=='__main__':
 
         # (x, y) x is index number, y is the our defined sn number.
         # print(sn_to_idx)
-        judge_inv_list2=[(sn_to_idx[item],item) for item in sn_deliver_sorted]
+        # print(sn_deliver_sorted)
+        
+        # judge_inv_list2=[(sn_to_idx[item],item) for item in sn_deliver_sorted if item in sn_to_idx]
+        
         # for item in sn_deliver_sorted:
         #     if item in sn_to_idx:
         #         judge_inv_list2.append(sn_to_idx[item])
         # print(judge_inv_list2)
 
 
-        reverse_pair=[]
-        merge_sort(judge_inv_list2)
-        print('With g = ' + str(g) + 'ms, there is '+str(len(reverse_pair))+' reverse pair.')
-        print(reverse_pair)
-        print('------------------------------------')
+        # reverse_pair=[]
+        # merge_sort(judge_inv_list2)
+        # print('With g = ' + str(g) + 'ms, there is '+str(len(reverse_pair))+' reverse pair.')
+        # print(reverse_pair)
+        # print('------------------------------------')
 
         frontrunning_latency=[]
         for key in sn_deliver:
             frontrunning_latency.append(np.array(sn_deliver[key]).mean()-np.array(sn_commit[key]).mean())
         frontrunning_latency_avg=np.array(frontrunning_latency).mean()
-        print('The average frontrunning latency is '+str(frontrunning_latency_avg) +'ms.')
+        print('The average Front-Running Window is '+str(frontrunning_latency_avg) +'ms.')
         print('------------------------------------')
 
 
@@ -328,31 +342,43 @@ if __name__=='__main__':
         quorum=int((len(peer_dir)-1)/3) * 2 + 1
         # print(quorum)
 
-        sn_commit_quorum={}
-        for key in sn_commit:
-            sn_commit_quorum[key]=sorted(sn_commit[key])[quorum-1]
+        # sn_commit_quorum={}
+        # for key in sn_commit:
+        #     sn_commit_quorum[key]=sorted(sn_commit[key])[quorum-1]
 
         # print(sn_propose_sorted)
         # print(sn_commit_quorum)
 
-        sn_commit_quorum_sorted=dict(sorted(sn_commit_quorum.items(), key=lambda item: item[1]))
+        # sn_commit_quorum_sorted=dict(sorted(sn_commit_quorum.items(), key=lambda item: item[1]))
         # print(sn_commit_quorum_sorted)
 
-        sn_frontrunning_block_lst={}
+        # sn_frontrunning_block_lst_old={}
+        # for key in sn_commit_quorum_sorted:
+        #     sn_frontrunning_block_lst_old[key]=[]
+        #     commit_quorum_time=sn_commit_quorum_sorted[key]
+        #     for i in range(key):
+        #         if i in sn_propose_sorted.keys():
+        #             if sn_propose_sorted[i]-commit_quorum_time>=g:
+        #                 sn_frontrunning_block_lst_old[key].append((i,sn_propose_sorted[i]))
 
-        for key in sn_commit_quorum_sorted:
+
+        # print(sn_propose_sorted)
+        sn_frontrunning_block_lst={}
+        for key in sn_propose_sorted:
             sn_frontrunning_block_lst[key]=[]
-            commit_quorum_time=sn_commit_quorum_sorted[key]
-            for i in range(key):
-                if i in sn_propose_sorted.keys():
-                    if sn_propose_sorted[i]-commit_quorum_time>=g:
-                        sn_frontrunning_block_lst[key].append((i,sn_propose_sorted[i]))
+            # print(str(key),end=' ')
+            for key2 in sn_propose_sorted:
+                if (sn_propose_sorted[key2]>=sn_propose_sorted[key]):
+                    break
+                if key2>key and sn_propose_sorted[key]-sn_propose_sorted[key2]>g:
+                    sn_frontrunning_block_lst[key].append((key2,key))
 
         # print(sn_frontrunning_block_lst)
         cnt=[len(sn_frontrunning_block_lst[key]) for key in sn_frontrunning_block_lst]
         print('With g = ' + str(g) + 'ms, the frontrunning block average number is ' + str(np.array(cnt).mean()))
+        print('------------------------------------')
 
-        total_time = max(req_finish.values())-min(req_submit.values())
-        print('------------------------------------')
-        print('Throughput is '+str(len(req_finish)/(total_time/1000)))
-        print('------------------------------------')
+        # total_time = max(req_finish.values())-min(req_submit.values())
+        # print('------------------------------------')
+        # print('Throughput is '+str(len(req_finish)/(total_time/1000)))
+        # print('------------------------------------')
