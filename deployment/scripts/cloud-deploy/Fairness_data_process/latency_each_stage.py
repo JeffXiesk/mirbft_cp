@@ -49,7 +49,7 @@ def merge(lst1, lst2):
 if __name__=='__main__':
 
     experiment_num=[]
-    for dirPath, dirNames, fileNames in os.walk("scripts/cloud-deploy/experiment-output/"):
+    for dirPath, dirNames, fileNames in os.walk("deployment-data/remote-0001/experiment-output/"):
         # print(dirNames)
         experiment_num=dirNames
         break
@@ -59,7 +59,7 @@ if __name__=='__main__':
     for num in experiment_num:
         print('-------------')
         name='fairness_res_'+num
-        path='./scripts/cloud-deploy/experiment-output/'+num
+        path='deployment-data/remote-0001/experiment-output/'+num
         g=0.0
         # if len(sys.argv)>=3:
         #     g=float(sys.argv[2])
@@ -310,7 +310,8 @@ if __name__=='__main__':
             cnt+=1
 
         # (x, y) x is index number, y is the our defined sn number.
-        # print(sn_to_idx)
+        print(sn_to_idx)
+        print(sn_deliver_sorted)
         judge_inv_list2=[(sn_to_idx[item],item) for item in sn_deliver_sorted]
         # for item in sn_deliver_sorted:
         #     if item in sn_to_idx:
