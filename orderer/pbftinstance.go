@@ -1395,7 +1395,7 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 		for i := batch.hnsn[sn]; i < sn; i = i + int32(membership.NumNodes()) {
 			emptyEntry := &request.Batch{Requests: make([]*request.Request, 0, 0)}
 			logEntry1 := &log.Entry{
-				Sn:    i,   ///1103
+				Sn:    i, ///1103
 				Batch: emptyEntry.Message(),
 				// Batch: nil, ///1205
 				//Batch:     reqBatch,//2023
@@ -1477,13 +1477,15 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 		Int("SegID", pi.segment.SegID()).
 		Msg("Get logEntry.Sn from tn.")
 	announcer.Announce(logEntry)
-	if len(reqBatch.Requests) > 0 {
-		req_id := make([]int32, len(reqBatch.Requests))
-		for i := 0; i < len(reqBatch.Requests); i++ {
-			req_id[i] = (reqBatch.Requests[i].RequestId.ClientSn)
-		}
-		logger.Info().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
-	}
+
+	// if len(reqBatch.Requests) > 0 {
+	// 	req_id := make([]int32, len(reqBatch.Requests))
+	// 	for i := 0; i < len(reqBatch.Requests); i++ {
+	// 		req_id[i] = (reqBatch.Requests[i].RequestId.ClientSn)
+	// 	}
+	// 	logger.Info().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
+	// }
+
 	// Start new view change timeout
 	// for the fist uncommitted sequence number in the segment
 	finished := true // Will be set to false if any SN is still uncommitted
