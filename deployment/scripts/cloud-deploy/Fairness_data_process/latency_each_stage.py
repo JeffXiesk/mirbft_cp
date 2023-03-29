@@ -49,7 +49,7 @@ def merge(lst1, lst2):
 if __name__=='__main__':
 
     experiment_num=[]
-    for dirPath, dirNames, fileNames in os.walk("deployment-data/remote-0001/experiment-output/"):
+    for dirPath, dirNames, fileNames in os.walk(sys.argv[1]):
         # print(dirNames)
         experiment_num=dirNames
         break
@@ -59,10 +59,11 @@ if __name__=='__main__':
     for num in experiment_num:
         print('-------------')
         name='fairness_res_'+num
-        path='deployment-data/remote-0001/experiment-output/'+num
+        path=sys.argv[1]+'/'+num
         g=0.0
-        # if len(sys.argv)>=3:
-        #     g=float(sys.argv[2])
+        if len(sys.argv)>=3:
+            g=float(sys.argv[2])
+        print('g is '+str(g))
 
         dir = os.listdir(path)
         peer_dir=[]
@@ -82,7 +83,7 @@ if __name__=='__main__':
                     cli_dir = os.listdir(path+'/'+d)
                     for cli in cli_dir:
                         if re.match('client-\d+\.log',cli):
-                            print(cli)
+                            # print(cli)
                             client_dir.append(path+'/'+d+'/'+cli)
 
                     # str_format="{an:03d}"
@@ -91,8 +92,8 @@ if __name__=='__main__':
                     # print(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
                     # client_dir.append(path+'/'+d+'/client-'+str_format.format(an=0)+'.log')
 
-        print(client_dir)
-        print(len(peer_dir))
+        # print(client_dir)
+        # print(len(peer_dir))
         req_submit={}
         req_finish={}
 
@@ -310,9 +311,9 @@ if __name__=='__main__':
             cnt+=1
 
         # (x, y) x is index number, y is the our defined sn number.
-        print(sn_to_idx)
-        print(sn_deliver_sorted)
-        judge_inv_list2=[(sn_to_idx[item],item) for item in sn_deliver_sorted]
+        # print(sn_to_idx)
+        # print(sn_deliver_sorted)
+        judge_inv_list2=[(sn_to_idx[item],item) for item in sn_deliver_sorted if item in sn_to_idx]
         # for item in sn_deliver_sorted:
         #     if item in sn_to_idx:
         #         judge_inv_list2.append(sn_to_idx[item])
