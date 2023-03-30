@@ -43,7 +43,7 @@ clients32="8"    # deploys 32 client machine which run the specified number of c
 systemSizes="16" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
-StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+StragglerCnt=(5) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 privKeyNumEachPeer=(10) # Using as buffer for lagged instance
 UseSig=(false)
 
@@ -79,7 +79,7 @@ fixedEpochLength=false
 auths="true"
 bucketsPerLeader="16"
 minBuckets="16"
-minEpochLength="1024"       # [entries]
+minEpochLength="512"       # [entries]
 nodeConnections="1"
 minConnections="16"
 leaderPolicies="Simple"  # Possible values:

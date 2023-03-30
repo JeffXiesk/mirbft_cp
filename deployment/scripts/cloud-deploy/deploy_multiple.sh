@@ -4,7 +4,7 @@
 # len=${#bandwidth[@]}
 
 # bash scripts/cloud-deploy/deploy-cloud-WAN.sh -i -r -k
-for ((i=3;i<=4;i++)); do
+for ((i=2;i<=4;i++)); do
     echo '======'
     # echo "cp scripts/experiment-configuration/generate-config-$i.sh scripts/experiment-configuration/generate-config.sh"
     # cp scripts/experiment-configuration/generate-config-$i.sh scripts/experiment-configuration/generate-config.sh
