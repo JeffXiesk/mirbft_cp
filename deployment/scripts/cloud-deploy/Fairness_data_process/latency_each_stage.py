@@ -49,21 +49,21 @@ def merge(lst1, lst2):
 if __name__=='__main__':
 
     experiment_num=[]
-    for dirPath, dirNames, fileNames in os.walk(sys.argv[1]):
+    for dirPath, dirNames, fileNames in os.walk(sys.argv[1]+'/experiment-output'):
         # print(dirNames)
         experiment_num=dirNames
         break
     
-    print('------------------------------------')
+    # print('------------------------------------')
     g=0.0
     if len(sys.argv)>=3:
         g=float(sys.argv[2])
     print('g is '+str(g))
-    print('------------------------------------')
 
     for num in experiment_num:
+        print('-------------'+str(num)+'-------------')
         name='fairness_res_'+num
-        path=sys.argv[1]+'/'+num
+        path=sys.argv[1]+'/experiment-output/'+num
 
         dir = os.listdir(path)
         peer_dir=[]
@@ -251,7 +251,7 @@ if __name__=='__main__':
 
         # print(sn_deliver)
         print('batch cnt is '+str(len(sn_deliver)))
-        print('------------------------------------')
+        # print('------------------------------------')
 
         # for i in req_info.keys():
             # print(req_info[0])
@@ -333,7 +333,7 @@ if __name__=='__main__':
             frontrunning_latency.append(np.array(sn_deliver[key]).mean()-np.array(sn_commit[key]).mean())
         frontrunning_latency_avg=np.array(frontrunning_latency).mean()
         print('The average Front-Running Window is '+str(frontrunning_latency_avg) +'ms.')
-        print('------------------------------------')
+        # print('------------------------------------')
 
 
         # print(sorted(sn_propose.items(), key=lambda item: item[1]))
