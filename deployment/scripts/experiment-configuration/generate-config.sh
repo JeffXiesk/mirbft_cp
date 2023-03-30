@@ -43,7 +43,7 @@ clients32="8"    # deploys 32 client machine which run the specified number of c
 systemSizes="16" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
-StragglerCnt=(5) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 privKeyNumEachPeer=(10) # Using as buffer for lagged instance
 UseSig=(false)
 
@@ -118,7 +118,7 @@ function skip() {
 throughputsAuthPbft=$()
 throughputsAuthPbft[4]="80000 100000"
 throughputsAuthPbft[8]="80000 100000 120000"
-throughputsAuthPbft[16]="40000 50000"
+throughputsAuthPbft[16]="50000 50000"
 # throughputsAuthPbft[16]="5000 10000 15000 20000 25000 30000 35000"
 # throughputsAuthPbft[16]="5000 10000 15000 20000 25000 30000 35000 40000 45000 50000"
 throughputsAuthPbft[32]="30000 40000 50000 60000"
