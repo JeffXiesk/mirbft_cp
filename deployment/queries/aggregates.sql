@@ -35,6 +35,31 @@ WHERE
       WHERE event = 'REQ_SEND'
       GROUP BY nodeId)) / 100);
 
+-- Then, cut off 1/3 time from start and end.
+-- We could use a view here too, but a physical table is much faster to access.
+CREATE TABLE request_truncated2 as
+SELECT *
+FROM request
+where event = 'REQ_FINISHED'
+  and ts >= (select ts
+             FROM request
+             where event = 'REQ_FINISHED'
+             order by ts
+             limit 1 offset (
+                     (SELECT COUNT(*)
+                      FROM request
+                      where event = 'REQ_FINISHED') /
+                     3))
+  and ts <= (select ts
+             FROM request
+             where event = 'REQ_FINISHED'
+             order by ts
+             limit 1 offset (2 *
+                             (SELECT COUNT(*)
+                              FROM request
+                              where event = 'REQ_FINISHED') /
+                             3));
+
 -- Do the same as above with the protocol table.
 -- Note that the truncation times are still taken from the request table.
 CREATE TABLE protocol_truncated as
@@ -168,11 +193,10 @@ WHERE event = 'REQ_FINISHED'
 -- End-to-end average request latency, truncated requests
 -- export latency-avg-trunc.val
 --
-SELECT avg(latency) / 1000.0
-FROM request_truncated
-WHERE event = 'REQ_FINISHED'
--- (avg[ms])
-
+select avg(r.latency) / 1000.0
+from request r
+         inner join request_truncated2 r2 on r.clSn = r2.clSn and r.nodeId = r2.nodeId
+where r.event = 'REQ_FINISHED';
 -- Latency standard deviation, truncated requests
 -- export latency-stdev-trunc.val
 --
@@ -378,7 +402,7 @@ WHERE event = 'REQ_FINISHED'
 -- !!!!! Multiplying by 10 for sampling
 -- TODO parametrize the sumpling multiplier
 SELECT 10 * 1000000.0 * count() / (max(ts) - min(ts))
-FROM request_truncated
+FROM request_truncated2
 WHERE event = 'REQ_FINISHED'
 -- (throughput[req/sec])
 

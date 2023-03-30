@@ -68,8 +68,8 @@ while [ -n "$1" ]; do
     forceClientBinary=$1
   # Delete raw data when done (even if failed, use with care!!!)
   elif [ "$1" = "-d" ]; then
-    # deleteRawData=true
-    deleteRawData=false
+    deleteRawData=true
+    # deleteRawData=false
   # SQL query file
   elif [ "$1" = "-q" ]; then
     shift
@@ -95,7 +95,7 @@ while [ -n "$1" ]; do
     analyze "$1"
 
     if $deleteRawData; then
-      rm -r ${dir:?}/slave-*/ ${dir:?}/$dbfile
+      rm -r ${dir:?}/slave-*/
     fi
   fi
 
