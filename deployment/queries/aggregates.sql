@@ -21,7 +21,7 @@ WHERE
             FROM (SELECT min(ts) as t
       FROM request
       WHERE event = 'REQ_FINISHED'
-      GROUP BY nodeId)) / 2)
+      GROUP BY nodeId)) / 100)
   AND ts <= (SELECT t
     FROM (SELECT max(ts) as t
       FROM request
@@ -33,7 +33,7 @@ WHERE
             FROM (SELECT min(ts) as t
       FROM request
       WHERE event = 'REQ_SEND'
-      GROUP BY nodeId)) / 2);
+      GROUP BY nodeId)) / 100);
 
 -- Do the same as above with the protocol table.
 -- Note that the truncation times are still taken from the request table.
