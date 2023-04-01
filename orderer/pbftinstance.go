@@ -659,7 +659,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	///1031
 	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 		// we cut an empty batch to maximize damage
-		batchSize = 0
+		batchSize = 4096
 	}
 	//if config.Config.CrashTiming == "Straggler" {
 	// everybody straggler, everybody not straggler
