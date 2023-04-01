@@ -198,11 +198,11 @@ func (pi *pbftInstance) lead() {
 
 	// Simulate a straggler.
 	if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(0.1666667  * float64(config.Config.ViewChangeTimeoutMs))
+		config.Config.BatchTimeoutMs = int(0.166667  * float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs).Msg("byzantine effect !")
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
-		batchSize = 1000000000
+		batchSize = 4096
 	}
 
 	// Send a proposal for each sequence number in the Segment.
@@ -271,7 +271,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	batchSize := pi.segment.BatchSize()
 	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 		// we cut an empty batch to maximize damage
-		batchSize = 0
+		batchSize = 4096
 	}
 
 	// Create the actual request batch. The timeout is 0, since the we already waited for the batch in pi.lead().

@@ -142,8 +142,8 @@ func (bg *BucketGroup) CutBatch(size int, timeout time.Duration) *Batch {
 	if config.Config.LeaderPolicy == "Single" {
 		totalReq /= membership.NumNodes() // For Single leader policy, use the raw throughput cap, not adjusted to system size.
 	}
-	waitingTime := 1000000000 * int64(totalReq/config.Config.ThroughputCap) // In nanoseconds
-	// waitingTime := int64(1000000000) // In nanoseconds
+	// waitingTime := 1000000000 * int64(totalReq/config.Config.ThroughputCap) // In nanoseconds
+	waitingTime := int64(1000000000) // In nanoseconds
 	atomic.StoreInt64(&bg.nextBatchTimestamp, time.Now().UnixNano()+waitingTime)
 
 	logger.Debug().
@@ -176,8 +176,8 @@ func (bg *BucketGroup) waitForRequestsLocked(numRequests int, timeout time.Durat
 	bg.totalRequests = int32(bg.CountRequests())
 
 	// If there are enough requests in the bucket, return immediately.
-	if int(bg.totalRequests) >= numRequests || (timeout == 0) {
-	// if (timeout == 0) {
+	// if int(bg.totalRequests) >= numRequests || (timeout == 0) {
+	if (timeout == 0) {
 		return
 	}
 

@@ -40,7 +40,7 @@ faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 da
 clients1=""    # deploys 1 client machine which run the specified number of client instances
 clients16=""    # deploys 16 client machine which run the specified number of client instances
 clients32="8"    # deploys 32 client machine which run the specified number of client instances
-systemSizes="64" # Must be sorted in ascending order!
+systemSizes="8" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
 StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
@@ -95,7 +95,7 @@ singleLeaderEpoch=$minEpochLength
 # Parameters to tune:
 batchsizes="4096"           # [requests]
 batchrates="32"             # [batches/s]
-minBatchTimeout="4000"      # [ms]
+minBatchTimeout="1000"      # [ms]
 maxBatchTimeout="10000"      # [ms]
 segmentLengths="16"         # [entries]
 viewChangeTimeouts="60000"  # [ms]
@@ -117,7 +117,7 @@ throughputsAuthPbft=$()
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288 24576 32768 40960 49152"
 throughputsAuthPbft[4]="50000"
 throughputsAuthPbft[8]="100000"
-throughputsAuthPbft[16]="40000"
+throughputsAuthPbft[16]="100000"
 # throughputsAuthPbft[16]="5000 5000 5000 5000 5000 10000 10000 10000 10000 10000 15000 15000 15000 15000 15000 20000 20000 20000 20000 20000"
 # throughputsAuthPbft[16]=" 25000 25000 25000 25000 25000 30000 30000 30000 30000 30000 35000 35000 35000 35000 35000 65000 65000 65000 65000 65000 70000 70000 70000 70000 70000"
 # throughputsAuthPbft[32]="1024 2048 4096 8192 16384 32768 65536 98304 131072"

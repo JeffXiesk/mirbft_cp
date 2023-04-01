@@ -142,12 +142,12 @@ fi
 echo $bandwidth_cnt  
 echo $bandwidth_low 
 
-echo 'setting bandwidth'
-for peer in "${peer_list[@]}"
-do
-    ssh $ssh_options_cloud root@$peer "tc qdisc del dev ens5 root; tc qdisc add dev ens5 root tbf rate $bandwidth burst 320kbit latency 100ms" &
-    echo "$peer $bandwidth"
-done
+# echo 'setting bandwidth'
+# for peer in "${peer_list[@]}"
+# do
+#     ssh $ssh_options_cloud root@$peer "tc qdisc del dev ens5 root; tc qdisc add dev ens5 root tbf rate $bandwidth burst 320kbit latency 100ms" &
+#     echo "$peer $bandwidth"
+# done
 wait
 
 for ((c=0;c<$bandwidth_cnt;c++))
