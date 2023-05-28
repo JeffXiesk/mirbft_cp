@@ -37,7 +37,7 @@ import (
 type Backend struct {
 	maxReqCount uint64
 
-	lock     sync.RWMutex
+	lock       sync.RWMutex
 	streamLock sync.RWMutex
 
 	batchMux sync.Mutex
@@ -61,7 +61,7 @@ type Backend struct {
 	batches   map[string][]*pb.Batch
 	ledger    map[string]map[string]*pb.Batch
 
-	wg sync.WaitGroup	// used to wait until all peer connections are established
+	wg sync.WaitGroup // used to wait until all peer connections are established
 }
 
 type clientInfo struct {
@@ -179,7 +179,7 @@ func (b *Backend) connectWorker(peer *PeerInfo, conn *connection.Manager) {
 		delay = time.After(timeout)
 
 		log.Infof("connecting to replica %d (%s)", peer.id, peer.info)
-		conn, err := conn.DialPeer(peer.info, grpc.WithBlock(), grpc.WithTimeout(timeout))
+		conn, err := conn.DialPeer(peer.info, grpc.WithBlock(), grpc.WithTimeout(timeout), grpc.WithInsecure())
 		//conn, err := b.conn.DialPeer(peer.info)
 		if err != nil {
 			log.Warningf("could not connect to replica %d (%s): %s", peer.id, peer.info, err)

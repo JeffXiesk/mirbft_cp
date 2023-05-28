@@ -18,11 +18,12 @@ package main
 
 import (
 	crand "crypto/rand"
-	"crypto/x509"
-	"io/ioutil"
+	"crypto/tls"
 	"math/big"
 	"sync"
 	"time"
+
+	"sync/atomic"
 
 	"github.com/IBM/mirbft/crypto"
 	"github.com/IBM/mirbft/mir"
@@ -30,7 +31,6 @@ import (
 	"github.com/IBM/mirbft/tracing"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"sync/atomic"
 )
 
 const limit = 10                                                                                       // trials to generate a random number
@@ -39,17 +39,17 @@ const maxMessageSize int = 1073741824
 const L = 256 // security parameter
 
 type Client struct {
-	inOrderDeliveryLock sync.Mutex
-	registrationsLock sync.Mutex
+	inOrderDeliveryLock  sync.Mutex
+	registrationsLock    sync.Mutex
 	submitTimestampsLock sync.RWMutex
-	sentTimestampsLock sync.RWMutex
-	id        int
-	n         int // ordering service size
-	f         int
-	receivers int
-	period    int
-	pk        interface{} // pem cert public key
-	sk        interface{} // pem private key
+	sentTimestampsLock   sync.RWMutex
+	id                   int
+	n                    int // ordering service size
+	f                    int
+	receivers            int
+	period               int
+	pk                   interface{} // pem cert public key
+	sk                   interface{} // pem private key
 
 	registrations map[uint64]bool // to how many nodes the client has registered
 	registered    chan bool       // blocking channel until the client has registered to all nodes
@@ -57,7 +57,7 @@ type Client struct {
 	queue         []*requestInfo
 	next          chan *requestInfo
 	delivered     []int32 // counting how many nodes have delivered a request, by request sequence number
-	lastDelivered int64 // last in order delivered request sequence number
+	lastDelivered int64   // last in order delivered request sequence number
 
 	servers          []pb.ConsensusClient
 	dst              int
@@ -72,7 +72,7 @@ type Client struct {
 	dialOpts []grpc.DialOption
 
 	totalSent int32 // number of estimated transactions sent by all clients in total
-	stop int32 // Set to a non-zero value to stop submitting requests.
+	stop      int32 // Set to a non-zero value to stop submitting requests.
 
 	trace tracing.Trace
 
@@ -87,7 +87,7 @@ type requestInfo struct {
 }
 
 func New(id, n, f, receivers, b, period, dst int, numRequests int64,
-	servers []pb.ConsensusClient, serverCaCertFile string, useTLS bool) (*Client, error) {
+	servers []pb.ConsensusClient, serverCaCertFile string, serverKeyFile string, useTLS bool) (*Client, error) {
 	// Generate public and private client key
 	pk, sk, err := crypto.ECDSAKeyPair()
 	if err != nil {
@@ -114,7 +114,7 @@ func New(id, n, f, receivers, b, period, dst int, numRequests int64,
 		registered:       make(chan bool),
 		delivered:        make([]int32, numRequests, numRequests),
 		lastDelivered:    -1,
-		totalSent: 		  0,
+		totalSent:        0,
 		trace: &tracing.BufferedTrace{
 			Sampling:              tracing.TraceSampling,
 			BufferCapacity:        tracing.EventBufferSize,
@@ -128,21 +128,33 @@ func New(id, n, f, receivers, b, period, dst int, numRequests int64,
 	// Set general gRPC dial options.
 	c.dialOpts = []grpc.DialOption{
 		grpc.WithBlock(),
+		// grpc.WithInsecure(),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize), grpc.MaxCallSendMsgSize(maxMessageSize)),
 	}
 
-	// All servers have the same CA
-	certpool := x509.NewCertPool()
-	pem, err := ioutil.ReadFile(serverCaCertFile)
+	// // All servers have the same CA
+	// certpool := x509.NewCertPool()
+	// pem, err := ioutil.ReadFile(serverCaCertFile)
+	// if err != nil {
+	// 	log.Fatalf("Failed to read certificate authority from %s: %s", serverCaCertFile, err.Error())
+	// }
+	// if !certpool.AppendCertsFromPEM(pem) {
+	// 	log.Fatal("Cannot parse certificate authority.")
+	// }
+
+	// new TLS method
+	cert, err := tls.LoadX509KeyPair(serverCaCertFile, serverKeyFile)
 	if err != nil {
-		log.Fatalf("Failed to read certificate authority from %s: %s", serverCaCertFile, err.Error())
+		log.Fatalf("Failed to read certificate authority from %s, %s: %s", serverCaCertFile, serverKeyFile, err.Error())
 	}
-	if !certpool.AppendCertsFromPEM(pem) {
-		log.Fatal("Cannot parse certificate authority.")
-	}
+
+	clientTLS := &tls.Config{InsecureSkipVerify: true, Certificates: []tls.Certificate{cert}}
+
+	creds := credentials.NewTLS(clientTLS)
+
 	// Add TLS-specific gRPC dial options, depending on configuration
 	if useTLS {
-		c.dialOpts = append(c.dialOpts, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(certpool, "")))
+		c.dialOpts = append(c.dialOpts, grpc.WithTransportCredentials(creds))
 	} else {
 		c.dialOpts = append(c.dialOpts, grpc.WithInsecure())
 	}
@@ -162,13 +174,16 @@ func New(id, n, f, receivers, b, period, dst int, numRequests int64,
 
 func (c *Client) AddOSN(addr string) (*grpc.ClientConn, error) {
 	// Set up a gRPC connection.
+
+	log.Info("Start grpc.dial ...")
 	conn, err := grpc.Dial(addr, c.dialOpts...)
 	if err != nil {
 		log.Error("Couldn't connect to orderer")
 		return nil, err
 	}
-
+	log.Info("finish grpc.dial ...")
 	grpcConn := pb.NewConsensusClient(conn)
+	log.Info("finish NewConsensusClient ...")
 	c.servers = append(c.servers, grpcConn)
 	return conn, nil
 }
@@ -190,7 +205,7 @@ func (c *Client) broadcast(msg *pb.RequestMessage, dst int) {
 }
 
 func (c *Client) send(msg *pb.RequestMessage, dst int) {
-	if err := c.stream[dst].Send(msg) ; err != nil {
+	if err := c.stream[dst].Send(msg); err != nil {
 		log.Errorf("Failed sending request to %d", dst)
 	}
 }

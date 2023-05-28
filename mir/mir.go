@@ -39,7 +39,7 @@ const committed string = "committed"
 const viewchange string = "viewchange"
 const epochconfig string = "config"
 
-//const batchQueueSize uint64 = 128
+// const batchQueueSize uint64 = 128
 const requestQueueSize uint64 = 65536 //TODO should there be a correlation between the sizes of these two queues?
 const timeoutQueueSize uint64 = 4000
 const numeRequestHandlingGoroutines int = 32
@@ -110,6 +110,7 @@ type SBFT struct {
 	chainId string
 	mrand   *rand.Rand
 
+	timer             *time.Timer
 	batchTimer        Canceller
 	lastNewViewSent   *pb.NewView
 	viewChangeTimeout time.Duration
@@ -292,7 +293,7 @@ func New(id uint64, sys System, dispatchers []*Dispatcher, managerDispatcher *Di
 		lowWatermark:                       0,
 		highWatermark:                      uint64(config.Config.WatermarkDist),
 		lastRotation:                       0,
-		lastDelivered: 						new(atomic.Value),
+		lastDelivered:                      new(atomic.Value),
 		lastCheckpoint: &batchInfo{
 			preprep: &pb.Preprepare{Batch: &pb.Batch{Header: nil}},
 			subject: &pb.Subject{Seq: &pb.SeqView{View: 0, Seq: 0}},
@@ -493,7 +494,7 @@ func (s *SBFT) nextView() uint64 {
 	return v + 1
 }
 
-//only the manager/delivery thread should be calling this method
+// only the manager/delivery thread should be calling this method
 func (s *SBFT) maybeAllowMoreProposingInstances() {
 
 	if !s.isLeader(s.id) {
@@ -779,7 +780,7 @@ func (s *SBFT) resumeAllInstances() {
 	atomic.StoreUint64(&s.stop, st)
 }
 
-//this function may be called by other threads than the manager
+// this function may be called by other threads than the manager
 func (s *SBFT) isRunning() bool {
 	st := atomic.LoadUint64(&s.stop)
 
@@ -790,7 +791,7 @@ func (s *SBFT) isRunning() bool {
 	return false
 }
 
-//this function may be called by other threads than the manager
+// this function may be called by other threads than the manager
 func (s *SBFT) instancesHalted() bool {
 	st := atomic.LoadUint64(&s.stop)
 
@@ -841,7 +842,7 @@ func (bI *batchInfo) maybeCancelTimer() {
 	bI.timeout.Cancel()
 }
 
-//the methods dealing with pending are not synchronized
+// the methods dealing with pending are not synchronized
 // the method returns true if the request was added in pending and false if the request
 // was already in pending and hence was not added
 func (s *SBFT) insertInPending(bucket uint64, key string, req *pb.Request) bool {

@@ -111,6 +111,8 @@ func (s *SBFT) processRequestAdditionNotification(bucket uint64, reqSize uint64)
 			s.startBatchTimer()
 		} else {
 			log.Debugf("replica %d: enough in pernding to cut a batch, so maybe send next", s.id)
+			// <-s.timer.C
+			log.Debugf("replica %d: After ! enough in pernding to cut a batch, so maybe send next", s.id)
 			s.batches = append(s.batches, batches...)
 			s.maybeSendNextBatch()
 		}

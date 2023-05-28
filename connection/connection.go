@@ -23,6 +23,7 @@ import (
 	"net"
 
 	"crypto/sha256"
+
 	"github.com/op/go-logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -105,7 +106,7 @@ func New(addr string, certFile string, keyFile string) (_ *Manager, err error) {
 	serverTls := c.tlsConfig
 	serverTls.ServerName = addr
 	c.Server = grpc.NewServer(grpc.Creds(credentials.NewTLS(serverTls)))
-	//c.Server = grpc.NewServer(grpc.Creds(credentials.NewTLS(c.tlsConfig)))
+	// c.Server = grpc.NewServer()
 	return c, nil
 }
 

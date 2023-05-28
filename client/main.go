@@ -54,7 +54,9 @@ func main() {
 
 	status_file.WriteString("status=UP\n")
 
-	logBackend := logging.NewLogBackend(os.Stdout, "", 0)
+	f, _ := os.Create("/opt/gopath/src/github.com/IBM/mirbft/client/client.log")
+	logBackend := logging.NewLogBackend(f, "", 0)
+	// logBackend := logging.NewLogBackend(os.Stdout, "", 0)
 	backendFormatter := logging.NewBackendFormatter(logBackend, format)
 	logging.SetBackend(backendFormatter)
 
@@ -99,12 +101,13 @@ func main() {
 	dst := config.Config.Destination
 
 	caCertFile := config.Config.Servers.CACertFile
+	caKeyFile := config.Config.Servers.CAKeyFile
 	requestsPerBatch := batchSize / payloadSize
 	period := requestsPerBatch * leaderRotationDist
 	payload := make([]byte, payloadSize, payloadSize)
 
 	c, err := New(id, N, F, receivers, buckets, period, dst, int64(total),
-		osns, caCertFile, useTLS)
+		osns, caCertFile, caKeyFile, useTLS)
 
 	c.trace.Start(fmt.Sprintf("%s-%03d.trc", outFilePrefix, c.id), int32(c.id))
 	defer c.trace.Stop()
@@ -121,16 +124,23 @@ func main() {
 		fmt.Scanln()
 	}
 
+	log.Infof("Stable checkpoint 1...")
+
 	for i, addr := range config.Config.Servers.Addresses {
+		log.Infof("%d  %s", i, addr)
 		conn, err := c.AddOSN(addr)
+		log.Infof("Stable checkpoint 2...")
 		grpcConns = append(grpcConns, conn)
 		defer grpcConns[i].Close()
 		fatal(err)
 	}
 
+	log.Infof("Stable checkpoint 3...")
+
 	waitc := make([]chan struct{}, c.n)
 	stop := make(chan bool)
 
+	log.Infof("Stable checkpoint 4...")
 
 	for inc := c.dst; inc < c.n+dst; inc++ {
 		i := inc % c.n
@@ -179,7 +189,7 @@ func main() {
 						c.trace.Event(tracing.REQ_FINISHED, int64(resp.Request.Seq), time.Now().UnixNano()/1000-c.submitTimestamps[uint64(id)])
 						c.submitTimestampsLock.RUnlock()
 						log.Infof("FINISHED %d", resp.Request.Seq)
-						c.checkInOrderDelivery(int64(atomic.LoadInt64(&c.lastDelivered)+1))
+						c.checkInOrderDelivery(int64(atomic.LoadInt64(&c.lastDelivered) + 1))
 						if atomic.LoadInt64(&c.lastDelivered) == c.numRequests-1 {
 							log.Infof("ALL DELIVERED")
 						}
@@ -214,7 +224,6 @@ func main() {
 		})
 	}
 
-
 	//var wg sync.WaitGroup
 	//// Submit requests in parallel
 	//for i := 0; i < sendParallelism; i++ {
@@ -229,7 +238,7 @@ func main() {
 
 	<-stop
 
-	log.Infof("FINISHED %d", atomic.LoadInt64(&c.lastDelivered) )
+	log.Infof("FINISHED %d", atomic.LoadInt64(&c.lastDelivered))
 	status_file.WriteString("status=FINISHED\n")
 
 	for i := 0; i < N; i++ {
@@ -238,12 +247,11 @@ func main() {
 	}
 }
 
-
 func (c *Client) submitRequests(timeout int64, broadcast bool, numRequests, clients, parallelism int) {
 
 	for i := 0; i < numRequests/parallelism; i++ {
-		for j:=0; j< parallelism; j++ {
-			request := c.queue[i*parallelism + j]
+		for j := 0; j < parallelism; j++ {
+			request := c.queue[i*parallelism+j]
 			if broadcast {
 				c.broadcastRequest(request)
 			} else {
