@@ -13,8 +13,8 @@ sudo apt-get install -y	protobuf-compiler-grpc
 
 cd ~
 
-wget https://storage.googleapis.com/golang/go1.17.2.linux-amd64.tar.gz
-tar xpzf go1.17.2.linux-amd64.tar.gz
+wget https://storage.googleapis.com/golang/go1.20.1.linux-amd64.tar.gz
+tar xpzf go1.20.1.linux-amd64.tar.gz
 
 sudo mkdir -p /opt/gopath
 sudo chown -R  $user:$group /opt/gopath
@@ -24,6 +24,8 @@ export GOPATH=/opt/gopath
 export GOROOT=~/go
 export GIT_SSL_NO_VERIFY=1
 export GO111MODULE=off
+mkdir -p $GOPATH/bin
+export GOBIN=$GOPATH/bin
 
 cat << EOF >> ~/.bashrc
 export PATH=$PATH:~/go/bin/:/opt/gopath/bin/
@@ -31,6 +33,7 @@ export GOPATH=/opt/gopath
 export GOROOT=~/go
 export GIT_SSL_NO_VERIFY=1
 export GO111MODULE=off
+export GOBIN=$GOPATH/bin
 EOF
 
 go get -u google.golang.org/grpc
@@ -42,9 +45,10 @@ go get -u github.com/rs/zerolog/log
 
 mkdir -p /opt/gopath/src/github.com/IBM/
 cd /opt/gopath/src/github.com/IBM/
-if [ ! -d "/opt/gopath/src/github.com/IBM/mirbft" ]; then
-  git clone https://github.com/hyperledger-labs/mirbft.git
+if [ -d "/opt/gopath/src/github.com/IBM/mirbft" ]; then
+  rm -rf mirbft
 fi
+git clone https://github.com/hyperledger-labs/mirbft.git
 cd /opt/gopath/src/github.com/IBM/mirbft
 git checkout research
 git pull

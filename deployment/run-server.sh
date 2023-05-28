@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
 echo "Killing previously running servers and clients"
-pkill server
-pkill client
+# pkill server
+# pkill client
 
 echo "Chancing working directory"
 cd /opt/gopath/src/github.com/IBM/mirbft/server

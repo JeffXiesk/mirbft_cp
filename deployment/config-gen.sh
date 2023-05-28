@@ -194,12 +194,14 @@ if [ "$local" = "true" ]; then
 else
     for p in $servers; do
        pub=$(getIP $p)
-       scp $ssh_options temp/config_$p.yml $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/serverconfig/config.yml
+       scp $ssh_options temp/config_$p.yml $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/serverconfig/config.yml &
     done
+    wait
     for p in $clients; do
        pub=$(getIP $p)
-       scp $ssh_options temp/config_$p.yml $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/clientconfig/config.yml
+       scp $ssh_options temp/config_$p.yml $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/clientconfig/config.yml &
     done
+    wait
 fi
 
 rm -rf temp

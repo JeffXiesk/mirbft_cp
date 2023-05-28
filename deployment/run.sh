@@ -36,6 +36,8 @@ if [ "$copy_only" = "false" ]; then
         ssh $ssh_user@$pub $ssh_options "source run-server.sh  > /dev/null 2>&1 & " &
     done
 
+    echo "new status ..."
+
     ready="0"
     while [ $ready -lt $C ]; do
         for p in $clients; do

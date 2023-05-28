@@ -1,7 +1,7 @@
 ---
 id : 0
 
-n : 4
+n : 1
 f : 0
 
 logging: "debug"  # One of {debug, info, error}
@@ -29,7 +29,10 @@ batchSizeBytes: 2000000
 bucketRotationPeriod: 256           # max epoch size in recovery & bucket rotation period in stable mode
 buckets: 2                            # buckets per leader
 
-useTLS: false
+useTLS: true
 
 servers:
-  caCertFile: "/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/ca.pem"
+  caCertFile: "/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/server-1.pem"
+  caKeyFile: "/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/server-1.key"
+  addresses:
+    - "127.0.0.1:8003"
