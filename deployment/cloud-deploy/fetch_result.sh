@@ -14,8 +14,16 @@ declare -i cnt=1
 for i in $servers
 do
     echo $i $cnt
-    scp $ssh_options root@$i:/opt/gopath/src/github.com/IBM/mirbft/server/server.out ./experiment-output/log/server-$cnt.log
+    scp $ssh_options root@$i:/opt/gopath/src/github.com/IBM/mirbft/server/server.out ./experiment-output/log/server-$cnt.log &
     cnt+=1
 done
-# wait
+wait
 
+cnt=1
+for i in $clients
+do
+    echo $i $cnt
+    scp $ssh_options root@$i:/opt/gopath/src/github.com/IBM/mirbft/client/client.log ./experiment-output/log/client-$cnt.log &
+    cnt+=1
+done
+wait

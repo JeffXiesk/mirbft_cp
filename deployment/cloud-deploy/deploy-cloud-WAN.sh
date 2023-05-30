@@ -62,3 +62,8 @@ if [ "$1" = "-s" ]; then
 fi
 
 echo "End set ssh key..."
+
+cd /opt/gopath/src/github.com/IBM/mirbft/deployment
+bash config-gen.sh
+
+bash run.sh

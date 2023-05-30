@@ -572,7 +572,7 @@ func (b *Dispatcher) handleMessage(m *pb.Msg, src uint64) {
 		return
 		// If this is not a preprepare message, pass it on to the corresponding BFT instance
 	} else {
-		log.Debugf("Receiving not a preprepare msg of seq %d", pp.Seq.Seq)
+		log.Debugf("Receiving not a preprepare msg of seq %d", seq)
 		
 		i, ok := b.runningInstances[seq]
 		if !ok {

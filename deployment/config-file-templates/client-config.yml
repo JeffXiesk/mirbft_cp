@@ -20,13 +20,13 @@ clientRunTime: 30000      # Timeout for client to submit all its requests, in mi
 
 # This parameters define how the client communicates with the servers
 broadcast: true   # If true send requests to Receivers servers estimating which server has an active bucket per request
-receivers: 1  # Number of leaders client sends requests to
+receivers: 4      # Number of leaders client sends requests to
 dedicated: false  # if true send requests only to a destination server
 destination: 0    # if communication is dedicated
 
 # Set this parameters same as in server configuration to guess active buckets correctly
 batchSizeBytes: 2000000
-bucketRotationPeriod: 256           # max epoch size in recovery & bucket rotation period in stable mode
+bucketRotationPeriod: 256             # max epoch size in recovery & bucket rotation period in stable mode
 buckets: 2                            # buckets per leader
 
 useTLS: true
