@@ -1,26 +1,26 @@
 ---
 id : 0
-n : 4                         # number of servers
-f : 0                        # number of byzantine servers tolerated
+n : 4                                 # number of servers
+f : 0                                 # number of byzantine servers tolerated
 d : 3                                 # number of dispatchers per node
 
 logging: "debug"
 chainId : "chain"
 ledger: ""                            # persistent storage path
 
-maxLeaders: 1                 # max leaderset size, set to 1 to emulate PBFT
-batchDurationNsec: 2000000000       # timeout to cut a batch in nanoseconds
+maxLeaders: 4                         # max leaderset size, set to 1 to emulate PBFT
+batchDurationNsec: 2000000000         # timeout to cut a batch in nanoseconds
 batchSizeBytes: 2000000               # batch size in bytes
 epochTimeoutNsec: 20000000000         # epoch change time out in nanoseconds
 signatureVerification: true           # request signature verification
 batchSignature: false                 # batch signatures on commit messages
 payloadSharding: false                # light total order broadcast
-sigSharding: true                     # request signature verification sharding
-watermarkDist: 64              # low to high watermaks distance in number of batches
+sigSharding: false                    # request signature verification sharding
+watermarkDist: 64                     # low to high watermaks distance in number of batches
 checkpointDist: 16                    # checkpoint distance in number of batches
-bucketRotationPeriod: 10000000           # max epoch size in recovery & bucket rotation period in stable mode
+bucketRotationPeriod: 10000000        # max epoch size in recovery & bucket rotation period in stable mode
 clientWatermarkDist: 10000000         # number of parallel requests per client
-buckets: 2                            # buckets per leader
+buckets: 4                            # buckets per leader
 
 # Byzantine behavior
 byzantineDuplication: false           # if true nodes do not filter out preprepared or delivered requests
@@ -33,7 +33,7 @@ byzantineUntil: 0                     # Adding Byzantine delay for sequence numb
 requestSize: 500
 requestsPerClientCore: 0
 
-useTLS: false                          # Use TLS for both peer-to-peer and client-to-peer communication
+useTLS: true                          # Use TLS for both peer-to-peer and client-to-peer communication
 serverConnectionBuffer: 2             # Number of seconds the servers need to wait for each-other to establish all connections
 self:
   listen: "LISTEN_ENDPOINT"

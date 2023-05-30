@@ -550,7 +550,8 @@ func (b *Dispatcher) handleMessage(m *pb.Msg, src uint64) {
 
 	// If this is a preprepare message, start a new "one-shot" PBFT instance for it.
 	if pp := m.GetPreprepare(); pp != nil {
-
+		log.Debugf("Receiving preprepare msg of seq %d", pp.Seq.Seq)
+		
 		// Check if view view number matches
 		if pp.Seq.View < s.getView() {
 			log.Errorf("Received preprepare for old view")
@@ -571,6 +572,8 @@ func (b *Dispatcher) handleMessage(m *pb.Msg, src uint64) {
 		return
 		// If this is not a preprepare message, pass it on to the corresponding BFT instance
 	} else {
+		log.Debugf("Receiving not a preprepare msg of seq %d", pp.Seq.Seq)
+		
 		i, ok := b.runningInstances[seq]
 		if !ok {
 			panic(fmt.Sprintf("Replica %d: trying to enqueue message for instance that is not yet running", b.sbft.id))
