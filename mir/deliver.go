@@ -27,11 +27,11 @@ import (
 
 func (s *SBFT) deliverBatch(batchInfo *batchInfo) {
 
-	if s.timer != nil {
-		<-s.timer.C
-		s.timer.Stop()
-		s.timer = nil
-	}
+	// if s.timer != nil {
+	// 	<-s.timer.C
+	// 	s.timer.Stop()
+	// 	s.timer = nil
+	// }
 
 	batch := batchInfo.preprep.Batch
 
@@ -70,10 +70,10 @@ func (s *SBFT) deliverBatch(batchInfo *batchInfo) {
 	log.Infof("replica %d batch %d: number of seqnos is %d ", s.id, header.Seq, len(batch.SeqNos))
 	log.Infof("replica %d batch %d: number of hashes is %d ", s.id, header.Seq, len(batchInfo.requestHashes))
 
-	if s.timer == nil {
-		duration := uint64(config.Config.BatchDurationNsec)
-		s.timer = time.NewTimer(time.Duration(duration))
-	}
+	// if s.timer == nil {
+	// 	duration := uint64(config.Config.BatchDurationNsec)
+	// 	s.timer = time.NewTimer(time.Duration(duration))
+	// }
 
 	s.clientsLock.RLock()
 	for i, pk := range batch.Pub {

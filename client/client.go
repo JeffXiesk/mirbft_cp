@@ -130,6 +130,7 @@ func New(id, n, f, receivers, b, period, dst int, numRequests int64,
 		grpc.WithBlock(),
 		// grpc.WithInsecure(),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMessageSize), grpc.MaxCallSendMsgSize(maxMessageSize)),
+		// grpc.WithTimeout(time.Second*100),
 	}
 
 	// // All servers have the same CA

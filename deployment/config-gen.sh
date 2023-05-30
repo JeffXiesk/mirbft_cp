@@ -116,6 +116,10 @@ if [ "$config_only" = "false" ]; then
             pub=$(getIP $p)
             scp $ssh_options temp/$p.key $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/
         done
+        for p in $clients; do
+            pub=$(getIP $p)
+            scp $ssh_options temp/ca.key $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/
+        done
     fi
 fi
 
