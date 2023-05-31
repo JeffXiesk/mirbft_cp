@@ -129,7 +129,7 @@ def main(argv):
     delivery = []
     ord_blocks = collections.OrderedDict(sorted(blocks.items()))
 
-    for key, block in ord_blocks.iteritems():
+    for key, block in ord_blocks.items():
         if block.delivered is not None:
             for i in range(block.size):
                 delivery.append(block.delivered)
@@ -143,10 +143,10 @@ def main(argv):
         f.write(str(latency[i])+" "+str(float(i)/(len(latency)))+"\n")
     if len(latency)>0:
         latency_avg = np.mean(latency)
-        print "Average end to end latency: " + str(latency_avg) + " ms"
+        print("Average end to end latency: " + str(latency_avg) + " ms")
     if len(rate)>0:
         rate_avg = np.mean(rate)
-        print "Average request rate per client: " + str(rate_avg) + " r/s"
+        print("Average request rate per client: " + str(rate_avg) + " r/s")
 
 
 
@@ -157,14 +157,14 @@ def main(argv):
         if (tail + offset + 1) < len(delivery):
             delivery = delivery[offset:len(delivery)-tail]
         else:
-            print "Too many requests removed"
+            print("Too many requests removed")
         duration = (delivery[-1]-delivery[0]).total_seconds()
         if duration <= 0 :
-            print "Too many requests removed"
+            print("Too many requests removed")
         else:
             thr = float(len(delivery))/duration
-            print "Throughput: " + str(thr)  + " r/s"
-        print "Requests: " + str(len(delivery))
+            print("Throughput: " + str(thr)  + " r/s")
+        print("Requests: " + str(len(delivery)))
 
 if __name__ == "__main__":
     main(sys.argv[1:])

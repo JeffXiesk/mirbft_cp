@@ -50,7 +50,8 @@ else
   servers=$(grep server cloud-instance.info | awk '{ print $1}')
   clients=$(grep client cloud-instance.info | awk '{ print $1}')
   N=$(grep -c server cloud-instance.info)
-  F=$(((N-1)/3))
+#   F=$(((N-1)/3))
+  F=0
   C=$(grep -c client cloud-instance.info)
 fi
 
