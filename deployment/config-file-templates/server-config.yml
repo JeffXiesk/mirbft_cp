@@ -25,9 +25,9 @@ buckets: 2                            # buckets per leader
 # Byzantine behavior
 byzantineDuplication: false           # if true nodes do not filter out preprepared or delivered requests
 censoring: 0                          # the percentage of requests a malicious node drops [0..100]
-byzantineDelay: 0                     # time added to batch timeout in nanoseconds
-byzantineAfter: 0                     # Adding Byzantine delay for sequence numbers greater or equal to ByzantineAfter
-byzantineUntil: 0                     # Adding Byzantine delay for sequence numbers lees than ByzantineUntil
+byzantineDelay: BYZANTINE_DELAY       # time added to batch timeout in nanoseconds
+byzantineAfter: BYZANTINE_AFTER       # Adding Byzantine delay for sequence numbers greater or equal to ByzantineAfter
+byzantineUntil: BYZANTINE_UNTIL       # Adding Byzantine delay for sequence numbers lees than ByzantineUntil
 
 # Local (sever-side) load generation for testing
 requestSize: 500

@@ -50,8 +50,8 @@ else
   servers=$(grep server cloud-instance.info | awk '{ print $1}')
   clients=$(grep client cloud-instance.info | awk '{ print $1}')
   N=$(grep -c server cloud-instance.info)
-#   F=$(((N-1)/3))
-  F=0
+  F=$(((N-1)/3))
+#   F=0
   C=$(grep -c client cloud-instance.info)
 fi
 
@@ -138,9 +138,19 @@ else
     timeout=500000000
 fi
 
+declare -i Fcnt=0
 for p in $servers; do
     ip=$(getPrivIP $p)
-    cat config-file-templates/server-config.yml | sed "s/SERVER_ID/$id/ ; s/LISTEN_ENDPOINT/0.0.0.0:$port/ ; s/SERVER_HOSTNAME/$p/ ; s/NUM_NODES/$N/ ; s/NUM_FAULTS/$F/ ; s/EPOCH/$epoch/ ; s/WATERMARK/$watermark/ ; s/BATCHTIMEOUT/$timeout/"> temp/config_$p.yml
+    byzantineDelay=0
+    byzantineAfter=0
+    byzantineUntil=0
+    if [ "$Fcnt" -lt "$F" ]; then
+        byzantineDelay=2000
+        byzantineAfter=0
+        byzantineUntil=10000000
+    fi
+    (( Fcnt += 1 ))
+    cat config-file-templates/server-config.yml | sed "s/SERVER_ID/$id/ ; s/LISTEN_ENDPOINT/0.0.0.0:$port/ ; s/SERVER_HOSTNAME/$p/ ; s/NUM_NODES/$N/ ; s/NUM_FAULTS/$F/ ; s/EPOCH/$epoch/ ; s/WATERMARK/$watermark/ ; s/BATCHTIMEOUT/$timeout/ ; s/BYZANTINE_DELAY/$byzantineDelay/ ; s/BYZANTINE_AFTER/$byzantineAfter/ ; s/BYZANTINE_UNTIL/$byzantineUntil/"> temp/config_$p.yml
     (( id += 1 ))
     if [ "$local" = "true" ]; then
         (( port += 10 ))
