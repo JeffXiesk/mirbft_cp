@@ -4,14 +4,76 @@ private_key_file="/opt/gopath/src/github.com/IBM/mirbft/deployment/key/id_rsa"
 ssh_options="-i $private_key_file -o StrictHostKeyChecking=no -o ServerAliveInterval=60"
 
 
-public_ip=$(cat ../cloud-instance.info | awk '{ print $2}')
-public_ip_arr=(`echo $public_ip | tr ',' ' '`)
 
-echo ${public_ip_arr[@]}
 
 if [ "$1" = "-i" ]; then
     echo "Init..."
     shift
+    declare -i server=0
+    declare -i client=0
+    if [ "$1" = "-n" ]; then
+        shift
+        server=$1
+        shift
+        client=$1
+        shift
+
+    fi
+
+    if [ "$1" = "-r" ]; then
+        shift
+        count=$(($server+$client))
+        echo $count
+        aws configure set region us-east-1
+        new_instance_info=$(aws ec2 run-instances \
+         --launch-template LaunchTemplateId=lt-0052a4dd500c7b168 \
+         --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value="Parallel-bft-instance"}]' \
+         --count $count)
+
+        echo "sleep 60 seconds"
+        sleep 60
+
+    else
+        sleep 0.1
+    fi
+
+    if [ "$1" = "-w" ]; then
+        shift
+        public_ip=$(
+        aws ec2 describe-instances   \
+        --filter "Name=network-interface.status,Values=available,in-use"   \
+        --query "Reservations[*].Instances[*].PublicIpAddress"   \
+        --output=text)
+        
+        private_ip=$(
+        aws ec2 describe-instances   \
+        --filter "Name=network-interface.status,Values=available,in-use"   \
+        --query "Reservations[*].Instances[*].PrivateIpAddress"   \
+        --output=text)
+
+        echo $public_ip
+        echo $private_ip
+
+        # show info of instance
+        public_ip_arr=(`echo $public_ip | tr ',' ' '`)
+        private_ip_arr=(`echo $private_ip | tr ',' ' '`)
+
+        echo ${public_ip_arr[@]}
+        echo ${private_ip_arr[@]}
+
+        write_result=$(python3 pyscript/write_cloud_instance.py $server $client ${public_ip_arr[@]} ${private_ip_arr[@]})
+        echo $write_result
+    fi
+
+    public_ip=$(cat ../cloud-instance.info | awk '{ print $2}')
+    public_ip_arr=(`echo $public_ip | tr ',' ' '`)
+
+    private_ip=$(cat ../cloud-instance.info | awk '{ print $3}')
+    private_ip_arr=(`echo $private_ip | tr ',' ' '`)
+
+    echo ${public_ip_arr[@]}
+    echo ${private_ip_arr[@]}
+
     # set root login, reference : https://www.youtube.com/watch?v=xE_oaWVhaV4
     echo "Start set root login..."
     for i in "${public_ip_arr[@]}"
@@ -64,6 +126,16 @@ fi
 echo "End set ssh key..."
 
 cd /opt/gopath/src/github.com/IBM/mirbft/deployment
-bash config-gen.sh
+
+if [ "$1" = "-c" ]; then
+    bash config-gen.sh
+fi
 
 bash run.sh
+
+
+# bash deploy-cloud-WAN.sh -i -n 4 4 -r -w -s -c
+
+if [ "$1" = "-sd" ]; then
+    aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
+fi

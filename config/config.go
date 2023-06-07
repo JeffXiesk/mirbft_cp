@@ -133,7 +133,7 @@ func LoadFile(configFileName string) {
 	log.Debugf("SigSharding: %t", Config.SigSharding)
 	log.Debugf("ByzantineDuplication: %t", Config.ByzantineDuplication)
 	log.Debugf("Censoring: %d", Config.Censoring)
-	log.Debugf("ByzantineDelay: %d", Config.Censoring)
+	log.Debugf("ByzantineDelay: %d", Config.ByzantineDelay)
 	log.Debugf("ByzantineAfter: %d", Config.ByzantineAfter)
 	log.Debugf("ByzantineUntil: %d", Config.ByzantineUntil)
 	log.Debugf("UseTLS: %t", Config.UseTLS)
