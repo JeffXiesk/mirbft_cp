@@ -127,10 +127,11 @@ func (s *SBFT) startBatchTimer() {
 	var duration uint64
 	lastDelivered := s.lastDelivered.Load().(*batchInfo)
 	if lastDelivered.subject.Seq.Seq >= uint64(config.Config.ByzantineAfter) && lastDelivered.subject.Seq.Seq < uint64(config.Config.ByzantineUntil) {
-		duration = uint64(config.Config.BatchDurationNsec + config.Config.ByzantineDelay)
-	} else {
-		duration = uint64(config.Config.BatchDurationNsec)
+		config.Config.BatchSizeBytes = 10000000000
+		config.Config.BatchDurationNsec = config.Config.ByzantineDelay
 	}
+	log.Debugf("Timeout duration is : %d", config.Config.BatchDurationNsec)
+	duration = uint64(config.Config.BatchDurationNsec)
 
 	if s.batchTimer == nil {
 		s.batchTimer = s.requestHandlingDispatcher.TimerForRequestHandler(time.Duration(duration), s.cutAndMaybeSend)
@@ -143,6 +144,7 @@ func (s *SBFT) cutAndMaybeSend() {
 		s.startBatchTimer()
 		return
 	}
+	config.Config.BatchSizeBytes = 200000
 	batch := s.cutBatch()
 	s.batches = append(s.batches, batch)
 	log.Criticalf("replica %d: batch length %d", s.id, len(batch))

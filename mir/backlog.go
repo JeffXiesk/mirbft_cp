@@ -163,7 +163,7 @@ func (adapter *Dispatcher) processBacklog() {
 	log.Debugf("replica %d: finished processing backlog", adapter.sbft.id)
 }
 
-//should only be called by manager thread
+// should only be called by manager thread
 func (s *SBFT) processAllBacklogs() {
 	for _, a := range s.blockHandlingDispatchers {
 		a.backlogRequest(true, 0)
