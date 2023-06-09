@@ -22,6 +22,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/IBM/mirbft/config"
+
 	pb "github.com/IBM/mirbft/protos"
 )
 
@@ -189,6 +191,8 @@ func (b *Dispatcher) RunRequestProcessor() {
 					log.Critical("Updated leader pending size")
 					s.lastLeaderPendingSizeRecomputation = s.nextProposalInfo.lastConfigChange
 				}
+				time.Sleep(s.timer.Sub(time.Now()))
+				s.timer = time.Now().Add(time.Duration(config.Config.BatchDurationNsec))
 				s.maybeSendNextBatch()
 			default:
 			}

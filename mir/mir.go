@@ -110,7 +110,7 @@ type SBFT struct {
 	chainId string
 	mrand   *rand.Rand
 
-	timer             *time.Timer
+	timer             time.Time
 	batchTimer        Canceller
 	lastNewViewSent   *pb.NewView
 	viewChangeTimeout time.Duration
@@ -261,6 +261,7 @@ func New(id uint64, sys System, dispatchers []*Dispatcher, managerDispatcher *Di
 		sys:                                sys,
 		id:                                 id,
 		chainId:                            "chain",
+		timer:                              time.Now().Add(time.Duration(config.Config.BatchDurationNsec)),
 		viewChangeTimer:                    dummyCanceller{},
 		replicaState:                       make([]replicaInfo, config.Config.N),
 		cur:                                make(map[uint64]*batchInfo, config.Config.WatermarkDist*2),

@@ -114,6 +114,11 @@ fi
 
 if [ "$1" = "-s" ]; then
     shift
+    public_ip=$(cat ../cloud-instance.info | awk '{ print $2}')
+    public_ip_arr=(`echo $public_ip | tr ',' ' '`)
+
+    private_ip=$(cat ../cloud-instance.info | awk '{ print $3}')
+    private_ip_arr=(`echo $private_ip | tr ',' ' '`)
     for i in "${public_ip_arr[@]}"
     do
         scp $ssh_options '/opt/gopath/src/github.com/IBM/mirbft/deployment/setup.sh' root@$i:/root
@@ -128,14 +133,20 @@ echo "End set ssh key..."
 cd /opt/gopath/src/github.com/IBM/mirbft/deployment
 
 if [ "$1" = "-c" ]; then
-    bash config-gen.sh
+    shift
+    echo "bash config-gen-$1.sh"
+    bash config-gen-$1.sh
+    shift
 fi
 
-bash run.sh
+if [ "$1" = "--run" ]; then
+    shift
+    bash run.sh
+fi
 
-
-# bash deploy-cloud-WAN.sh -i -n 4 4 -r -w -s -c
+# bash deploy-cloud-WAN.sh -i -n 4 4 -r -w -s -c --run
 
 if [ "$1" = "-sd" ]; then
+    shift
     aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
 fi
