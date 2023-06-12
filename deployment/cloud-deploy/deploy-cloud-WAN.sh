@@ -144,7 +144,8 @@ if [ "$1" = "--run" ]; then
     bash run.sh
 fi
 
-# bash deploy-cloud-WAN.sh -i -n 4 4 -r -w -s -c --run
+# bash deploy-cloud-WAN.sh -i -n 4 4 -r -w -s -c 1 --run
+# bash deploy-cloud-WAN.sh -i -n 16 32 -s -c 1 --run
 
 if [ "$1" = "-sd" ]; then
     shift

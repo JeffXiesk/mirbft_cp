@@ -21,15 +21,22 @@ fi
 if [ "$copy_only" = "false" ]; then
     for p in $clients; do
         pub=$(getIP $p)
-        scp $ssh_options run-client.sh $ssh_user@$pub:
+        scp $ssh_options run-client.sh $ssh_user@$pub: &
+    done
+    wait
+
+    for p in $clients; do
+        pub=$(getIP $p)
         ssh $ssh_user@$pub $ssh_options "source run-client.sh"
     done
+    # wait
 
     for p in $servers; do
         pub=$(getIP $p)
-        scp $ssh_options run-server.sh $ssh_user@$pub:
-        scp $ssh_options stop.sh $ssh_user@$pub:
+        scp $ssh_options run-server.sh $ssh_user@$pub: &
+        scp $ssh_options stop.sh $ssh_user@$pub: &
     done
+    wait
 
     for p in $servers; do
         pub=$(getIP $p)
@@ -53,7 +60,7 @@ if [ "$copy_only" = "false" ]; then
             ready="0"
         fi
         echo "Experiment still running"
-        sleep 5
+        sleep 3
     done
 
     rm STATUS.sh
@@ -66,27 +73,33 @@ mkdir -p experiment-output
 for p in $servers; do
     pub=$(getIP $p)
     ssh $ssh_user@$pub $ssh_options "source stop.sh" &
-    scp $ssh_options $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/server/server.out experiment-output/$p.out
 done
+
+for p in $servers; do
+    pub=$(getIP $p)
+    scp $ssh_options $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/server/server.out experiment-output/$p.out &
+done
+wait
 
 echo "All servers stopped, server log files are copied in deployment/experiment-output/"
 
 for p in $clients; do
     pub=$(getIP $p)
-    if ssh $ssh_user@$pub $ssh_options stat /opt/gopath/src/github.com/IBM/mirbft/client/client.out \> /dev/null 2\>\&1; then
-        scp $ssh_options $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/client/client.out experiment-output/$p.out
-    else
-        echo "Client log file does not exist. Client $p did not start."
-    fi
+    # if ssh $ssh_user@$pub $ssh_options stat /opt/gopath/src/github.com/IBM/mirbft/client/client.out \> /dev/null 2\>\&1; then
+    scp $ssh_options $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/client/client.out experiment-output/$p.out &
+    # else
+        # echo "Client log file does not exist. Client $p did not start."
+    # fi
     clientNum="${p:7}"
     clientNum=$((clientNum-1))
     traceFileSufix=$(printf %03d $clientNum)
-    if ssh $ssh_user@$pub $ssh_options stat /opt/gopath/src/github.com/IBM/mirbft/client/client-$traceFileSufix.trc \> /dev/null 2\>\&1; then
-        scp -r $ssh_options $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/client/client-$traceFileSufix.trc experiment-output
-    else
-        echo "Client trace file does not exist. Client $p did not finish gracefully."
-    fi
+    # if ssh $ssh_user@$pub $ssh_options stat /opt/gopath/src/github.com/IBM/mirbft/client/client-$traceFileSufix.trc \> /dev/null 2\>\&1; then
+    scp -r $ssh_options $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/client/client-$traceFileSufix.trc experiment-output &
+    # else
+        # echo "Client trace file does not exist. Client $p did not finish gracefully."
+    # fi
 done
+wait
 
 echo "All clients stopped, client trace and log files are copied in deployment/experiment-output/"
 

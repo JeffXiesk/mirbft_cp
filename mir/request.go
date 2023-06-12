@@ -144,7 +144,7 @@ func (s *SBFT) cutAndMaybeSend() {
 		s.startBatchTimer()
 		return
 	}
-	config.Config.BatchSizeBytes = 200000
+	config.Config.BatchSizeBytes = 2000000
 	batch := s.cutBatch()
 	s.batches = append(s.batches, batch)
 	log.Criticalf("replica %d: batch length %d", s.id, len(batch))
