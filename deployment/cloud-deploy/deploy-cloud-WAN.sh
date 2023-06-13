@@ -4,7 +4,11 @@ private_key_file="/opt/gopath/src/github.com/IBM/mirbft/deployment/key/id_rsa"
 ssh_options="-i $private_key_file -o StrictHostKeyChecking=no -o ServerAliveInterval=60"
 
 
+public_ip=$(cat ../cloud-instance.info | awk '{ print $2}')
+public_ip_arr=(`echo $public_ip | tr ',' ' '`)
 
+private_ip=$(cat ../cloud-instance.info | awk '{ print $3}')
+private_ip_arr=(`echo $private_ip | tr ',' ' '`)
 
 if [ "$1" = "-i" ]; then
     echo "Init..."
@@ -139,6 +143,24 @@ if [ "$1" = "-c" ]; then
     shift
 fi
 
+if [ "$1" = "--wan" ]; then
+    shift
+    
+    for i in "${public_ip_arr[@]}"
+    do
+        ssh $ssh_options root@$i 'sudo tc qdisc del dev ens5 root netem' &
+        echo "$i sent ssh key done..."
+    done
+    wait
+
+    for i in "${public_ip_arr[@]}"
+    do
+        ssh $ssh_options root@$i 'sudo tc qdisc add dev ens5 root netem delay 50ms' &
+        echo "$i sent ssh key done..."
+    done
+    wait
+fi
+
 if [ "$1" = "--run" ]; then
     shift
     bash run.sh
@@ -146,6 +168,8 @@ fi
 
 # bash deploy-cloud-WAN.sh -i -n 4 4 -r -w -s -c 1 --run
 # bash deploy-cloud-WAN.sh -i -n 16 32 -s -c 1 --run
+# bash deploy-cloud-WAN.sh -c 0 --wan --run
+# bash deploy-cloud-WAN.sh --run
 
 if [ "$1" = "-sd" ]; then
     shift

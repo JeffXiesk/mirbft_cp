@@ -19,11 +19,11 @@ do
 done
 wait
 
-cnt=1
-for i in $clients
-do
-    echo $i $cnt
-    scp $ssh_options root@$i:/opt/gopath/src/github.com/IBM/mirbft/client/client.log ./experiment-output/log/client-$cnt.log &
-    cnt+=1
-done
-wait
+# cnt=1
+# for i in $clients
+# do
+#     echo $i $cnt
+#     scp $ssh_options root@$i:/opt/gopath/src/github.com/IBM/mirbft/client/client.log ./experiment-output/log/client-$cnt.log &
+#     cnt+=1
+# done
+# wait

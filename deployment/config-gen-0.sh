@@ -170,7 +170,7 @@ for p in $servers; do
     byzantineAfter=0
     byzantineUntil=0
     if [ "$Fcnt" -lt "$F" ]; then
-        byzantineDelay=10000000000
+        byzantineDelay=2000000000
         byzantineAfter=0
         byzantineUntil=10000000
     fi
