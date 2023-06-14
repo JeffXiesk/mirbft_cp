@@ -19,9 +19,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/membership"
+	logger "github.com/rs/zerolog/log"
 )
 
 type BucketGroup struct {
@@ -168,7 +168,8 @@ func (bg *BucketGroup) WaitForRequests(numRequests int, timeout time.Duration) {
 // Blocks until the buckets in the BucketGroup (cumulatively) contain numRequests requests or until timeout elapses.
 // When WaitForRequests returns, bg.totalRequests accurately represents the total number of requests in the BucketGroup.
 // ATTENTION: All Buckets must be LOCKED when calling this method.
-//            May release and re-acquire the bucket locks before returning.
+//
+//	May release and re-acquire the bucket locks before returning.
 func (bg *BucketGroup) waitForRequestsLocked(numRequests int, timeout time.Duration) {
 
 	// Count all requests in all buckets in the group.
@@ -177,7 +178,7 @@ func (bg *BucketGroup) waitForRequestsLocked(numRequests int, timeout time.Durat
 
 	// If there are enough requests in the bucket, return immediately.
 	// if int(bg.totalRequests) >= numRequests || (timeout == 0) {
-	if (timeout == 0) {
+	if timeout == 0 {
 		return
 	}
 

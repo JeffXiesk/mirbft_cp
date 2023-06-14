@@ -70,7 +70,7 @@ throughputCap=131072000     # The system will always be proposing requests at a 
                             # Used to prevent view changes when too many batches accumulate in a bucket.
 
 # System composition
-orderers="Pbft"             # Possible values: Pbft HotStuff Raft Dummy
+orderers="HotStuff"             # Possible values: Pbft HotStuff Raft Dummy
 checkpointers="Signing"
 
 # Parameters chosen for experiments
@@ -148,14 +148,14 @@ throughputsNoAuthSinglePbft[64]=""
 throughputsNoAuthSinglePbft[128]=""
 
 throughputsAuthHotStuff=$()
-throughputsAuthHotStuff[4]="128"
+throughputsAuthHotStuff[4]="128 256"
 throughputsAuthHotStuff[8]=""
 throughputsAuthHotStuff[16]=""
 throughputsAuthHotStuff[32]=""
 throughputsAuthHotStuff[64]=""
 throughputsAuthHotStuff[128]=""
 throughputsNoAuthHotStuff=$()
-throughputsNoAuthHotStuff[4]="128"
+throughputsNoAuthHotStuff[4]="128 256"
 throughputsNoAuthHotStuff[8]=""
 throughputsNoAuthHotStuff[16]=""
 throughputsNoAuthHotStuff[32]=""

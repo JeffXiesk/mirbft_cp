@@ -231,7 +231,19 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 		// If the segment is not proposed yet schedule a new batch
 		if !hi.segmentProposed {
 			go func() {
-				hi.newBatch <- hi.segment.Buckets().CutBatch(config.Config.BatchSize, config.Config.BatchTimeout)
+				if int32(hi.segment.SegID())%int32(membership.NumNodes()) == 0 && config.Config.CrashTiming == "Straggler" {
+					logger.Debug().
+						Int("segment", hi.segment.SegID()).
+						Msg("Straggler. Start wait for requests.")
+					timeout := time.Duration(int(0.0666*float64(config.Config.ViewChangeTimeoutMs))) * time.Millisecond
+					hi.segment.Buckets().WaitForRequests(100000000000, timeout)
+					logger.Debug().
+						Int("segment", hi.segment.SegID()).
+						Msg("Straggler. Finish wait for requests.")
+				} else {
+					hi.segment.Buckets().WaitForRequests(config.Config.BatchSize, config.Config.BatchTimeout)
+				}
+				hi.newBatch <- hi.segment.Buckets().CutBatch(config.Config.BatchSize, 0)
 			}()
 		}
 
@@ -264,12 +276,12 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 		},
 	}
 
-	if int32(hi.segment.SegID())%int32(membership.NumNodes()) == 0 && config.Config.CrashTiming == "Straggler" {
-		logger.Info().
-			Int("segment", hi.segment.SegID()).
-			Msg("Straggler.")
-		time.Sleep(3000 * time.Millisecond)
-	}
+	// if int32(hi.segment.SegID())%int32(membership.NumNodes()) == 0 && config.Config.CrashTiming == "Straggler" {
+	// 	logger.Info().
+	// 		Int("segment", hi.segment.SegID()).
+	// 		Msg("Straggler.")
+	// 	time.Sleep(3000 * time.Millisecond)
+	// }
 
 	logger.Info().Int32("sn", sn).
 		Int("segment", hi.segment.SegID()).
@@ -649,7 +661,7 @@ func (hi *hotStuffInstance) sendNewView() {
 	messenger.EnqueueMsg(orderMsg, hi.leader)
 }
 
-///rank TODO: to be revised
+// /rank TODO: to be revised
 func (hi *hotStuffInstance) handleNewView(newview *pb.HotStuffNewView, sn, senderID int32) error {
 	logger.Info().Int32("sn", sn).
 		Int("segment", hi.segment.SegID()).
