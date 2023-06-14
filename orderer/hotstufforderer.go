@@ -29,7 +29,6 @@ import (
 // Represents a HotStuff Orderer implementation.
 type HotStuffOrderer struct {
 	hotStuffInstances map[int]*hotStuffInstance // HotStuff instance per segment
-	hiList			  []*hotStuffInstance
 	segmentChan       chan manager.Segment      // Channel to which the Manager pushes new Segments.
 	dispatcher        hotStuffDispatcher        // map[int32]*hotStuffInstance
 	backlog           backlog                   // map[int32]chan*ordererMsg
@@ -106,7 +105,6 @@ func (ho *HotStuffOrderer) HandleEntry(entry *log.Entry) {
 				Proof:   "Dummy Proof.",
 			},
 		},
-		Type: "ProtocolMessage_MissingEntry",
 	})
 }
 
@@ -115,7 +113,6 @@ func (ho *HotStuffOrderer) Init(mngr manager.Manager) {
 	ho.backlog = newBacklog()
 	ho.lock = sync.Mutex{}
 	ho.last = -1
-	ho.hiList = make([]*hotStuffInstance, 0, 0)
 }
 
 // Starts the HotStuff orderer. Listens on the channel where the Manager issues new Segemnts and starts a goroutine to
@@ -124,7 +121,6 @@ func (ho *HotStuffOrderer) Init(mngr manager.Manager) {
 // Decrements the provided wait group when done.
 func (ho *HotStuffOrderer) Start(wg *sync.WaitGroup) {
 	defer wg.Done()
-	j := 0
 	for s, ok := <-ho.segmentChan; ok; s, ok = <-ho.segmentChan {
 		logger.Info().
 			Int("segId", s.SegID()).
@@ -136,33 +132,13 @@ func (ho *HotStuffOrderer) Start(wg *sync.WaitGroup) {
 
 		ho.runSegment(s)
 		go ho.killSegment(s)
-		logger.Debug().Msg(")))))))))))))))))")
-	
-		for i := 0; i < len(ho.hiList); i++ {
-			logger.Debug().Msg("+++++++++++++++")
-			ho.hiList[i].setHiList(ho.hiList)
-		}
-		ho.hiList[j].subscribeToBacklog()
-		go ho.hiList[j].start()
-		go ho.hiList[j].processSerializedMessages()
-		j++
 	}
-	logger.Debug().Msg("((((((((((((((((((")
-
-	// for i := 0; i < len(ho.hiList); i++ {
-	// 	ho.hiList[i].setHiList(ho.hiList)
-	// 	ho.hiList[i].subscribeToBacklog()
-	// 	go ho.hiList[i].start()
-	// 	go ho.hiList[i].processSerializedMessages()
-	// }
 }
 
 // Starts the HotStuff ordering algorithm for a Segment.
 func (ho *HotStuffOrderer) runSegment(seg manager.Segment) {
 	hi := &hotStuffInstance{}
 	hi.init(seg, ho)
-	ho.hiList = append(ho.hiList, hi)
-	logger.Info().Msgf("hiList is : %v", ho.hiList)
 	for _, sn := range seg.SNs() {
 		ho.dispatcher.store(sn, hi)
 	}
@@ -171,7 +147,10 @@ func (ho *HotStuffOrderer) runSegment(seg manager.Segment) {
 		Int32("last", seg.LastSN()).
 		Msg("Starting HotStuff instance.")
 
+	hi.subscribeToBacklog()
 
+	go hi.start()
+	go hi.processSerializedMessages()
 }
 
 func (ho *HotStuffOrderer) killSegment(seg manager.Segment) {
