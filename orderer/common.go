@@ -17,9 +17,9 @@ package orderer
 import (
 	"sync/atomic"
 
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/manager"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	logger "github.com/rs/zerolog/log"
 )
 
 const backlogSize = 10000

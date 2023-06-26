@@ -18,10 +18,10 @@ import (
 	"math/rand"
 	"sort"
 
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/crypto"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	logger "github.com/rs/zerolog/log"
 )
 
 var (
@@ -129,9 +129,28 @@ func CorrectPeers() []int32 {
 // (At least for now. This might change if we start experimenting with dynamic membership.)
 func AllNodeIDs() []int32 {
 	// Return a copy of the data, so the caller cannot change the ordering
-	c := make([]int32, len(nodeIDs), len(nodeIDs))
-	copy(c, nodeIDs)
+	c := make([]int32, 0, 0)
+	logger.Debug().Msgf("nodeIDs is: %v", nodeIDs)
+	logger.Debug().Msgf("nodeIdentities is: %v", nodeIdentities)
+	for _, nodeId := range nodeIDs {
+		if nodeIdentities[nodeId].Tag == 0 {
+			c = append(c, nodeId)
+		}
+	}
 	return c
+}
+
+// Return an ordered list of IDs of all known nodes.
+// Every node has a consistent view of this.
+// (At least for now. This might change if we start experimenting with dynamic membership.)
+func GlobalOrdererNodeID() int32 {
+	// Return a copy of the data, so the caller cannot change the ordering
+	for _, nodeId := range nodeIDs {
+		if nodeIdentities[nodeId].Tag == 1 {
+			return nodeId
+		}
+	}
+	return -1
 }
 
 // Returns the total number of nodes.

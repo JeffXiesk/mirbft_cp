@@ -36,7 +36,7 @@ BatchSizeIncrement: 256 # Number of requests by which a fast node increases its 
                         # (Unless the node has already reached BatchSize.)
 
 # Startup config
-Orderer: HotStuff # Oderer type. One of {Dummy, Pbft, HotStuff, Raft}
+Orderer: Pbft # Oderer type. One of {Dummy, Pbft, HotStuff, Raft}
 Manager: "Mir"      # Manager type. One of {Dummy, Mir}
 Checkpointer: Signing # Checkpointer type. One of {Simple, Signing}
 Failures: 0
@@ -63,7 +63,7 @@ ClientWatermarkWindowSize: 4194304
 ClientRequestBacklogSize: 4194304 # The number of requests beyond client's current window that are backlogged.
 
 # Leader and failure handling
-RandomSeed: 30667     # Should be set to a random integer.
+RandomSeed: 1368     # Should be set to a random integer.
 LeaderPolicy: Simple # Leader selection policy. One of {Simple, Single, Backoff, Blacklist, Combined}
 NodeToLeaderRatio: 1        # Total number of nodes devided by this number gives number of leaders
 DefaultLeaderBan: 2        # The default number of epochs a node is excluded from the leaderset once suspected.

@@ -15,56 +15,101 @@
 package orderer
 
 import (
-	"bytes"
 	"fmt"
-	"sync"
-	"time"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/hyperledger-labs/mirbft/announcer"
-	"github.com/hyperledger-labs/mirbft/config"
-	"github.com/hyperledger-labs/mirbft/crypto"
-	"github.com/hyperledger-labs/mirbft/log"
-	"github.com/hyperledger-labs/mirbft/manager"
-	"github.com/hyperledger-labs/mirbft/membership"
-	"github.com/hyperledger-labs/mirbft/messenger"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
-	"github.com/hyperledger-labs/mirbft/request"
-	"github.com/hyperledger-labs/mirbft/statetransfer"
-	"github.com/hyperledger-labs/mirbft/tracing"
 	logger "github.com/rs/zerolog/log"
 )
 
-const (
-	catchupDelay = 400 * time.Millisecond
-)
+// const (
+// 	catchupDelay = 400 * time.Millisecond
+// )
 
 // TODO: Consolidate the segment-internal and the global checkpoints.
+type globalInstance struct {
+	orderer    *GlobalOrderer  // The Global orderer
+	serializer *ordererChannel // Channel of common case messages
+}
 
+func (gi *globalInstance) init(orderer *GlobalOrderer) {
+	gi.orderer = orderer
+	gi.serializer = newOrdererChannel(channelSize)
+}
+
+func (gi *globalInstance) subscribeToBacklog() {
+	// Check for backloged messages for this segment
+	gi.orderer.backlog.subscribers <- backlogSubscriber{segment: nil, serializer: gi.serializer}
+}
+
+func (gi *globalInstance) processSerializedMessages() {
+	logger.Info().Msg("Starting serialized message processing.")
+
+	for msg := range gi.serializer.channel {
+		// To make sure noone writes anymore on closing the segment we write a special value (nil)
+		if msg == nil {
+			return
+		}
+		gi.handleMessage(msg)
+	}
+}
+
+func (gi *globalInstance) handleMessage(msg *pb.ProtocolMessage) {
+	// Check the tye of the message.
+	switch m := msg.Msg.(type) {
+	case *pb.ProtocolMessage_Preprepare:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received Preprepare message.")
+	case *pb.ProtocolMessage_Prepare:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received Prepare message.")
+	case *pb.ProtocolMessage_Commit:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received Commit message.")
+	case *pb.ProtocolMessage_PbftCheckpoint:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received PbftCheckpoint message.")
+	case *pb.ProtocolMessage_PbftCatchup:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received PbftCatchup message.")
+	case *pb.ProtocolMessage_Newseqno:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received Newseqno message.")
+	case *pb.ProtocolMessage_Viewchange:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received Viewchange message.")
+	case *pb.ProtocolMessage_MissingPreprepareReq:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received MissingPreprepareReq message.")
+	case *pb.ProtocolMessage_MissingPreprepare:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received MissingPreprepare message.")
+	case *pb.ProtocolMessage_Newview:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received Newview message.")
+	case *pb.ProtocolMessage_Timeout:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received Timeout message.")
+	case *pb.ProtocolMessage_MissingEntry:
+		logger.Debug().Int32("SenderId", msg.SenderId).Msg("Received MissingEntry message.")
+	default:
+		logger.Error().Int32("SenderId", msg.SenderId).Str("msg", fmt.Sprint(m)).Msg("PbftOrderer cannot handle message. Unknown message type.")
+	}
+}
+
+/*
 // Represents a PBFT instance implementation.
 // PBFT instance is responsible for ordering sequence numbers from a single segment
-type pbftInstance struct {
-	view              int32                          // The view of the pbft instance
-	segment           manager.Segment                // The segment of the instance
-	orderer           *PbftOrderer                   // The pbft orderer
-	batches           map[int32]map[int32]*pbftBatch // Protocol state per view per sequence number
-	checkpointMsgs    map[int32]*pb.PbftCheckpoint   // Stores the received checkpoint messages
-	checkpointDigests map[string][]int32             // Nodes that sent a checkpoint messages with a certain digest
-	finalDigests      map[int32][]byte               // Digests batches obtained from a checkpoint (indexed by SN). Used for fetched state verification (not yet).
-	checkpointTimer   *time.Timer                    // Timer for the segment checkpoint.
-	viewChange        map[int32]*viewChangeInfo      // Information about view changes
-	viewChangeTimeout time.Duration                  // View change duration timeout
-	inViewChange      bool                           // True in view change mode, accepting only piority messages
-	backlog           *pbftBacklog                   // A backlog for future views
-	serializer        *ordererChannel                // Channel of common case messages
-	priority          *ordererChannel                // Channel of priority messages
-	cutBatch          chan struct{}                  // Channel for synchronizing batch cutting
+type globalInstance struct {
+	view              int32                            // The view of the pbft instance
+	segment           manager.Segment                  // The segment of the instance
+	orderer           *PbftOrderer                     // The pbft orderer
+	batches           map[int32]map[int32]*globalBatch // Protocol state per view per sequence number
+	checkpointMsgs    map[int32]*pb.PbftCheckpoint     // Stores the received checkpoint messages
+	checkpointDigests map[string][]int32               // Nodes that sent a checkpoint messages with a certain digest
+	finalDigests      map[int32][]byte                 // Digests batches obtained from a checkpoint (indexed by SN). Used for fetched state verification (not yet).
+	checkpointTimer   *time.Timer                      // Timer for the segment checkpoint.
+	viewChange        map[int32]*viewChangeInfo        // Information about view changes
+	viewChangeTimeout time.Duration                    // View change duration timeout
+	inViewChange      bool                             // True in view change mode, accepting only piority messages
+	backlog           *pbftBacklog                     // A backlog for future views
+	serializer        *ordererChannel                  // Channel of common case messages
+	priority          *ordererChannel                  // Channel of priority messages
+	cutBatch          chan struct{}                    // Channel for synchronizing batch cutting
 	stopProp          sync.Once
 	//	next              int // The index  of the next to be proposed SN
 	startTs int64 // Timestamp of the start of the instance. Used for estimating duration of segment.
 }
 
-type pbftBatch struct {
+type globalBatch struct {
 	preprepareMsg   *pb.PbftPreprepare
 	prepareMsgs     map[int32]*pb.PbftPrepare // Prepare messages received. Should be append only to prevent double voting.
 	commitMsgs      map[int32]*pb.PbftCommit  // Commit messages received. Should be append only to prevent double voting.
@@ -86,8 +131,8 @@ type viewChangeInfo struct {
 	newViewTimer               *time.Timer              // Timer to start a view change
 	enoughViewChanges          bool                     // When this flag is set, no more view changes are accepted.
 	fetchingMissingPreprepares bool                     // Ignore incoming missing preprepares if this flag is false.
-	reproposeBatches           map[int32]*pbftBatch     // PBFT batches to use when constructing the xset.
-	// We abuse the pbftBatch data structure here to be able to store the digests
+	reproposeBatches           map[int32]*globalBatch   // PBFT batches to use when constructing the xset.
+	// We abuse the globalBatch data structure here to be able to store the digests
 	// of missing batches. Other fields than digest and preprepareMsg are not used.
 }
 
@@ -96,7 +141,7 @@ type viewChangeMsg struct {
 	signature  []byte
 }
 
-func (pi *pbftInstance) newViewChangeInfo(view int32) {
+func (pi *globalInstance) newViewChangeInfo(view int32) {
 	viewChange := &viewChangeInfo{
 		view:                       view,
 		s:                          make(map[int32]*viewChangeMsg),
@@ -106,7 +151,7 @@ func (pi *pbftInstance) newViewChangeInfo(view int32) {
 
 }
 
-func (pi *pbftInstance) setNewViewTimer(view int32) {
+func (pi *globalInstance) setNewViewTimer(view int32) {
 	timeoutMsg := &pb.ProtocolMessage{
 		SenderId: membership.OwnID,
 		Sn:       -1, // SN -1 indicates that this is not a batch timeout, but a new view or checkpoint timeout.
@@ -121,7 +166,7 @@ func (pi *pbftInstance) setNewViewTimer(view int32) {
 	pi.viewChange[view].newViewTimer = time.AfterFunc(pi.viewChangeTimeout, func() { pi.serializer.serialize(timeoutMsg) })
 }
 
-func (pi *pbftInstance) setCheckpointTimer() {
+func (pi *globalInstance) setCheckpointTimer() {
 	// TODO: Consolidate the timers.
 
 	msg := &pb.ProtocolMessage{
@@ -143,7 +188,7 @@ func (pi *pbftInstance) setCheckpointTimer() {
 }
 
 // Start initializes the Pbft instance
-func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
+func (pi *globalInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	// Next indext of sn of the segment to propose
 	// pi.next = 0
 
@@ -154,13 +199,13 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	pi.orderer = orderer
 
 	// Initialize backlog
-	pi.backlog = newPbftBacklog(pi)
+	// pi.backlog = newPbftBacklog(pi)
 
 	//Initialize view change log
 	pi.viewChange = make(map[int32]*viewChangeInfo)
 
 	// Initialise protocol state
-	pi.batches = make(map[int32]map[int32]*pbftBatch)
+	pi.batches = make(map[int32]map[int32]*globalBatch)
 	pi.checkpointMsgs = make(map[int32]*pb.PbftCheckpoint)
 	pi.checkpointDigests = make(map[string][]int32)
 	// Non initializing final digests. Checked for nil in the code.
@@ -183,7 +228,7 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	pi.startTs = time.Now().UnixNano()
 }
 
-func (pi *pbftInstance) lead() {
+func (pi *globalInstance) lead() {
 
 	logger.Debug().Int("segID", pi.segment.SegID()).Msg("Leading segment.")
 	batchSize := pi.segment.BatchSize()
@@ -238,7 +283,7 @@ func (pi *pbftInstance) lead() {
 
 // Proposes a new value for sequence number sn in Segment segment by sending a proposal message to all
 // followers of the segment.
-func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
+func (pi *globalInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 
 	// Simulate a crash if configured so.
 	if membership.SimulatedCrashes[membership.OwnID] != nil {
@@ -262,7 +307,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	batchSize := pi.segment.BatchSize()
 	if membership.SimulatedCrashes[membership.OwnID] != nil && config.Config.CrashTiming == "Straggler" {
 		// we cut an empty batch to maximize damage
-		batchSize = 4096
+		batchSize = 0
 	}
 
 	// Create the actual request batch. The timeout is 0, since the we already waited for the batch in pi.lead().
@@ -307,7 +352,6 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 		Msg: &pb.ProtocolMessage_Preprepare{
 			Preprepare: preprepare,
 		},
-		Type: "ProtocolMessage_Preprepare",
 	}
 
 	tracing.MainTrace.Event(tracing.PROPOSE, int64(sn), int64(len(batch.Requests)))
@@ -318,12 +362,9 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 			messenger.EnqueuePriorityMsg(msg, nodeID)
 		}
 	}
-
-	messenger.EnqueuePriorityMsg(msg, membership.GlobalOrdererNodeID())
-
 }
 
-func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.ProtocolMessage) error {
+func (pi *globalInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.ProtocolMessage) error {
 	// Convenience variables
 	sn := msg.Sn
 	senderID := msg.SenderId
@@ -419,7 +460,7 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 	return nil
 }
 
-func (pi *pbftInstance) sendPrepare(batch *pbftBatch) {
+func (pi *globalInstance) sendPrepare(batch *globalBatch) {
 
 	//// DEBUG
 	//if membership.OwnID < 21 && batch.preprepareMsg.Sn == 0 {
@@ -444,7 +485,6 @@ func (pi *pbftInstance) sendPrepare(batch *pbftBatch) {
 		Msg: &pb.ProtocolMessage_Prepare{
 			Prepare: prepare,
 		},
-		Type: "ProtocolMessage_Prepare",
 	}
 
 	// Add message to own log
@@ -457,11 +497,10 @@ func (pi *pbftInstance) sendPrepare(batch *pbftBatch) {
 		}
 		messenger.EnqueueMsg(msg, nodeID)
 	}
-	messenger.EnqueuePriorityMsg(msg, membership.GlobalOrdererNodeID())
 
 }
 
-func (pi *pbftInstance) handlePrepare(prepare *pb.PbftPrepare, msg *pb.ProtocolMessage) error {
+func (pi *globalInstance) handlePrepare(prepare *pb.PbftPrepare, msg *pb.ProtocolMessage) error {
 	// Convenience variables
 	sn := msg.Sn
 	senderID := msg.SenderId
@@ -513,7 +552,7 @@ func (pi *pbftInstance) handlePrepare(prepare *pb.PbftPrepare, msg *pb.ProtocolM
 	return nil
 }
 
-func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
+func (pi *globalInstance) sendCommit(batch *globalBatch) {
 	logger.Debug().Int32("sn", batch.preprepareMsg.Sn).
 		Int32("view", pi.view).
 		Int32("senderID", membership.OwnID).
@@ -532,7 +571,6 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 		Msg: &pb.ProtocolMessage_Commit{
 			Commit: commit,
 		},
-		Type: "ProtocolMessage_Commit",
 	}
 
 	// This value will be overwritten by receivers.
@@ -550,10 +588,9 @@ func (pi *pbftInstance) sendCommit(batch *pbftBatch) {
 		}
 		messenger.EnqueueMsg(msg, nodeID)
 	}
-	messenger.EnqueuePriorityMsg(msg, membership.GlobalOrdererNodeID())
 }
 
-func (pi *pbftInstance) handleCommit(commit *pb.PbftCommit, msg *pb.ProtocolMessage) error {
+func (pi *globalInstance) handleCommit(commit *pb.PbftCommit, msg *pb.ProtocolMessage) error {
 	// Convenience variables
 	sn := msg.Sn
 	senderID := msg.SenderId
@@ -607,7 +644,7 @@ func (pi *pbftInstance) handleCommit(commit *pb.PbftCommit, msg *pb.ProtocolMess
 	return nil
 }
 
-func (pi *pbftInstance) handleMissingEntry(msg *pb.MissingEntry) {
+func (pi *globalInstance) handleMissingEntry(msg *pb.MissingEntry) {
 	logger.Info().
 		Int32("view", pi.view).
 		Int32("sn", msg.Sn).
@@ -635,7 +672,7 @@ func (pi *pbftInstance) handleMissingEntry(msg *pb.MissingEntry) {
 	}
 }
 
-func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, reqBatch *pb.Batch, aborted bool, proposeTs int64, commitTs int64) {
+func (pi *globalInstance) announce(batch *globalBatch, sn int32, reqBatch *pb.Batch, aborted bool, proposeTs int64, commitTs int64) {
 	if batch.viewChangeTimer != nil {
 		notFired := batch.viewChangeTimer.Stop()
 		if !notFired {
@@ -690,7 +727,7 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, reqBatch *pb.Batch,
 	}
 }
 
-func (pi *pbftInstance) sendCheckpoint() {
+func (pi *globalInstance) sendCheckpoint() {
 
 	logger.Info().
 		Int("segID", pi.segment.SegID()).
@@ -711,7 +748,6 @@ func (pi *pbftInstance) sendCheckpoint() {
 		SenderId: membership.OwnID,
 		Sn:       pi.segment.LastSN(),
 		Msg:      &pb.ProtocolMessage_PbftCheckpoint{PbftCheckpoint: chkpMsg},
-		Type:     "ProtocolMessage_PbftCheckpoint",
 	}
 
 	// Send message to all other peers
@@ -720,7 +756,6 @@ func (pi *pbftInstance) sendCheckpoint() {
 			messenger.EnqueueMsg(msg, peerID)
 		}
 	}
-	messenger.EnqueuePriorityMsg(msg, membership.GlobalOrdererNodeID())
 
 	// Insert message in own message log.
 	// Technically this is not necessary, as the received checkpoint messages are only relevant for state transfer.
@@ -730,7 +765,7 @@ func (pi *pbftInstance) sendCheckpoint() {
 	}
 }
 
-func (pi *pbftInstance) handlePBFTCheckpoint(msg *pb.PbftCheckpoint, senderID int32) error {
+func (pi *globalInstance) handlePBFTCheckpoint(msg *pb.PbftCheckpoint, senderID int32) error {
 
 	logger.Debug().
 		Int("segID", pi.segment.SegID()).
@@ -776,7 +811,6 @@ func (pi *pbftInstance) handlePBFTCheckpoint(msg *pb.PbftCheckpoint, senderID in
 				SenderId: membership.OwnID,
 				Sn:       pi.segment.LastSN(),
 				Msg:      &pb.ProtocolMessage_PbftCatchup{PbftCatchup: &pb.PbftCatchUp{}},
-				Type:     "ProtocolMessage_PbftCatchup",
 			})
 		})
 	}
@@ -784,7 +818,7 @@ func (pi *pbftInstance) handlePBFTCheckpoint(msg *pb.PbftCheckpoint, senderID in
 	return nil
 }
 
-func (pi *pbftInstance) catchUp() {
+func (pi *globalInstance) catchUp() {
 
 	// Find the list of nodes that agreed on the checkpoint
 	var sources []int32
@@ -811,7 +845,7 @@ func (pi *pbftInstance) catchUp() {
 		Msg("PBFT catching up.")
 }
 
-func (pi *pbftInstance) sendViewChange() {
+func (pi *globalInstance) sendViewChange() {
 	if config.Config.DisabledViewChange {
 		tracing.MainTrace.Stop()
 		logger.Fatal().Int("segID", pi.segment.SegID()).Msg("VIEWCHANGE disabled, peer exits.")
@@ -883,7 +917,6 @@ func (pi *pbftInstance) sendViewChange() {
 				Signature: signature,
 			},
 		},
-		Type: "ProtocolMessage_Viewchange",
 	}
 
 	// Create an entry for view change if not already existing
@@ -920,11 +953,10 @@ func (pi *pbftInstance) sendViewChange() {
 		// View change messages are signed, so should we just send to next leader
 	} else {
 		messenger.EnqueuePriorityMsg(msg, nextLeaderID)
-		messenger.EnqueuePriorityMsg(msg, membership.GlobalOrdererNodeID())
 	}
 }
 
-func (pi *pbftInstance) handleViewChange(signed *pb.SignedMsg, senderID int32) error {
+func (pi *globalInstance) handleViewChange(signed *pb.SignedMsg, senderID int32) error {
 	// Validate signature
 	err := pi.orderer.CheckSig(signed.Data, senderID, signed.Signature)
 	if err != nil {
@@ -990,7 +1022,7 @@ func (pi *pbftInstance) handleViewChange(signed *pb.SignedMsg, senderID int32) e
 }
 
 // TODO request resurection
-func (pi *pbftInstance) maybeSendNewView(view int32) {
+func (pi *globalInstance) maybeSendNewView(view int32) {
 	// Check that there is an entry for this view (sanity check)
 	var vci *viewChangeInfo
 	var ok bool
@@ -1047,7 +1079,7 @@ func (pi *pbftInstance) maybeSendNewView(view int32) {
 	}
 
 	// Compute the decide values to propose
-	vci.reproposeBatches = make(map[int32]*pbftBatch)
+	vci.reproposeBatches = make(map[int32]*globalBatch)
 	a2 := make(map[int32][]int32, 0)      // IDs of peers that contribute to satisfying condition A2, for each SN
 	a2Views := make(map[int32][]int32, 0) // For each sequence number, stores the view number of the relevant preprepare
 	batchesMissing := false               // Convenience variable set if a missing batch is encountered.
@@ -1087,7 +1119,7 @@ func (pi *pbftInstance) maybeSendNewView(view int32) {
 						// when we started the segment.
 						Ts: pi.startTs,
 					}
-					vci.reproposeBatches[sn] = &pbftBatch{
+					vci.reproposeBatches[sn] = &globalBatch{
 						preprepareMsg: emptyPreprepare,
 						batch:         &request.Batch{Requests: make([]*request.Request, 0, 0)},
 						digest:        pbftDigest(emptyPreprepare),
@@ -1131,7 +1163,7 @@ func (pi *pbftInstance) maybeSendNewView(view int32) {
 							// This is a placeholder batch, no fields except for the digest are even initialized
 							// and only the preprepare message will be filled in later when fetched.
 							// The preprepare entry being nil meaans that the batch needs to be fetched.
-							batch = &pbftBatch{
+							batch = &globalBatch{
 								digest:    m.viewchange.Pset[sn].Digest,
 								committed: false,
 							}
@@ -1150,7 +1182,7 @@ func (pi *pbftInstance) maybeSendNewView(view int32) {
 								// when we started the segment.
 								Ts: pi.startTs,
 							}
-							batch = &pbftBatch{
+							batch = &globalBatch{
 								preprepareMsg: newPreprepare,
 								batch:         batch.batch,
 								committed:     batch.committed,
@@ -1187,7 +1219,7 @@ func (pi *pbftInstance) maybeSendNewView(view int32) {
 	}
 }
 
-func (pi *pbftInstance) askForMissingPrePrepares(vci *viewChangeInfo, sources map[int32][]int32, views map[int32][]int32) {
+func (pi *globalInstance) askForMissingPrePrepares(vci *viewChangeInfo, sources map[int32][]int32, views map[int32][]int32) {
 	logger.Info().
 		Int32("view", pi.view).
 		Int("segID", pi.segment.SegID()).
@@ -1206,7 +1238,7 @@ func (pi *pbftInstance) askForMissingPrePrepares(vci *viewChangeInfo, sources ma
 	}
 }
 
-func (pi *pbftInstance) requestMissingPreprepare(sn int32, sources []int32, views []int32) {
+func (pi *globalInstance) requestMissingPreprepare(sn int32, sources []int32, views []int32) {
 	// TODO: Send to more than one node (the first in this case) in a smarter way.
 	//       Use the connection microbenchmarks to pick the closest peers for requesting the missing data
 
@@ -1216,14 +1248,12 @@ func (pi *pbftInstance) requestMissingPreprepare(sn int32, sources []int32, view
 		Msg: &pb.ProtocolMessage_MissingPreprepareReq{MissingPreprepareReq: &pb.PbftMissingPreprepareRequest{
 			View: views[0],
 		}},
-		Type: "ProtocolMessage_MissingPreprepareReq",
 	}
 
 	messenger.EnqueuePriorityMsg(msg, sources[0])
-	messenger.EnqueuePriorityMsg(msg, membership.GlobalOrdererNodeID())
 }
 
-func (pi *pbftInstance) handleMissingPreprepareRequest(req *pb.PbftMissingPreprepareRequest, msg *pb.ProtocolMessage) {
+func (pi *globalInstance) handleMissingPreprepareRequest(req *pb.PbftMissingPreprepareRequest, msg *pb.ProtocolMessage) {
 
 	logger.Info().
 		Int32("ownView", pi.view).
@@ -1234,13 +1264,13 @@ func (pi *pbftInstance) handleMissingPreprepareRequest(req *pb.PbftMissingPrepre
 
 	var ok bool
 
-	var batches map[int32]*pbftBatch
+	var batches map[int32]*globalBatch
 	if batches, ok = pi.batches[req.View]; !ok {
 		logger.Warn().Int32("sn", msg.Sn).Int32("view", req.View).Msg("Requested batch not present (View).")
 		return
 	}
 
-	var batch *pbftBatch
+	var batch *globalBatch
 	if batch, ok = batches[msg.Sn]; !ok {
 		logger.Warn().Int32("sn", msg.Sn).Int32("view", req.View).Msg("Requested batch not present (SN).")
 		return
@@ -1258,16 +1288,14 @@ func (pi *pbftInstance) handleMissingPreprepareRequest(req *pb.PbftMissingPrepre
 			Msg: &pb.ProtocolMessage_MissingPreprepare{MissingPreprepare: &pb.PbftMissingPreprepare{
 				Preprepare: batch.preprepareMsg,
 			}},
-			Type: "ProtocolMessage_MissingPreprepare",
 		}
 
 		logger.Debug().Int32("sn", msg.Sn).Int32("view", req.View).Msg("Sending missing preprepare message.")
 		messenger.EnqueuePriorityMsg(response, msg.SenderId)
-		messenger.EnqueuePriorityMsg(msg, membership.GlobalOrdererNodeID())
 	}
 }
 
-func (pi *pbftInstance) handleMissingPreprepare(preprepare *pb.PbftPreprepare, msg *pb.ProtocolMessage) {
+func (pi *globalInstance) handleMissingPreprepare(preprepare *pb.PbftPreprepare, msg *pb.ProtocolMessage) {
 
 	logger.Info().
 		Int32("ownView", pi.view).
@@ -1341,7 +1369,7 @@ func (pi *pbftInstance) handleMissingPreprepare(preprepare *pb.PbftPreprepare, m
 	}
 }
 
-func (pi *pbftInstance) sendNewView() {
+func (pi *globalInstance) sendNewView() {
 	logger.Info().Int32("view", pi.view).
 		Int("segID", pi.segment.SegID()).
 		Int32("senderID", membership.OwnID).
@@ -1405,7 +1433,6 @@ func (pi *pbftInstance) sendNewView() {
 		Msg: &pb.ProtocolMessage_Newview{
 			Newview: signedMsg,
 		},
-		Type: "ProtocolMessage_Newview",
 	}
 
 	// TODO wrap following code for initializing a new view into a method: it repeats in the code
@@ -1454,11 +1481,9 @@ func (pi *pbftInstance) sendNewView() {
 			messenger.EnqueuePriorityMsg(msg, nodeID)
 		}
 	}
-	messenger.EnqueuePriorityMsg(msg, membership.GlobalOrdererNodeID())
-
 }
 
-func (pi *pbftInstance) handleNewView(signed *pb.SignedMsg, senderID int32) error {
+func (pi *globalInstance) handleNewView(signed *pb.SignedMsg, senderID int32) error {
 	newview := &pb.PbftNewView{}
 	// Validate signature
 	err := pi.orderer.CheckSig(signed.Data, senderID, signed.Signature)
@@ -1705,8 +1730,8 @@ func (pi *pbftInstance) handleNewView(signed *pb.SignedMsg, senderID int32) erro
 	return nil
 }
 
-func (pi *pbftInstance) processSerializedMessages() {
-	logger.Info().Int("segID", pi.segment.SegID()).Msg("Starting serialized message processing.")
+func (pi *globalInstance) processSerializedMessages() {
+	logger.Info().Msg("Starting serialized message processing.")
 
 	for msg := range pi.serializer.channel {
 		// To make sure noone writes anymore on closing the segment we write a special value (nil)
@@ -1715,29 +1740,9 @@ func (pi *pbftInstance) processSerializedMessages() {
 		}
 		pi.handleMessage(msg)
 	}
-
-	// TODO handle first piority events
-	//var ok = true 		// set to false if any the message channels is stopChannel
-	//var msg *ordererMsg
-
-	//for ok{
-	//	select {
-	//	// Try priority message if any
-	//	case msg, ok = <-pi.priority:
-	//		pi.handlePriorityMessage(msg.msg, msg.senderID)
-	//		// If no priority message, try any message
-	//	default:
-	//		select {
-	//		case msg, ok = <-pi.priority:
-	//			pi.handlePriorityMessage(msg.msg, msg.senderID)
-	//		case msg, ok = <-pi.serializer:
-	//			pi.handleCommonCaseMessage(msg.msg, msg.senderID)
-	//		}
-	//	}
-	//}
 }
 
-func (pi *pbftInstance) handleMessage(msg *pb.ProtocolMessage) {
+func (pi *globalInstance) handleMessage(msg *pb.ProtocolMessage) {
 	// Check the tye of the message.
 	switch m := msg.Msg.(type) {
 	case *pb.ProtocolMessage_Preprepare:
@@ -1805,8 +1810,8 @@ func (pi *pbftInstance) handleMessage(msg *pb.ProtocolMessage) {
 				Msg("PbftOrderer cannot handle new view message.")
 		}
 	case *pb.ProtocolMessage_Timeout:
-		// If the timeout sequence number is -1 (this is the case for new view timeouts), there is no pbftBatch.
-		// Otherwise, there is always a pbftBatch for every sequence number of the current view.
+		// If the timeout sequence number is -1 (this is the case for new view timeouts), there is no globalBatch.
+		// Otherwise, there is always a globalBatch for every sequence number of the current view.
 		if m.Timeout.View < pi.view || (m.Timeout.Sn != -1 && pi.batches[pi.view][m.Timeout.Sn].committed) {
 			// If the views in this debug message are the same, that means the request has been committed in the meantime.
 			logger.Debug().
@@ -1843,7 +1848,7 @@ func isLeading(seg manager.Segment, leaderID int32, view int32) bool {
 	return seg.Leaders()[view%int32(len(seg.Leaders()))] == leaderID
 }
 
-func isPrepared(batch *pbftBatch) bool {
+func isPrepared(batch *globalBatch) bool {
 	// Check if the proposal is received
 	if !batch.preprepared {
 		return false
@@ -1874,7 +1879,7 @@ func isPrepared(batch *pbftBatch) bool {
 	return true
 }
 
-func (batch *pbftBatch) CheckCommits() bool {
+func (batch *globalBatch) CheckCommits() bool {
 	// Check if the proposal is received
 	if !batch.preprepared {
 		return false
@@ -1913,7 +1918,7 @@ func (batch *pbftBatch) CheckCommits() bool {
 	}
 }
 
-func (pi *pbftInstance) setViewChangeTimer(sn int32, after time.Duration) {
+func (pi *globalInstance) setViewChangeTimer(sn int32, after time.Duration) {
 
 	// Convenience variable
 	batch := pi.batches[pi.view][sn]
@@ -1939,7 +1944,7 @@ func (pi *pbftInstance) setViewChangeTimer(sn int32, after time.Duration) {
 }
 
 // Looks for the most recent batch with a preprepare message with sequence number sn in previous views.
-func (pi *pbftInstance) findBatch(sn int32, view int32) *pbftBatch {
+func (pi *globalInstance) findBatch(sn int32, view int32) *globalBatch {
 	for v := view - 1; v >= 0; v-- {
 		if _, ok := pi.batches[v]; !ok {
 			logger.Trace().Int32("view", view).Msg("No local data for this view.")
@@ -1952,13 +1957,13 @@ func (pi *pbftInstance) findBatch(sn int32, view int32) *pbftBatch {
 	return nil
 }
 
-func (pi *pbftInstance) subscribeToBacklog() {
+func (pi *globalInstance) subscribeToBacklog() {
 	// Check for backloged messages for this segment
 	pi.orderer.backlog.subscribers <- backlogSubscriber{segment: pi.segment, serializer: pi.serializer}
 }
 
 // Initialize protocol state for the new view if not yet present.
-func (pi *pbftInstance) startView(view int32) {
+func (pi *globalInstance) startView(view int32) {
 	if pi.view > view {
 		panic("Starting a view older than the current view")
 	}
@@ -1990,9 +1995,9 @@ func (pi *pbftInstance) startView(view int32) {
 	}
 
 	if _, ok := pi.batches[view]; !ok {
-		pi.batches[view] = make(map[int32]*pbftBatch)
+		pi.batches[view] = make(map[int32]*globalBatch)
 		for i, sn := range pi.segment.SNs() {
-			pi.batches[view][sn] = &pbftBatch{
+			pi.batches[view][sn] = &globalBatch{
 				prepareMsgs: make(map[int32]*pb.PbftPrepare),
 				commitMsgs:  make(map[int32]*pb.PbftCommit),
 				preprepared: false,
@@ -2047,8 +2052,10 @@ func (pi *pbftInstance) startView(view int32) {
 	}
 }
 
-func (pi *pbftInstance) stopProposing() {
+func (pi *globalInstance) stopProposing() {
 	pi.stopProp.Do(func() {
 		close(pi.cutBatch)
 	})
 }
+
+*/

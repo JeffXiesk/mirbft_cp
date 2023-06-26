@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rs/zerolog"
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/discovery"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	"github.com/rs/zerolog"
+	logger "github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )
 
@@ -79,6 +79,7 @@ cmdLoop:
 			logger.Error().Int32("status", exitStatus).Msg(exitMessage)
 		}
 
+		logger.Info().Msg("Submit request for command")
 		// Submit request for command.
 		nextCmd, err := client.NextCommand(context.Background(), &pb.SlaveStatus{
 			CmdId:   cmdID,

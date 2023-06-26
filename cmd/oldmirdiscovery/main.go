@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rs/zerolog"
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/discovery"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	"github.com/rs/zerolog"
+	logger "github.com/rs/zerolog/log"
 )
 
 const (
@@ -30,9 +30,18 @@ type clientData struct {
 	Addresses []string
 }
 
+type globalOrdererData struct {
+	OwnID      int32
+	OwnAddress string
+	NumPeers   int
+	NumFaults  int
+	ListenPort int32
+	Addresses  []string
+}
+
 func main() {
 	// Configure logger
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMicro
 	logger.Logger = logger.Output(zerolog.ConsoleWriter{Out: os.Stdout, NoColor: true})
 	//zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
@@ -84,8 +93,44 @@ func main() {
 			clientInfo.Addresses = append(clientInfo.Addresses, addrString)
 		}
 		outData = clientInfo
+	} else if role == "globalorderer" {
+		// Get additional command line parameters only relevant for peers
+		ownPublicIP := os.Args[3]
+		ownPrivateIP := os.Args[4]
+
+		// Register with the discovery server
+		ownID, peerIdentities, _, _, _ := discovery.RegisterGlobalorderer(dServAddr, ownPublicIP, ownPrivateIP)
+
+		// Extract necessary data from server response
+		globalOrdererInfo := globalOrdererData{
+			OwnID:      ownID,
+			OwnAddress: findOwnIdentity(peerIdentities, ownID).PrivateAddr,
+			NumPeers:   len(peerIdentities),
+			NumFaults:  (len(peerIdentities) - 1) / 3,
+			ListenPort: findOwnIdentity(peerIdentities, ownID).Port,
+			Addresses:  make([]string, 0),
+		}
+		for _, identity := range peerIdentities {
+			// Peers use private addresses among themselves
+			addrString := fmt.Sprintf("%s:%d", identity.PrivateAddr, identity.Port)
+			globalOrdererInfo.Addresses = append(globalOrdererInfo.Addresses, addrString)
+		}
+		outData = globalOrdererInfo
+
+		// _, peerIdentities := discovery.RegisterGlobalorderer(dServAddr)
+		// globalOrdererInfo := globalOrdererData{
+		// 	NumPeers:  len(peerIdentities),
+		// 	NumFaults: (len(peerIdentities) - 1) / 3,
+		// 	Addresses: make([]string, 0),
+		// }
+		// for _, identity := range peerIdentities {
+		// 	// Clients use public addresses to connect to peers
+		// 	addrString := fmt.Sprintf("%s:%d", identity.PublicAddr, identity.Port+clientPortOffset)
+		// 	globalOrdererInfo.Addresses = append(globalOrdererInfo.Addresses, addrString)
+		// }
+		// outData = globalOrdererInfo
 	} else {
-		logger.Error().Str("role", role).Msg("Unknown role. Accepted: peer, client")
+		logger.Error().Str("role", role).Msg("Unknown role. Accepted: peer, client, globalorderer")
 	}
 
 	jsonData, err := json.MarshalIndent(outData, "", "    ")

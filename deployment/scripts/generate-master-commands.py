@@ -29,6 +29,7 @@ def output(data):
 
 def waitForSlaves(slaves):
     output("# Wait for slaves.")
+    output("wait for slaves globalorderer 1")
     for s in slaves:
         output("wait for slaves {0} {1}".format(s, numSlaves[s]))
     output("")
@@ -65,6 +66,11 @@ def pushConfigFiles(expID, slaves):
 
 def pushLocalConfigFiles(expID, slaves):
     output("# Prepare config file.")
+    output(
+            "exec-start globalorderer /dev/null cp {0}/{1} experiment-output/{2}/slave-__id__/{3}".format(local_config_dir, slaves['peers'], expID, SLAVE_CONFIG_FILE)
+        )
+    output("exec-wait globalorderer 2000")
+    
     for s, configFile in slaves.items():
         output(
             "exec-start {0} /dev/null cp {1}/{2} experiment-output/{3}/slave-__id__/{4}".format(s, local_config_dir, configFile, expID, SLAVE_CONFIG_FILE)
@@ -139,13 +145,20 @@ def startLocalPeers(expID, peers):
         numPeers += numSlaves[p]
 
     output("# Start peers.")
-    output("discover-reset {0}".format(numPeers))
+    output("discover-reset {0}".format(numPeers+1))
     for p in peers:
         output(
             "exec-start {0} experiment-output/{1}/slave-__id__/peer.log orderingpeer "
             "experiment-output/{1}/slave-__id__/{2} {3}:{4} {3} {3} "
             "experiment-output/{1}/slave-__id__/peer.trc experiment-output/{1}/slave-__id__/prof".format(
                 p, expID, SLAVE_CONFIG_FILE, LOCAL_IP_ADDRESS, LOCAL_MASTER_PORT))
+    
+    output(
+        "exec-start globalorderer experiment-output/{0}/slave-__id__/peer.log globalorderpeer "
+        "experiment-output/{0}/slave-__id__/{1} {2}:{3} {2} {2} "
+        "experiment-output/{0}/slave-__id__/peer.trc experiment-output/{0}/slave-__id__/prof".format(
+            expID, SLAVE_CONFIG_FILE, LOCAL_IP_ADDRESS, LOCAL_MASTER_PORT))    
+   
     output("discover-wait")
     output("")
 

@@ -5,16 +5,17 @@ import (
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/hyperledger-labs/mirbft/discovery"
 	"github.com/rs/zerolog"
 	logger "github.com/rs/zerolog/log"
-	"github.com/hyperledger-labs/mirbft/discovery"
 	"google.golang.org/grpc"
 )
 
 func main() {
 
 	// Configure logger
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMicro
 	logger.Logger = logger.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "15:04:05.000"})
 

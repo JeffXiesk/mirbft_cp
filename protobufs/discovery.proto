@@ -24,6 +24,11 @@ service Discovery {
     // and a newly assigned client ID.
     rpc RegisterClient (RegisterClientRequest) returns (RegisterClientResponse) {}
 
+    // Registers a global orederer of the ordering system.
+    // Returns the identities of all ordering peers (i.e. nodes executing the ordering protocol)
+    // and a newly assigned instance ID.
+    rpc RegisterGlobalorderer (RegisterGlobalordererRequest) returns (RegisterGlobalordererResponse) {}
+
     // Called by the slave to ask the master (server) for the next command to execute.
     rpc NextCommand (SlaveStatus) returns (MasterCommand) {}
 }
@@ -62,6 +67,21 @@ message RegisterClientRequest {
 message RegisterClientResponse {
     int32 new_client_id = 1;
     repeated NodeIdentity peers = 2;
+}
+
+message RegisterGlobalordererRequest {
+    string public_addr = 1;
+    string private_addr = 2;
+}
+
+// Contains identities of all registered peers and
+// a newly assigned ID of the requesting client.
+message RegisterGlobalordererResponse {
+    int32 new_peer_id = 1;
+    bytes priv_key = 2;
+    bytes tbls_pub_key = 3;
+    bytes tbls_priv_key_share = 4;
+    repeated NodeIdentity peers = 5;
 }
 
 // SLAVE MESSAGES

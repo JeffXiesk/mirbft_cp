@@ -6,6 +6,7 @@ write-file master-ready READY
 
 
 # Wait for slaves.
+wait for slaves globalorderer 1
 wait for slaves peers 4
 wait for slaves 1client 1
 
@@ -14,6 +15,8 @@ exec-start __all__ /dev/null mkdir -p experiment-output/0000/slave-__id__/config
 exec-wait __all__ 2000
 
 # Prepare config file.
+exec-start globalorderer /dev/null cp config/config-0000.yml experiment-output/0000/slave-__id__/config/config.yml
+exec-wait globalorderer 2000
 exec-start peers /dev/null cp config/config-0000.yml experiment-output/0000/slave-__id__/config/config.yml
 exec-wait peers 2000
 exec-start 1client /dev/null cp config/config-0000.yml experiment-output/0000/slave-__id__/config/config.yml
@@ -22,8 +25,9 @@ sync peers
 sync 1client
 
 # Start peers.
-discover-reset 4
+discover-reset 5
 exec-start peers experiment-output/0000/slave-__id__/peer.log orderingpeer experiment-output/0000/slave-__id__/config/config.yml 127.0.0.1:9999 127.0.0.1 127.0.0.1 experiment-output/0000/slave-__id__/peer.trc experiment-output/0000/slave-__id__/prof
+exec-start globalorderer experiment-output/0000/slave-__id__/peer.log globalorderpeer experiment-output/0000/slave-__id__/config/config.yml 127.0.0.1:9999 127.0.0.1 127.0.0.1 experiment-output/0000/slave-__id__/peer.trc experiment-output/0000/slave-__id__/prof
 discover-wait
 
 wait for 2s
@@ -46,6 +50,7 @@ write-file master-status 0000
 
 # Wait for all slaves, even if they were not involved in experiments.
 # Wait for slaves.
+wait for slaves globalorderer 1
 wait for slaves 1client 1
 wait for slaves peers 4
 
