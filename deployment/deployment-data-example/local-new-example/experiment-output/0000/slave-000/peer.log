@@ -1,0 +1,2916 @@
+{"level":"debug","time":"2023-06-27T17:11:17+08:00","message":"Globalorderer main started."}
+{"level":"debug","Logging":"debug","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","UseTLS":false,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","CACertFile":"tls-data/ca.pem","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","KeyFile":"tls-data/auth.key","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","CertFile":"tls-data/auth.pem","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","PriorityConnections":2,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","BasicConnections":4,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","TestConnections":false,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ExcessConnections":1,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ConnectionTestMsgs":4,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ConnectionTestPayload":131072,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","OutMessageBufsize":1024,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","OutMessageBufsize":1,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ThroughputCap":131072000,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","StragglerTolerance":1000,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","BatchSizeIncrement":256,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","Orderer":"Pbft","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","Manager":"Mir","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","Failures":0,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","CrashTiming":"Straggler","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","CheckpointInterval":256,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","WatermarkWindowSize":256,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","EpochLength":256,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","SegmentLength":64,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","WaitForCheckpoints":true,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ClientWatermarkWindowSize":4194304,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ClientRequestBacklogSize":4194304,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","RandomSeed":5278,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","NodeToLeaderRatio":1,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","LeaderPolicy":"Simple","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","DefaultLeaderBan":2,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","NumBuckets":64,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","BatchSize":1000,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","DisabledViewChange":false,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ViewChangeTimeout":60000,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ClientTraceSampling":10,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","EventBufferSize":2097152,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","TraceSampling":1,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ClientsPerProcess":1,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","RequestsPerClient":61440,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ClientRunTime":30000,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","RequestRate":1024,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","HardRequestRateLimit":false,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","RequestPayloadSize":500,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","SignRequests":true,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ClientPrivKeyFile":"tls-data/client-ecdsa-256.key","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","ClientPubKeyFile":"tls-data/client-ecdsa-256.pem","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","PrecomputeRequests":false,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","RequestHandlerThreads":32,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","RequestInputChannelBuffer":8192,"time":"2023-06-27T17:11:17+08:00","message":"Config"}
+{"level":"debug","BatchVerifier":"external","time":"2023-06-27T17:11:17+08:00","message":"Config"}
+17:11:17.028 DBG RegisterGlobalorderer started.
+17:11:17.060 INF Registered with discovery server. numPeers=5 ownID=1
+17:11:17.061 INF Profiling enabled.
+17:11:17.061 INF Setting up profiling.
+17:11:17.061 INF Started Profiler: CPU
+17:11:17.061 INF Started Profiler: BLOCK
+17:11:17.061 INF Started Profiler: MUTEX
+17:11:17.062 INF Profiler will stop on signal. exit=true
+17:11:17.086 INF Tracing will stop on signal. exit=false
+17:11:17.086 INF Started tracing. traceFile=experiment-output/0000/slave-000/peer.trc
+17:11:17.087 INF Connecting to peer. addr=127.0.0.1:10033 basicConns=4 priorityConns=2
+17:11:17.087 INF Listening for connections. port=10011 useTLS=false
+17:11:17.089 INF Connecting to peer. addr=127.0.0.1:10011 basicConns=4 priorityConns=2
+17:11:17.090 INF Connecting to peer. addr=127.0.0.1:10044 basicConns=4 priorityConns=2
+17:11:17.090 INF Connecting to peer. addr=127.0.0.1:10000 basicConns=4 priorityConns=2
+17:11:17.089 INF Connecting to peer. addr=127.0.0.1:10022 basicConns=4 priorityConns=2
+17:11:17.141 INF Incoming connection for protocol messages. addr=127.0.0.1:41086
+17:11:17.146 INF Incoming connection for protocol messages. addr=127.0.0.1:41068
+17:11:17.146 INF Incoming connection for protocol messages. addr=127.0.0.1:41076
+17:11:17.152 INF Incoming connection for protocol messages. addr=127.0.0.1:41100
+17:11:17.152 INF Incoming connection for protocol messages. addr=127.0.0.1:41130
+17:11:17.152 INF Incoming connection for protocol messages. addr=127.0.0.1:41206
+17:11:17.153 INF Incoming connection for protocol messages. addr=127.0.0.1:41106
+17:11:17.153 INF Incoming connection for protocol messages. addr=127.0.0.1:41128
+17:11:17.154 INF Incoming connection for protocol messages. addr=127.0.0.1:41066
+17:11:17.155 INF Incoming connection for protocol messages. addr=127.0.0.1:41176
+17:11:17.155 INF Incoming connection for protocol messages. addr=127.0.0.1:41200
+17:11:17.155 INF Incoming connection for protocol messages. addr=127.0.0.1:41136
+17:11:17.156 INF Incoming connection for protocol messages. addr=127.0.0.1:41168
+17:11:17.156 INF Incoming connection for protocol messages. addr=127.0.0.1:41120
+17:11:17.156 INF Incoming connection for protocol messages. addr=127.0.0.1:41152
+17:11:17.162 INF Incoming connection for protocol messages. addr=127.0.0.1:41192
+17:11:17.164 INF Incoming connection for protocol messages. addr=127.0.0.1:41210
+17:11:17.176 INF Incoming connection for protocol messages. addr=127.0.0.1:41212
+17:11:17.179 INF Incoming connection for protocol messages. addr=127.0.0.1:41236
+17:11:17.180 DBG Connected. peerID=4
+17:11:17.184 DBG Connected. peerID=2
+17:11:17.184 INF Incoming connection for protocol messages. addr=127.0.0.1:41226
+17:11:17.178 INF Incoming connection for protocol messages. addr=127.0.0.1:41224
+17:11:17.185 DBG Connected. peerID=1
+17:11:17.185 INF Incoming connection for protocol messages. addr=127.0.0.1:41252
+17:11:17.185 DBG Connected. peerID=0
+17:11:17.186 DBG Connected. peerID=3
+17:11:17.186 INF Connected to all peers.
+17:11:18.077 INF Incoming connection for protocol messages. addr=127.0.0.1:41256
+17:11:18.077 INF Incoming connection for protocol messages. addr=127.0.0.1:41270
+17:11:18.077 INF Incoming connection for protocol messages. addr=127.0.0.1:41282
+17:11:18.093 INF Incoming connection for protocol messages. addr=127.0.0.1:41292
+17:11:18.094 INF Incoming connection for protocol messages. addr=127.0.0.1:41296
+17:11:18.094 INF Incoming connection for protocol messages. addr=127.0.0.1:41302
+17:11:18.096 INF Incoming connection for protocol messages. addr=127.0.0.1:41318
+17:11:18.116 INF Incoming connection for protocol messages. addr=127.0.0.1:41322
+17:11:18.122 INF All peers finished connecting. Starting ISS.
+17:11:18.122 DBG Buckets for 0-th leader 0: [0 4 8 12 16 20 24 28 32 36 40 44 48 52 56 60]
+17:11:18.122 DBG Buckets for 1-th leader 2: [1 5 9 13 17 21 25 29 33 37 41 45 49 53 57 61]
+17:11:18.122 DBG Buckets for 2-th leader 3: [2 6 10 14 18 22 26 30 34 38 42 46 50 54 58 62]
+17:11:18.123 DBG Buckets for 3-th leader 4: [3 7 11 15 19 23 27 31 35 39 43 47 51 55 59 63]
+17:11:18.123 DBG nodeIDs is: [0 2 3 4]
+17:11:18.123 DBG GlobalOrdererNodeID is: 1
+17:11:18.123 DBG Tick !
+17:11:18.123 INF Starting serialized message processing.
+17:11:19.124 DBG Tick !
+17:11:19.142 DBG Receive msg from peer ... SenderId=4 Sn=0 height=0 type=ProtocolMessage_LogEntry
+17:11:19.142 DBG Received protocol message: Orderer. from=4
+17:11:19.143 DBG Globalorderer handling message. senderID=4 sn=0
+17:11:19.142 DBG Receive msg from peer ... SenderId=3 Sn=2 height=0 type=ProtocolMessage_LogEntry
+17:11:19.143 DBG Receive msg from peer ... SenderId=0 Sn=2 height=0 type=ProtocolMessage_LogEntry
+17:11:19.143 DBG Received protocol message: Orderer. from=3
+17:11:19.143 DBG Received protocol message: Orderer. from=0
+17:11:19.143 DBG Globalorderer handling message. senderID=3 sn=2
+17:11:19.143 DBG Globalorderer handling message. senderID=0 sn=2
+17:11:19.143 DBG Receive msg from peer ... SenderId=3 Sn=1 height=0 type=ProtocolMessage_LogEntry
+17:11:19.143 DBG Received protocol message: Orderer. from=3
+17:11:19.143 DBG Globalorderer handling message. senderID=3 sn=1
+17:11:19.143 DBG Receive msg from peer ... SenderId=2 Sn=2 height=0 type=ProtocolMessage_LogEntry
+17:11:19.143 DBG Received LogEntry message. SenderId=4
+17:11:19.144 INF Committed entry. latency=0 nReq=0 sn=0
+17:11:19.144 INF Delivered batch. nReq=0 sn=0
+17:11:19.144 DBG Received LogEntry message. SenderId=3
+17:11:19.144 DBG Receive msg from peer ... SenderId=4 Sn=3 height=0 type=ProtocolMessage_LogEntry
+17:11:19.144 DBG Receive msg from peer ... SenderId=4 Sn=2 height=0 type=ProtocolMessage_LogEntry
+17:11:19.144 INF Committed entry. latency=0 nReq=0 sn=2
+17:11:19.144 DBG Received protocol message: Orderer. from=4
+17:11:19.144 DBG Received LogEntry message. SenderId=0
+17:11:19.144 DBG Globalorderer handling message. senderID=4 sn=2
+17:11:19.144 WRN Not overwriting log entry. sn=2
+17:11:19.144 DBG Received LogEntry message. SenderId=3
+17:11:19.144 DBG Receive msg from peer ... SenderId=0 Sn=0 height=0 type=ProtocolMessage_LogEntry
+17:11:19.144 DBG Receive msg from peer ... SenderId=3 Sn=0 height=0 type=ProtocolMessage_LogEntry
+17:11:19.144 INF Committed entry. latency=0 nReq=0 sn=1
+17:11:19.144 DBG Received protocol message: Orderer. from=0
+17:11:19.144 DBG Received protocol message: Orderer. from=3
+17:11:19.145 INF Delivered batch. nReq=0 sn=1
+17:11:19.145 DBG Globalorderer handling message. senderID=0 sn=0
+17:11:19.145 DBG Receive msg from peer ... SenderId=2 Sn=0 height=0 type=ProtocolMessage_LogEntry
+17:11:19.143 DBG Received protocol message: Orderer. from=2
+17:11:19.145 DBG Globalorderer handling message. senderID=3 sn=0
+17:11:19.145 INF Delivered batch. nReq=0 sn=2
+17:11:19.145 DBG Received protocol message: Orderer. from=2
+17:11:19.145 DBG Globalorderer handling message. senderID=2 sn=2
+17:11:19.145 DBG Received LogEntry message. SenderId=4
+17:11:19.144 DBG Receive msg from peer ... SenderId=0 Sn=1 height=0 type=ProtocolMessage_LogEntry
+17:11:19.145 DBG Globalorderer handling message. senderID=2 sn=0
+17:11:19.145 WRN Not overwriting log entry. sn=2
+17:11:19.145 DBG Received protocol message: Orderer. from=0
+17:11:19.145 DBG Receive msg from peer ... SenderId=2 Sn=3 height=0 type=ProtocolMessage_LogEntry
+17:11:19.145 DBG Received LogEntry message. SenderId=0
+17:11:19.145 DBG Globalorderer handling message. senderID=0 sn=1
+17:11:19.145 WRN Not overwriting log entry. sn=0
+17:11:19.145 DBG Received protocol message: Orderer. from=2
+17:11:19.144 DBG Received protocol message: Orderer. from=4
+17:11:19.145 DBG Globalorderer handling message. senderID=2 sn=3
+17:11:19.145 DBG Received LogEntry message. SenderId=3
+17:11:19.145 DBG Globalorderer handling message. senderID=4 sn=3
+17:11:19.145 WRN Not overwriting log entry. sn=0
+17:11:19.145 DBG Received LogEntry message. SenderId=2
+17:11:19.146 DBG Receive msg from peer ... SenderId=2 Sn=1 height=0 type=ProtocolMessage_LogEntry
+17:11:19.146 DBG Received protocol message: Orderer. from=2
+17:11:19.145 WRN Not overwriting log entry. sn=2
+17:11:19.146 DBG Globalorderer handling message. senderID=2 sn=1
+17:11:19.146 DBG Received LogEntry message. SenderId=2
+17:11:19.146 DBG Receive msg from peer ... SenderId=0 Sn=3 height=0 type=ProtocolMessage_LogEntry
+17:11:19.146 WRN Not overwriting log entry. sn=0
+17:11:19.146 DBG Received protocol message: Orderer. from=0
+17:11:19.146 DBG Received LogEntry message. SenderId=0
+17:11:19.146 DBG Globalorderer handling message. senderID=0 sn=3
+17:11:19.146 WRN Not overwriting log entry. sn=1
+17:11:19.146 DBG Received LogEntry message. SenderId=2
+17:11:19.146 DBG Receive msg from peer ... SenderId=4 Sn=1 height=0 type=ProtocolMessage_LogEntry
+17:11:19.146 INF Committed entry. latency=0 nReq=0 sn=3
+17:11:19.146 DBG Received protocol message: Orderer. from=4
+17:11:19.147 INF Delivered batch. nReq=0 sn=3
+17:11:19.147 DBG Globalorderer handling message. senderID=4 sn=1
+17:11:19.147 DBG Received LogEntry message. SenderId=4
+17:11:19.147 WRN Not overwriting log entry. sn=3
+17:11:19.147 DBG Received LogEntry message. SenderId=2
+17:11:19.147 WRN Not overwriting log entry. sn=1
+17:11:19.147 DBG Received LogEntry message. SenderId=0
+17:11:19.147 WRN Not overwriting log entry. sn=3
+17:11:19.148 DBG Receive msg from peer ... SenderId=3 Sn=3 height=0 type=ProtocolMessage_LogEntry
+17:11:19.148 DBG Received protocol message: Orderer. from=3
+17:11:19.148 DBG Globalorderer handling message. senderID=3 sn=3
+17:11:19.147 DBG Received LogEntry message. SenderId=4
+17:11:19.148 WRN Not overwriting log entry. sn=1
+17:11:19.148 DBG Received LogEntry message. SenderId=3
+17:11:19.148 WRN Not overwriting log entry. sn=3
+17:11:20.124 DBG Tick !
+17:11:20.137 DBG Receive msg from peer ... SenderId=4 Sn=6 height=0 type=ProtocolMessage_LogEntry
+17:11:20.137 DBG Received protocol message: Orderer. from=4
+17:11:20.137 DBG Globalorderer handling message. senderID=4 sn=6
+17:11:20.137 DBG Received LogEntry message. SenderId=4
+17:11:20.137 INF Committed entry. latency=0 nReq=0 sn=6
+17:11:20.137 DBG Receive msg from peer ... SenderId=0 Sn=6 height=0 type=ProtocolMessage_LogEntry
+17:11:20.141 DBG Received protocol message: Orderer. from=0
+17:11:20.141 DBG Globalorderer handling message. senderID=0 sn=6
+17:11:20.141 DBG Received LogEntry message. SenderId=0
+17:11:20.141 WRN Not overwriting log entry. sn=6
+17:11:20.142 DBG Receive msg from peer ... SenderId=0 Sn=7 height=0 type=ProtocolMessage_LogEntry
+17:11:20.142 DBG Received protocol message: Orderer. from=0
+17:11:20.142 DBG Globalorderer handling message. senderID=0 sn=7
+17:11:20.142 DBG Received LogEntry message. SenderId=0
+17:11:20.142 INF Committed entry. latency=0 nReq=0 sn=7
+17:11:20.142 DBG Receive msg from peer ... SenderId=3 Sn=6 height=0 type=ProtocolMessage_LogEntry
+17:11:20.143 DBG Received protocol message: Orderer. from=3
+17:11:20.143 DBG Globalorderer handling message. senderID=3 sn=6
+17:11:20.143 DBG Received LogEntry message. SenderId=3
+17:11:20.143 WRN Not overwriting log entry. sn=6
+17:11:20.143 DBG Receive msg from peer ... SenderId=3 Sn=5 height=0 type=ProtocolMessage_LogEntry
+17:11:20.143 DBG Received protocol message: Orderer. from=3
+17:11:20.144 DBG Globalorderer handling message. senderID=3 sn=5
+17:11:20.144 DBG Receive msg from peer ... SenderId=3 Sn=7 height=0 type=ProtocolMessage_LogEntry
+17:11:20.144 DBG Received protocol message: Orderer. from=3
+17:11:20.144 DBG Globalorderer handling message. senderID=3 sn=7
+17:11:20.144 DBG Received LogEntry message. SenderId=3
+17:11:20.144 INF Committed entry. latency=0 nReq=0 sn=5
+17:11:20.144 DBG Received LogEntry message. SenderId=3
+17:11:20.144 WRN Not overwriting log entry. sn=7
+17:11:20.145 DBG Receive msg from peer ... SenderId=4 Sn=7 height=0 type=ProtocolMessage_LogEntry
+17:11:20.145 DBG Received protocol message: Orderer. from=4
+17:11:20.145 DBG Globalorderer handling message. senderID=4 sn=7
+17:11:20.145 DBG Received LogEntry message. SenderId=4
+17:11:20.145 WRN Not overwriting log entry. sn=7
+17:11:20.145 DBG Receive msg from peer ... SenderId=3 Sn=4 height=0 type=ProtocolMessage_LogEntry
+17:11:20.146 DBG Received protocol message: Orderer. from=3
+17:11:20.146 DBG Globalorderer handling message. senderID=3 sn=4
+17:11:20.146 DBG Received LogEntry message. SenderId=3
+17:11:20.146 INF Committed entry. latency=0 nReq=0 sn=4
+17:11:20.146 INF Delivered batch. nReq=0 sn=4
+17:11:20.146 INF Delivered batch. nReq=0 sn=5
+17:11:20.146 INF Delivered batch. nReq=0 sn=6
+17:11:20.146 INF Delivered batch. nReq=0 sn=7
+17:11:20.147 DBG Receive msg from peer ... SenderId=0 Sn=4 height=0 type=ProtocolMessage_LogEntry
+17:11:20.147 DBG Receive msg from peer ... SenderId=4 Sn=4 height=0 type=ProtocolMessage_LogEntry
+17:11:20.147 DBG Received protocol message: Orderer. from=0
+17:11:20.147 DBG Receive msg from peer ... SenderId=2 Sn=5 height=0 type=ProtocolMessage_LogEntry
+17:11:20.147 DBG Received protocol message: Orderer. from=4
+17:11:20.147 DBG Globalorderer handling message. senderID=0 sn=4
+17:11:20.147 DBG Receive msg from peer ... SenderId=4 Sn=5 height=0 type=ProtocolMessage_LogEntry
+17:11:20.147 DBG Received protocol message: Orderer. from=2
+17:11:20.147 DBG Globalorderer handling message. senderID=4 sn=4
+17:11:20.147 DBG Received protocol message: Orderer. from=4
+17:11:20.147 DBG Globalorderer handling message. senderID=2 sn=5
+17:11:20.147 DBG Received LogEntry message. SenderId=0
+17:11:20.147 DBG Globalorderer handling message. senderID=4 sn=5
+17:11:20.147 WRN Not overwriting log entry. sn=4
+17:11:20.147 DBG Receive msg from peer ... SenderId=2 Sn=4 height=0 type=ProtocolMessage_LogEntry
+17:11:20.147 DBG Received LogEntry message. SenderId=4
+17:11:20.147 DBG Received protocol message: Orderer. from=2
+17:11:20.147 WRN Not overwriting log entry. sn=4
+17:11:20.147 DBG Receive msg from peer ... SenderId=2 Sn=6 height=0 type=ProtocolMessage_LogEntry
+17:11:20.147 DBG Received LogEntry message. SenderId=2
+17:11:20.147 DBG Globalorderer handling message. senderID=2 sn=4
+17:11:20.147 WRN Not overwriting log entry. sn=5
+17:11:20.147 DBG Received protocol message: Orderer. from=2
+17:11:20.148 DBG Received LogEntry message. SenderId=4
+17:11:20.148 DBG Globalorderer handling message. senderID=2 sn=6
+17:11:20.148 WRN Not overwriting log entry. sn=5
+17:11:20.148 DBG Receive msg from peer ... SenderId=0 Sn=5 height=0 type=ProtocolMessage_LogEntry
+17:11:20.148 DBG Received LogEntry message. SenderId=2
+17:11:20.148 DBG Received protocol message: Orderer. from=0
+17:11:20.148 DBG Receive msg from peer ... SenderId=2 Sn=7 height=0 type=ProtocolMessage_LogEntry
+17:11:20.148 WRN Not overwriting log entry. sn=4
+17:11:20.148 DBG Globalorderer handling message. senderID=0 sn=5
+17:11:20.148 DBG Received protocol message: Orderer. from=2
+17:11:20.148 DBG Received LogEntry message. SenderId=2
+17:11:20.148 DBG Globalorderer handling message. senderID=2 sn=7
+17:11:20.148 WRN Not overwriting log entry. sn=6
+17:11:20.148 DBG Received LogEntry message. SenderId=0
+17:11:20.148 WRN Not overwriting log entry. sn=5
+17:11:20.148 DBG Received LogEntry message. SenderId=2
+17:11:20.148 WRN Not overwriting log entry. sn=7
+17:11:20.187 INF Incoming connection for requests. addr=127.0.0.1:41328
+17:11:21.125 DBG Tick !
+17:11:21.287 DBG Receive msg from peer ... SenderId=4 Sn=10 height=0 type=ProtocolMessage_LogEntry
+17:11:21.287 DBG Received protocol message: Orderer. from=4
+17:11:21.287 DBG Globalorderer handling message. senderID=4 sn=10
+17:11:21.287 DBG Received LogEntry message. SenderId=4
+17:11:21.288 INF Committed entry. latency=0 nReq=228 sn=10
+17:11:21.291 DBG Receive msg from peer ... SenderId=3 Sn=10 height=0 type=ProtocolMessage_LogEntry
+17:11:21.291 DBG Received protocol message: Orderer. from=3
+17:11:21.291 DBG Globalorderer handling message. senderID=3 sn=10
+17:11:21.291 DBG Received LogEntry message. SenderId=3
+17:11:21.291 WRN Not overwriting log entry. sn=10
+17:11:21.296 DBG Receive msg from peer ... SenderId=4 Sn=11 height=0 type=ProtocolMessage_LogEntry
+17:11:21.297 DBG Received protocol message: Orderer. from=4
+17:11:21.297 DBG Globalorderer handling message. senderID=4 sn=11
+17:11:21.297 DBG Received LogEntry message. SenderId=4
+17:11:21.297 INF Committed entry. latency=0 nReq=229 sn=11
+17:11:21.300 DBG Receive msg from peer ... SenderId=3 Sn=8 height=0 type=ProtocolMessage_LogEntry
+17:11:21.300 DBG Received protocol message: Orderer. from=3
+17:11:21.300 DBG Globalorderer handling message. senderID=3 sn=8
+17:11:21.301 DBG Received LogEntry message. SenderId=3
+17:11:21.301 INF Committed entry. latency=0 nReq=230 sn=8
+17:11:21.301 INF Delivered batch. nReq=230 sn=8
+17:11:21.305 DBG Receive msg from peer ... SenderId=3 Sn=11 height=0 type=ProtocolMessage_LogEntry
+17:11:21.305 DBG Received protocol message: Orderer. from=3
+17:11:21.305 DBG Globalorderer handling message. senderID=3 sn=11
+17:11:21.305 DBG Received LogEntry message. SenderId=3
+17:11:21.306 WRN Not overwriting log entry. sn=11
+17:11:21.312 DBG Receive msg from peer ... SenderId=4 Sn=8 height=0 type=ProtocolMessage_LogEntry
+17:11:21.312 DBG Received protocol message: Orderer. from=4
+17:11:21.312 DBG Globalorderer handling message. senderID=4 sn=8
+17:11:21.312 DBG Received LogEntry message. SenderId=4
+17:11:21.312 WRN Not overwriting log entry. sn=8
+17:11:21.318 DBG Receive msg from peer ... SenderId=0 Sn=8 height=0 type=ProtocolMessage_LogEntry
+17:11:21.318 DBG Received protocol message: Orderer. from=0
+17:11:21.318 DBG Globalorderer handling message. senderID=0 sn=8
+17:11:21.319 DBG Received LogEntry message. SenderId=0
+17:11:21.320 WRN Not overwriting log entry. sn=8
+17:11:21.328 DBG Receive msg from peer ... SenderId=4 Sn=9 height=0 type=ProtocolMessage_LogEntry
+17:11:21.328 DBG Received protocol message: Orderer. from=4
+17:11:21.328 DBG Globalorderer handling message. senderID=4 sn=9
+17:11:21.328 DBG Received LogEntry message. SenderId=4
+17:11:21.328 INF Committed entry. latency=0 nReq=229 sn=9
+17:11:21.328 INF Delivered batch. nReq=229 sn=9
+17:11:21.328 INF Delivered batch. nReq=228 sn=10
+17:11:21.329 INF Delivered batch. nReq=229 sn=11
+17:11:21.329 DBG Receive msg from peer ... SenderId=3 Sn=9 height=0 type=ProtocolMessage_LogEntry
+17:11:21.329 DBG Receive msg from peer ... SenderId=0 Sn=9 height=0 type=ProtocolMessage_LogEntry
+17:11:21.329 DBG Received protocol message: Orderer. from=3
+17:11:21.329 DBG Received protocol message: Orderer. from=0
+17:11:21.329 DBG Globalorderer handling message. senderID=3 sn=9
+17:11:21.329 DBG Globalorderer handling message. senderID=0 sn=9
+17:11:21.329 DBG Received LogEntry message. SenderId=3
+17:11:21.329 WRN Not overwriting log entry. sn=9
+17:11:21.329 DBG Received LogEntry message. SenderId=0
+17:11:21.329 WRN Not overwriting log entry. sn=9
+17:11:21.330 DBG Receive msg from peer ... SenderId=0 Sn=10 height=0 type=ProtocolMessage_LogEntry
+17:11:21.330 DBG Received protocol message: Orderer. from=0
+17:11:21.331 DBG Globalorderer handling message. senderID=0 sn=10
+17:11:21.333 DBG Received LogEntry message. SenderId=0
+17:11:21.333 WRN Not overwriting log entry. sn=10
+17:11:21.341 DBG Receive msg from peer ... SenderId=0 Sn=11 height=0 type=ProtocolMessage_LogEntry
+17:11:21.341 DBG Received protocol message: Orderer. from=0
+17:11:21.341 DBG Globalorderer handling message. senderID=0 sn=11
+17:11:21.341 DBG Received LogEntry message. SenderId=0
+17:11:21.341 WRN Not overwriting log entry. sn=11
+17:11:21.348 DBG Receive msg from peer ... SenderId=2 Sn=10 height=0 type=ProtocolMessage_LogEntry
+17:11:21.348 DBG Received protocol message: Orderer. from=2
+17:11:21.348 DBG Globalorderer handling message. senderID=2 sn=10
+17:11:21.349 DBG Received LogEntry message. SenderId=2
+17:11:21.349 WRN Not overwriting log entry. sn=10
+17:11:21.352 DBG Receive msg from peer ... SenderId=2 Sn=8 height=0 type=ProtocolMessage_LogEntry
+17:11:21.352 DBG Received protocol message: Orderer. from=2
+17:11:21.352 DBG Receive msg from peer ... SenderId=2 Sn=9 height=0 type=ProtocolMessage_LogEntry
+17:11:21.352 DBG Globalorderer handling message. senderID=2 sn=8
+17:11:21.352 DBG Received protocol message: Orderer. from=2
+17:11:21.352 DBG Received LogEntry message. SenderId=2
+17:11:21.352 DBG Globalorderer handling message. senderID=2 sn=9
+17:11:21.353 WRN Not overwriting log entry. sn=8
+17:11:21.353 DBG Received LogEntry message. SenderId=2
+17:11:21.353 WRN Not overwriting log entry. sn=9
+17:11:21.360 DBG Receive msg from peer ... SenderId=2 Sn=11 height=0 type=ProtocolMessage_LogEntry
+17:11:21.360 DBG Received protocol message: Orderer. from=2
+17:11:21.360 DBG Globalorderer handling message. senderID=2 sn=11
+17:11:21.361 DBG Received LogEntry message. SenderId=2
+17:11:21.361 WRN Not overwriting log entry. sn=11
+17:11:22.125 DBG Tick !
+17:11:22.228 DBG Receive msg from peer ... SenderId=2 Sn=15 height=0 type=ProtocolMessage_LogEntry
+17:11:22.228 DBG Received protocol message: Orderer. from=2
+17:11:22.229 DBG Globalorderer handling message. senderID=2 sn=15
+17:11:22.229 DBG Received LogEntry message. SenderId=2
+17:11:22.229 INF Committed entry. latency=0 nReq=190 sn=15
+17:11:22.230 DBG Receive msg from peer ... SenderId=4 Sn=15 height=0 type=ProtocolMessage_LogEntry
+17:11:22.230 DBG Received protocol message: Orderer. from=4
+17:11:22.231 DBG Globalorderer handling message. senderID=4 sn=15
+17:11:22.231 DBG Received LogEntry message. SenderId=4
+17:11:22.231 WRN Not overwriting log entry. sn=15
+17:11:22.243 DBG Receive msg from peer ... SenderId=3 Sn=15 height=0 type=ProtocolMessage_LogEntry
+17:11:22.243 DBG Received protocol message: Orderer. from=3
+17:11:22.243 DBG Globalorderer handling message. senderID=3 sn=15
+17:11:22.243 DBG Received LogEntry message. SenderId=3
+17:11:22.243 DBG Receive msg from peer ... SenderId=3 Sn=13 height=0 type=ProtocolMessage_LogEntry
+17:11:22.243 WRN Not overwriting log entry. sn=15
+17:11:22.243 DBG Received protocol message: Orderer. from=3
+17:11:22.243 DBG Globalorderer handling message. senderID=3 sn=13
+17:11:22.243 DBG Received LogEntry message. SenderId=3
+17:11:22.243 INF Committed entry. latency=0 nReq=191 sn=13
+17:11:22.246 DBG Receive msg from peer ... SenderId=2 Sn=13 height=0 type=ProtocolMessage_LogEntry
+17:11:22.246 DBG Received protocol message: Orderer. from=2
+17:11:22.246 DBG Globalorderer handling message. senderID=2 sn=13
+17:11:22.246 DBG Received LogEntry message. SenderId=2
+17:11:22.246 WRN Not overwriting log entry. sn=13
+17:11:22.248 DBG Receive msg from peer ... SenderId=0 Sn=13 height=0 type=ProtocolMessage_LogEntry
+17:11:22.249 DBG Received protocol message: Orderer. from=0
+17:11:22.249 DBG Globalorderer handling message. senderID=0 sn=13
+17:11:22.249 DBG Received LogEntry message. SenderId=0
+17:11:22.249 WRN Not overwriting log entry. sn=13
+17:11:22.251 DBG Receive msg from peer ... SenderId=0 Sn=15 height=0 type=ProtocolMessage_LogEntry
+17:11:22.251 DBG Received protocol message: Orderer. from=0
+17:11:22.251 DBG Globalorderer handling message. senderID=0 sn=15
+17:11:22.251 DBG Received LogEntry message. SenderId=0
+17:11:22.251 WRN Not overwriting log entry. sn=15
+17:11:22.265 DBG Receive msg from peer ... SenderId=4 Sn=13 height=0 type=ProtocolMessage_LogEntry
+17:11:22.266 DBG Received protocol message: Orderer. from=4
+17:11:22.266 DBG Globalorderer handling message. senderID=4 sn=13
+17:11:22.266 DBG Received LogEntry message. SenderId=4
+17:11:22.266 WRN Not overwriting log entry. sn=13
+17:11:22.298 DBG Receive msg from peer ... SenderId=2 Sn=12 height=0 type=ProtocolMessage_LogEntry
+17:11:22.299 DBG Received protocol message: Orderer. from=2
+17:11:22.299 DBG Receive msg from peer ... SenderId=0 Sn=12 height=0 type=ProtocolMessage_LogEntry
+17:11:22.299 DBG Received protocol message: Orderer. from=0
+17:11:22.299 DBG Globalorderer handling message. senderID=0 sn=12
+17:11:22.299 DBG Received LogEntry message. SenderId=0
+17:11:22.299 INF Committed entry. latency=0 nReq=197 sn=12
+17:11:22.300 INF Delivered batch. nReq=197 sn=12
+17:11:22.300 INF Delivered batch. nReq=191 sn=13
+17:11:22.302 DBG Receive msg from peer ... SenderId=3 Sn=12 height=0 type=ProtocolMessage_LogEntry
+17:11:22.302 DBG Received protocol message: Orderer. from=3
+17:11:22.302 DBG Globalorderer handling message. senderID=3 sn=12
+17:11:22.302 DBG Received LogEntry message. SenderId=3
+17:11:22.303 WRN Not overwriting log entry. sn=12
+17:11:22.299 DBG Globalorderer handling message. senderID=2 sn=12
+17:11:22.303 DBG Received LogEntry message. SenderId=2
+17:11:22.303 WRN Not overwriting log entry. sn=12
+17:11:22.309 DBG Receive msg from peer ... SenderId=3 Sn=14 height=0 type=ProtocolMessage_LogEntry
+17:11:22.309 DBG Received protocol message: Orderer. from=3
+17:11:22.310 DBG Globalorderer handling message. senderID=3 sn=14
+17:11:22.310 DBG Received LogEntry message. SenderId=3
+17:11:22.310 INF Committed entry. latency=0 nReq=196 sn=14
+17:11:22.310 INF Delivered batch. nReq=196 sn=14
+17:11:22.310 INF Delivered batch. nReq=190 sn=15
+17:11:22.314 DBG Receive msg from peer ... SenderId=0 Sn=14 height=0 type=ProtocolMessage_LogEntry
+17:11:22.314 DBG Received protocol message: Orderer. from=0
+17:11:22.314 DBG Globalorderer handling message. senderID=0 sn=14
+17:11:22.314 DBG Received LogEntry message. SenderId=0
+17:11:22.315 WRN Not overwriting log entry. sn=14
+17:11:22.321 DBG Receive msg from peer ... SenderId=2 Sn=14 height=0 type=ProtocolMessage_LogEntry
+17:11:22.321 DBG Received protocol message: Orderer. from=2
+17:11:22.321 DBG Globalorderer handling message. senderID=2 sn=14
+17:11:22.321 DBG Received LogEntry message. SenderId=2
+17:11:22.321 WRN Not overwriting log entry. sn=14
+17:11:22.324 DBG Receive msg from peer ... SenderId=4 Sn=12 height=0 type=ProtocolMessage_LogEntry
+17:11:22.324 DBG Received protocol message: Orderer. from=4
+17:11:22.324 DBG Globalorderer handling message. senderID=4 sn=12
+17:11:22.324 DBG Received LogEntry message. SenderId=4
+17:11:22.325 WRN Not overwriting log entry. sn=12
+17:11:22.325 DBG Receive msg from peer ... SenderId=4 Sn=14 height=0 type=ProtocolMessage_LogEntry
+17:11:22.326 DBG Received protocol message: Orderer. from=4
+17:11:22.326 DBG Globalorderer handling message. senderID=4 sn=14
+17:11:22.326 DBG Received LogEntry message. SenderId=4
+17:11:22.326 WRN Not overwriting log entry. sn=14
+17:11:23.235 DBG Receive msg from peer ... SenderId=3 Sn=19 height=0 type=ProtocolMessage_LogEntry
+17:11:23.235 DBG Received protocol message: Orderer. from=3
+17:11:23.235 DBG Globalorderer handling message. senderID=3 sn=19
+17:11:23.236 DBG Received LogEntry message. SenderId=3
+17:11:23.236 INF Committed entry. latency=0 nReq=205 sn=19
+17:11:23.242 DBG Receive msg from peer ... SenderId=4 Sn=19 height=0 type=ProtocolMessage_LogEntry
+17:11:23.242 DBG Received protocol message: Orderer. from=4
+17:11:23.242 DBG Globalorderer handling message. senderID=4 sn=19
+17:11:23.243 DBG Received LogEntry message. SenderId=4
+17:11:23.243 WRN Not overwriting log entry. sn=19
+17:11:23.244 DBG Receive msg from peer ... SenderId=2 Sn=19 height=0 type=ProtocolMessage_LogEntry
+17:11:23.244 DBG Received protocol message: Orderer. from=2
+17:11:23.244 DBG Globalorderer handling message. senderID=2 sn=19
+17:11:23.245 DBG Received LogEntry message. SenderId=2
+17:11:23.245 WRN Not overwriting log entry. sn=19
+17:11:23.257 DBG Receive msg from peer ... SenderId=0 Sn=19 height=0 type=ProtocolMessage_LogEntry
+17:11:23.257 DBG Received protocol message: Orderer. from=0
+17:11:23.257 DBG Globalorderer handling message. senderID=0 sn=19
+17:11:23.257 DBG Received LogEntry message. SenderId=0
+17:11:23.258 WRN Not overwriting log entry. sn=19
+17:11:23.263 DBG Receive msg from peer ... SenderId=3 Sn=17 height=0 type=ProtocolMessage_LogEntry
+17:11:23.263 DBG Received protocol message: Orderer. from=3
+17:11:23.263 DBG Globalorderer handling message. senderID=3 sn=17
+17:11:23.264 DBG Received LogEntry message. SenderId=3
+17:11:23.264 INF Committed entry. latency=0 nReq=208 sn=17
+17:11:23.267 DBG Receive msg from peer ... SenderId=2 Sn=17 height=0 type=ProtocolMessage_LogEntry
+17:11:23.267 DBG Received protocol message: Orderer. from=2
+17:11:23.267 DBG Globalorderer handling message. senderID=2 sn=17
+17:11:23.267 DBG Received LogEntry message. SenderId=2
+17:11:23.268 WRN Not overwriting log entry. sn=17
+17:11:23.275 DBG Receive msg from peer ... SenderId=4 Sn=17 height=0 type=ProtocolMessage_LogEntry
+17:11:23.275 DBG Received protocol message: Orderer. from=4
+17:11:23.279 DBG Globalorderer handling message. senderID=4 sn=17
+17:11:23.279 DBG Received LogEntry message. SenderId=4
+17:11:23.283 WRN Not overwriting log entry. sn=17
+17:11:23.284 DBG Receive msg from peer ... SenderId=3 Sn=18 height=0 type=ProtocolMessage_LogEntry
+17:11:23.285 DBG Received protocol message: Orderer. from=3
+17:11:23.285 DBG Globalorderer handling message. senderID=3 sn=18
+17:11:23.285 DBG Received LogEntry message. SenderId=3
+17:11:23.285 INF Committed entry. latency=0 nReq=204 sn=18
+17:11:23.286 DBG Receive msg from peer ... SenderId=2 Sn=18 height=0 type=ProtocolMessage_LogEntry
+17:11:23.286 DBG Received protocol message: Orderer. from=2
+17:11:23.286 DBG Globalorderer handling message. senderID=2 sn=18
+17:11:23.286 DBG Receive msg from peer ... SenderId=0 Sn=18 height=0 type=ProtocolMessage_LogEntry
+17:11:23.286 DBG Received LogEntry message. SenderId=2
+17:11:23.286 DBG Received protocol message: Orderer. from=0
+17:11:23.286 WRN Not overwriting log entry. sn=18
+17:11:23.286 DBG Globalorderer handling message. senderID=0 sn=18
+17:11:23.287 DBG Received LogEntry message. SenderId=0
+17:11:23.287 WRN Not overwriting log entry. sn=18
+17:11:23.300 DBG Receive msg from peer ... SenderId=0 Sn=17 height=0 type=ProtocolMessage_LogEntry
+17:11:23.300 DBG Received protocol message: Orderer. from=0
+17:11:23.300 DBG Globalorderer handling message. senderID=0 sn=17
+17:11:23.300 DBG Received LogEntry message. SenderId=0
+17:11:23.301 WRN Not overwriting log entry. sn=17
+17:11:23.301 DBG Receive msg from peer ... SenderId=4 Sn=18 height=0 type=ProtocolMessage_LogEntry
+17:11:23.301 DBG Received protocol message: Orderer. from=4
+17:11:23.301 DBG Globalorderer handling message. senderID=4 sn=18
+17:11:23.301 DBG Received LogEntry message. SenderId=4
+17:11:23.301 WRN Not overwriting log entry. sn=18
+17:11:23.332 DBG Receive msg from peer ... SenderId=0 Sn=16 height=0 type=ProtocolMessage_LogEntry
+17:11:23.332 DBG Received protocol message: Orderer. from=0
+17:11:23.332 DBG Globalorderer handling message. senderID=0 sn=16
+17:11:23.332 DBG Received LogEntry message. SenderId=0
+17:11:23.332 INF Committed entry. latency=0 nReq=209 sn=16
+17:11:23.332 INF Delivered batch. nReq=209 sn=16
+17:11:23.333 INF Delivered batch. nReq=208 sn=17
+17:11:23.335 INF Delivered batch. nReq=204 sn=18
+17:11:23.335 INF Delivered batch. nReq=205 sn=19
+17:11:23.344 DBG Receive msg from peer ... SenderId=3 Sn=16 height=0 type=ProtocolMessage_LogEntry
+17:11:23.344 DBG Received protocol message: Orderer. from=3
+17:11:23.344 DBG Globalorderer handling message. senderID=3 sn=16
+17:11:23.344 DBG Received LogEntry message. SenderId=3
+17:11:23.344 WRN Not overwriting log entry. sn=16
+17:11:23.347 DBG Receive msg from peer ... SenderId=2 Sn=16 height=0 type=ProtocolMessage_LogEntry
+17:11:23.347 DBG Received protocol message: Orderer. from=2
+17:11:23.347 DBG Globalorderer handling message. senderID=2 sn=16
+17:11:23.347 DBG Received LogEntry message. SenderId=2
+17:11:23.348 WRN Not overwriting log entry. sn=16
+17:11:23.350 DBG Receive msg from peer ... SenderId=4 Sn=16 height=0 type=ProtocolMessage_LogEntry
+17:11:23.351 DBG Received protocol message: Orderer. from=4
+17:11:23.352 DBG Globalorderer handling message. senderID=4 sn=16
+17:11:23.352 DBG Received LogEntry message. SenderId=4
+17:11:23.352 WRN Not overwriting log entry. sn=16
+17:11:24.254 DBG Receive msg from peer ... SenderId=0 Sn=23 height=0 type=ProtocolMessage_LogEntry
+17:11:24.254 DBG Received protocol message: Orderer. from=0
+17:11:24.254 DBG Globalorderer handling message. senderID=0 sn=23
+17:11:24.255 DBG Received LogEntry message. SenderId=0
+17:11:24.255 INF Committed entry. latency=0 nReq=198 sn=23
+17:11:24.269 DBG Receive msg from peer ... SenderId=4 Sn=23 height=0 type=ProtocolMessage_LogEntry
+17:11:24.269 DBG Received protocol message: Orderer. from=4
+17:11:24.269 DBG Globalorderer handling message. senderID=4 sn=23
+17:11:24.269 DBG Received LogEntry message. SenderId=4
+17:11:24.269 WRN Not overwriting log entry. sn=23
+17:11:24.272 DBG Receive msg from peer ... SenderId=2 Sn=23 height=0 type=ProtocolMessage_LogEntry
+17:11:24.272 DBG Received protocol message: Orderer. from=2
+17:11:24.272 DBG Globalorderer handling message. senderID=2 sn=23
+17:11:24.272 DBG Received LogEntry message. SenderId=2
+17:11:24.272 WRN Not overwriting log entry. sn=23
+17:11:24.282 DBG Receive msg from peer ... SenderId=3 Sn=23 height=0 type=ProtocolMessage_LogEntry
+17:11:24.282 DBG Received protocol message: Orderer. from=3
+17:11:24.282 DBG Globalorderer handling message. senderID=3 sn=23
+17:11:24.283 DBG Received LogEntry message. SenderId=3
+17:11:24.283 WRN Not overwriting log entry. sn=23
+17:11:24.300 DBG Receive msg from peer ... SenderId=3 Sn=22 height=0 type=ProtocolMessage_LogEntry
+17:11:24.300 DBG Received protocol message: Orderer. from=3
+17:11:24.300 DBG Globalorderer handling message. senderID=3 sn=22
+17:11:24.301 DBG Received LogEntry message. SenderId=3
+17:11:24.301 INF Committed entry. latency=0 nReq=198 sn=22
+17:11:24.301 DBG Receive msg from peer ... SenderId=2 Sn=22 height=0 type=ProtocolMessage_LogEntry
+17:11:24.302 DBG Received protocol message: Orderer. from=2
+17:11:24.302 DBG Globalorderer handling message. senderID=2 sn=22
+17:11:24.302 DBG Received LogEntry message. SenderId=2
+17:11:24.302 WRN Not overwriting log entry. sn=22
+17:11:24.315 DBG Receive msg from peer ... SenderId=3 Sn=20 height=0 type=ProtocolMessage_LogEntry
+17:11:24.315 DBG Received protocol message: Orderer. from=3
+17:11:24.315 DBG Globalorderer handling message. senderID=3 sn=20
+17:11:24.315 DBG Received LogEntry message. SenderId=3
+17:11:24.316 INF Committed entry. latency=0 nReq=200 sn=20
+17:11:24.316 INF Delivered batch. nReq=200 sn=20
+17:11:24.315 DBG Receive msg from peer ... SenderId=0 Sn=20 height=0 type=ProtocolMessage_LogEntry
+17:11:24.318 DBG Received protocol message: Orderer. from=0
+17:11:24.318 DBG Globalorderer handling message. senderID=0 sn=20
+17:11:24.318 DBG Received LogEntry message. SenderId=0
+17:11:24.319 WRN Not overwriting log entry. sn=20
+17:11:24.320 DBG Receive msg from peer ... SenderId=2 Sn=20 height=0 type=ProtocolMessage_LogEntry
+17:11:24.321 DBG Received protocol message: Orderer. from=2
+17:11:24.321 DBG Globalorderer handling message. senderID=2 sn=20
+17:11:24.321 DBG Received LogEntry message. SenderId=2
+17:11:24.321 WRN Not overwriting log entry. sn=20
+17:11:24.322 DBG Receive msg from peer ... SenderId=4 Sn=20 height=0 type=ProtocolMessage_LogEntry
+17:11:24.322 DBG Received protocol message: Orderer. from=4
+17:11:24.322 DBG Globalorderer handling message. senderID=4 sn=20
+17:11:24.322 DBG Received LogEntry message. SenderId=4
+17:11:24.322 WRN Not overwriting log entry. sn=20
+17:11:24.327 DBG Receive msg from peer ... SenderId=0 Sn=22 height=0 type=ProtocolMessage_LogEntry
+17:11:24.327 DBG Received protocol message: Orderer. from=0
+17:11:24.328 DBG Globalorderer handling message. senderID=0 sn=22
+17:11:24.328 DBG Received LogEntry message. SenderId=0
+17:11:24.328 WRN Not overwriting log entry. sn=22
+17:11:24.329 DBG Receive msg from peer ... SenderId=4 Sn=22 height=0 type=ProtocolMessage_LogEntry
+17:11:24.330 DBG Received protocol message: Orderer. from=4
+17:11:24.330 DBG Globalorderer handling message. senderID=4 sn=22
+17:11:24.330 DBG Received LogEntry message. SenderId=4
+17:11:24.330 WRN Not overwriting log entry. sn=22
+17:11:24.342 DBG Receive msg from peer ... SenderId=3 Sn=21 height=0 type=ProtocolMessage_LogEntry
+17:11:24.342 DBG Received protocol message: Orderer. from=3
+17:11:24.342 DBG Globalorderer handling message. senderID=3 sn=21
+17:11:24.343 DBG Receive msg from peer ... SenderId=2 Sn=21 height=0 type=ProtocolMessage_LogEntry
+17:11:24.343 DBG Received protocol message: Orderer. from=2
+17:11:24.343 DBG Globalorderer handling message. senderID=2 sn=21
+17:11:24.342 DBG Received LogEntry message. SenderId=3
+17:11:24.344 INF Committed entry. latency=0 nReq=199 sn=21
+17:11:24.344 INF Delivered batch. nReq=199 sn=21
+17:11:24.344 INF Delivered batch. nReq=198 sn=22
+17:11:24.344 INF Delivered batch. nReq=198 sn=23
+17:11:24.345 DBG Received LogEntry message. SenderId=2
+17:11:24.345 WRN Not overwriting log entry. sn=21
+17:11:24.358 DBG Receive msg from peer ... SenderId=0 Sn=21 height=0 type=ProtocolMessage_LogEntry
+17:11:24.358 DBG Received protocol message: Orderer. from=0
+17:11:24.358 DBG Globalorderer handling message. senderID=0 sn=21
+17:11:24.358 DBG Received LogEntry message. SenderId=0
+17:11:24.358 WRN Not overwriting log entry. sn=21
+17:11:24.364 DBG Receive msg from peer ... SenderId=4 Sn=21 height=0 type=ProtocolMessage_LogEntry
+17:11:24.365 DBG Received protocol message: Orderer. from=4
+17:11:24.365 DBG Globalorderer handling message. senderID=4 sn=21
+17:11:24.365 DBG Received LogEntry message. SenderId=4
+17:11:24.365 WRN Not overwriting log entry. sn=21
+17:11:25.254 DBG Receive msg from peer ... SenderId=3 Sn=26 height=0 type=ProtocolMessage_LogEntry
+17:11:25.254 DBG Received protocol message: Orderer. from=3
+17:11:25.254 DBG Globalorderer handling message. senderID=3 sn=26
+17:11:25.254 DBG Received LogEntry message. SenderId=3
+17:11:25.254 INF Committed entry. latency=0 nReq=201 sn=26
+17:11:25.254 DBG Receive msg from peer ... SenderId=2 Sn=26 height=0 type=ProtocolMessage_LogEntry
+17:11:25.255 DBG Received protocol message: Orderer. from=2
+17:11:25.255 DBG Globalorderer handling message. senderID=2 sn=26
+17:11:25.255 DBG Received LogEntry message. SenderId=2
+17:11:25.255 WRN Not overwriting log entry. sn=26
+17:11:25.255 DBG Receive msg from peer ... SenderId=4 Sn=26 height=0 type=ProtocolMessage_LogEntry
+17:11:25.255 DBG Received protocol message: Orderer. from=4
+17:11:25.255 DBG Globalorderer handling message. senderID=4 sn=26
+17:11:25.255 DBG Received LogEntry message. SenderId=4
+17:11:25.256 WRN Not overwriting log entry. sn=26
+17:11:25.268 DBG Receive msg from peer ... SenderId=2 Sn=27 height=0 type=ProtocolMessage_LogEntry
+17:11:25.268 DBG Received protocol message: Orderer. from=2
+17:11:25.268 DBG Globalorderer handling message. senderID=2 sn=27
+17:11:25.268 DBG Received LogEntry message. SenderId=2
+17:11:25.269 INF Committed entry. latency=0 nReq=203 sn=27
+17:11:25.272 DBG Receive msg from peer ... SenderId=3 Sn=27 height=0 type=ProtocolMessage_LogEntry
+17:11:25.272 DBG Received protocol message: Orderer. from=3
+17:11:25.272 DBG Globalorderer handling message. senderID=3 sn=27
+17:11:25.276 DBG Receive msg from peer ... SenderId=4 Sn=27 height=0 type=ProtocolMessage_LogEntry
+17:11:25.276 DBG Received protocol message: Orderer. from=4
+17:11:25.276 DBG Globalorderer handling message. senderID=4 sn=27
+17:11:25.272 DBG Received LogEntry message. SenderId=3
+17:11:25.276 WRN Not overwriting log entry. sn=27
+17:11:25.276 DBG Received LogEntry message. SenderId=4
+17:11:25.276 WRN Not overwriting log entry. sn=27
+17:11:25.284 DBG Receive msg from peer ... SenderId=2 Sn=25 height=0 type=ProtocolMessage_LogEntry
+17:11:25.284 DBG Received protocol message: Orderer. from=2
+17:11:25.284 DBG Globalorderer handling message. senderID=2 sn=25
+17:11:25.284 DBG Received LogEntry message. SenderId=2
+17:11:25.285 INF Committed entry. latency=0 nReq=202 sn=25
+17:11:25.285 DBG Receive msg from peer ... SenderId=3 Sn=25 height=0 type=ProtocolMessage_LogEntry
+17:11:25.285 DBG Received protocol message: Orderer. from=3
+17:11:25.285 DBG Globalorderer handling message. senderID=3 sn=25
+17:11:25.285 DBG Received LogEntry message. SenderId=3
+17:11:25.285 WRN Not overwriting log entry. sn=25
+17:11:25.287 DBG Receive msg from peer ... SenderId=4 Sn=25 height=0 type=ProtocolMessage_LogEntry
+17:11:25.288 DBG Received protocol message: Orderer. from=4
+17:11:25.288 DBG Globalorderer handling message. senderID=4 sn=25
+17:11:25.288 DBG Received LogEntry message. SenderId=4
+17:11:25.288 WRN Not overwriting log entry. sn=25
+17:11:25.300 DBG Receive msg from peer ... SenderId=0 Sn=27 height=0 type=ProtocolMessage_LogEntry
+17:11:25.300 DBG Received protocol message: Orderer. from=0
+17:11:25.300 DBG Globalorderer handling message. senderID=0 sn=27
+17:11:25.301 DBG Received LogEntry message. SenderId=0
+17:11:25.301 WRN Not overwriting log entry. sn=27
+17:11:25.311 DBG Receive msg from peer ... SenderId=0 Sn=26 height=0 type=ProtocolMessage_LogEntry
+17:11:25.311 DBG Received protocol message: Orderer. from=0
+17:11:25.311 DBG Globalorderer handling message. senderID=0 sn=26
+17:11:25.311 DBG Received LogEntry message. SenderId=0
+17:11:25.311 WRN Not overwriting log entry. sn=26
+17:11:25.321 DBG Receive msg from peer ... SenderId=0 Sn=25 height=0 type=ProtocolMessage_LogEntry
+17:11:25.321 DBG Received protocol message: Orderer. from=0
+17:11:25.321 DBG Globalorderer handling message. senderID=0 sn=25
+17:11:25.322 DBG Received LogEntry message. SenderId=0
+17:11:25.322 WRN Not overwriting log entry. sn=25
+17:11:25.344 DBG Receive msg from peer ... SenderId=0 Sn=24 height=0 type=ProtocolMessage_LogEntry
+17:11:25.344 DBG Received protocol message: Orderer. from=0
+17:11:25.344 DBG Globalorderer handling message. senderID=0 sn=24
+17:11:25.344 DBG Received LogEntry message. SenderId=0
+17:11:25.344 INF Committed entry. latency=0 nReq=194 sn=24
+17:11:25.344 INF Delivered batch. nReq=194 sn=24
+17:11:25.344 INF Delivered batch. nReq=202 sn=25
+17:11:25.344 INF Delivered batch. nReq=201 sn=26
+17:11:25.345 INF Delivered batch. nReq=203 sn=27
+17:11:25.353 DBG Receive msg from peer ... SenderId=3 Sn=24 height=0 type=ProtocolMessage_LogEntry
+17:11:25.353 DBG Received protocol message: Orderer. from=3
+17:11:25.353 DBG Globalorderer handling message. senderID=3 sn=24
+17:11:25.354 DBG Received LogEntry message. SenderId=3
+17:11:25.354 WRN Not overwriting log entry. sn=24
+17:11:25.356 DBG Receive msg from peer ... SenderId=2 Sn=24 height=0 type=ProtocolMessage_LogEntry
+17:11:25.356 DBG Received protocol message: Orderer. from=2
+17:11:25.356 DBG Globalorderer handling message. senderID=2 sn=24
+17:11:25.357 DBG Received LogEntry message. SenderId=2
+17:11:25.357 WRN Not overwriting log entry. sn=24
+17:11:25.360 DBG Receive msg from peer ... SenderId=4 Sn=24 height=0 type=ProtocolMessage_LogEntry
+17:11:25.360 DBG Received protocol message: Orderer. from=4
+17:11:25.360 DBG Globalorderer handling message. senderID=4 sn=24
+17:11:25.360 DBG Received LogEntry message. SenderId=4
+17:11:25.360 WRN Not overwriting log entry. sn=24
+17:11:26.268 DBG Receive msg from peer ... SenderId=3 Sn=31 height=0 type=ProtocolMessage_LogEntry
+17:11:26.268 DBG Received protocol message: Orderer. from=3
+17:11:26.268 DBG Globalorderer handling message. senderID=3 sn=31
+17:11:26.268 DBG Received LogEntry message. SenderId=3
+17:11:26.269 INF Committed entry. latency=0 nReq=204 sn=31
+17:11:26.275 DBG Receive msg from peer ... SenderId=2 Sn=31 height=0 type=ProtocolMessage_LogEntry
+17:11:26.275 DBG Received protocol message: Orderer. from=2
+17:11:26.275 DBG Globalorderer handling message. senderID=2 sn=31
+17:11:26.275 DBG Received LogEntry message. SenderId=2
+17:11:26.275 WRN Not overwriting log entry. sn=31
+17:11:26.286 DBG Receive msg from peer ... SenderId=4 Sn=31 height=0 type=ProtocolMessage_LogEntry
+17:11:26.286 DBG Received protocol message: Orderer. from=4
+17:11:26.286 DBG Globalorderer handling message. senderID=4 sn=31
+17:11:26.286 DBG Received LogEntry message. SenderId=4
+17:11:26.286 WRN Not overwriting log entry. sn=31
+17:11:26.291 DBG Receive msg from peer ... SenderId=0 Sn=30 height=0 type=ProtocolMessage_LogEntry
+17:11:26.292 DBG Received protocol message: Orderer. from=0
+17:11:26.292 DBG Globalorderer handling message. senderID=0 sn=30
+17:11:26.292 DBG Received LogEntry message. SenderId=0
+17:11:26.292 INF Committed entry. latency=0 nReq=206 sn=30
+17:11:26.300 DBG Receive msg from peer ... SenderId=2 Sn=30 height=0 type=ProtocolMessage_LogEntry
+17:11:26.301 DBG Received protocol message: Orderer. from=2
+17:11:26.301 DBG Globalorderer handling message. senderID=2 sn=30
+17:11:26.301 DBG Received LogEntry message. SenderId=2
+17:11:26.301 WRN Not overwriting log entry. sn=30
+17:11:26.303 DBG Receive msg from peer ... SenderId=3 Sn=30 height=0 type=ProtocolMessage_LogEntry
+17:11:26.303 DBG Received protocol message: Orderer. from=3
+17:11:26.303 DBG Globalorderer handling message. senderID=3 sn=30
+17:11:26.303 DBG Received LogEntry message. SenderId=3
+17:11:26.303 WRN Not overwriting log entry. sn=30
+17:11:26.304 DBG Receive msg from peer ... SenderId=4 Sn=30 height=0 type=ProtocolMessage_LogEntry
+17:11:26.304 DBG Received protocol message: Orderer. from=4
+17:11:26.304 DBG Globalorderer handling message. senderID=4 sn=30
+17:11:26.304 DBG Received LogEntry message. SenderId=4
+17:11:26.304 WRN Not overwriting log entry. sn=30
+17:11:26.305 DBG Receive msg from peer ... SenderId=0 Sn=31 height=0 type=ProtocolMessage_LogEntry
+17:11:26.305 DBG Received protocol message: Orderer. from=0
+17:11:26.305 DBG Globalorderer handling message. senderID=0 sn=31
+17:11:26.305 DBG Received LogEntry message. SenderId=0
+17:11:26.305 WRN Not overwriting log entry. sn=31
+17:11:26.333 DBG Receive msg from peer ... SenderId=0 Sn=29 height=0 type=ProtocolMessage_LogEntry
+17:11:26.333 DBG Received protocol message: Orderer. from=0
+17:11:26.333 DBG Globalorderer handling message. senderID=0 sn=29
+17:11:26.333 DBG Received LogEntry message. SenderId=0
+17:11:26.333 INF Committed entry. latency=0 nReq=205 sn=29
+17:11:26.337 DBG Receive msg from peer ... SenderId=3 Sn=29 height=0 type=ProtocolMessage_LogEntry
+17:11:26.337 DBG Received protocol message: Orderer. from=3
+17:11:26.337 DBG Globalorderer handling message. senderID=3 sn=29
+17:11:26.338 DBG Received LogEntry message. SenderId=3
+17:11:26.338 WRN Not overwriting log entry. sn=29
+17:11:26.339 DBG Receive msg from peer ... SenderId=4 Sn=29 height=0 type=ProtocolMessage_LogEntry
+17:11:26.339 DBG Received protocol message: Orderer. from=4
+17:11:26.339 DBG Globalorderer handling message. senderID=4 sn=29
+17:11:26.339 DBG Received LogEntry message. SenderId=4
+17:11:26.339 WRN Not overwriting log entry. sn=29
+17:11:26.343 DBG Receive msg from peer ... SenderId=2 Sn=29 height=0 type=ProtocolMessage_LogEntry
+17:11:26.344 DBG Received protocol message: Orderer. from=2
+17:11:26.344 DBG Globalorderer handling message. senderID=2 sn=29
+17:11:26.344 DBG Received LogEntry message. SenderId=2
+17:11:26.344 WRN Not overwriting log entry. sn=29
+17:11:26.353 DBG Receive msg from peer ... SenderId=0 Sn=28 height=0 type=ProtocolMessage_LogEntry
+17:11:26.353 DBG Received protocol message: Orderer. from=0
+17:11:26.353 DBG Globalorderer handling message. senderID=0 sn=28
+17:11:26.353 DBG Received LogEntry message. SenderId=0
+17:11:26.353 INF Committed entry. latency=0 nReq=222 sn=28
+17:11:26.354 INF Delivered batch. nReq=222 sn=28
+17:11:26.354 INF Delivered batch. nReq=205 sn=29
+17:11:26.354 INF Delivered batch. nReq=206 sn=30
+17:11:26.354 INF Delivered batch. nReq=204 sn=31
+17:11:26.361 DBG Receive msg from peer ... SenderId=3 Sn=28 height=0 type=ProtocolMessage_LogEntry
+17:11:26.361 DBG Received protocol message: Orderer. from=3
+17:11:26.361 DBG Globalorderer handling message. senderID=3 sn=28
+17:11:26.361 DBG Received LogEntry message. SenderId=3
+17:11:26.361 WRN Not overwriting log entry. sn=28
+17:11:26.366 DBG Receive msg from peer ... SenderId=2 Sn=28 height=0 type=ProtocolMessage_LogEntry
+17:11:26.367 DBG Received protocol message: Orderer. from=2
+17:11:26.367 DBG Globalorderer handling message. senderID=2 sn=28
+17:11:26.367 DBG Received LogEntry message. SenderId=2
+17:11:26.367 WRN Not overwriting log entry. sn=28
+17:11:26.372 DBG Receive msg from peer ... SenderId=4 Sn=28 height=0 type=ProtocolMessage_LogEntry
+17:11:26.372 DBG Received protocol message: Orderer. from=4
+17:11:26.372 DBG Globalorderer handling message. senderID=4 sn=28
+17:11:26.372 DBG Received LogEntry message. SenderId=4
+17:11:26.372 WRN Not overwriting log entry. sn=28
+17:11:27.289 DBG Receive msg from peer ... SenderId=2 Sn=35 height=0 type=ProtocolMessage_LogEntry
+17:11:27.289 DBG Received protocol message: Orderer. from=2
+17:11:27.289 DBG Globalorderer handling message. senderID=2 sn=35
+17:11:27.289 DBG Received LogEntry message. SenderId=2
+17:11:27.289 INF Committed entry. latency=0 nReq=217 sn=35
+17:11:27.294 DBG Receive msg from peer ... SenderId=3 Sn=35 height=0 type=ProtocolMessage_LogEntry
+17:11:27.294 DBG Received protocol message: Orderer. from=3
+17:11:27.295 DBG Globalorderer handling message. senderID=3 sn=35
+17:11:27.295 DBG Received LogEntry message. SenderId=3
+17:11:27.295 WRN Not overwriting log entry. sn=35
+17:11:27.306 DBG Receive msg from peer ... SenderId=4 Sn=35 height=0 type=ProtocolMessage_LogEntry
+17:11:27.307 DBG Received protocol message: Orderer. from=4
+17:11:27.307 DBG Globalorderer handling message. senderID=4 sn=35
+17:11:27.307 DBG Received LogEntry message. SenderId=4
+17:11:27.307 WRN Not overwriting log entry. sn=35
+17:11:27.339 DBG Receive msg from peer ... SenderId=2 Sn=34 height=0 type=ProtocolMessage_LogEntry
+17:11:27.342 DBG Receive msg from peer ... SenderId=3 Sn=33 height=0 type=ProtocolMessage_LogEntry
+17:11:27.343 DBG Received protocol message: Orderer. from=3
+17:11:27.343 DBG Globalorderer handling message. senderID=3 sn=33
+17:11:27.343 DBG Received LogEntry message. SenderId=3
+17:11:27.343 INF Committed entry. latency=0 nReq=219 sn=33
+17:11:27.344 DBG Receive msg from peer ... SenderId=0 Sn=34 height=0 type=ProtocolMessage_LogEntry
+17:11:27.344 DBG Received protocol message: Orderer. from=0
+17:11:27.344 DBG Globalorderer handling message. senderID=0 sn=34
+17:11:27.339 DBG Received protocol message: Orderer. from=2
+17:11:27.344 DBG Receive msg from peer ... SenderId=3 Sn=34 height=0 type=ProtocolMessage_LogEntry
+17:11:27.344 DBG Globalorderer handling message. senderID=2 sn=34
+17:11:27.344 DBG Received protocol message: Orderer. from=3
+17:11:27.344 DBG Received LogEntry message. SenderId=0
+17:11:27.344 DBG Globalorderer handling message. senderID=3 sn=34
+17:11:27.344 INF Committed entry. latency=0 nReq=220 sn=34
+17:11:27.344 DBG Received LogEntry message. SenderId=2
+17:11:27.345 WRN Not overwriting log entry. sn=34
+17:11:27.345 DBG Received LogEntry message. SenderId=3
+17:11:27.345 WRN Not overwriting log entry. sn=34
+17:11:27.346 DBG Receive msg from peer ... SenderId=4 Sn=33 height=0 type=ProtocolMessage_LogEntry
+17:11:27.346 DBG Received protocol message: Orderer. from=4
+17:11:27.346 DBG Globalorderer handling message. senderID=4 sn=33
+17:11:27.346 DBG Received LogEntry message. SenderId=4
+17:11:27.346 WRN Not overwriting log entry. sn=33
+17:11:27.349 DBG Receive msg from peer ... SenderId=0 Sn=35 height=0 type=ProtocolMessage_LogEntry
+17:11:27.349 DBG Received protocol message: Orderer. from=0
+17:11:27.349 DBG Globalorderer handling message. senderID=0 sn=35
+17:11:27.349 DBG Received LogEntry message. SenderId=0
+17:11:27.349 WRN Not overwriting log entry. sn=35
+17:11:27.355 DBG Receive msg from peer ... SenderId=0 Sn=33 height=0 type=ProtocolMessage_LogEntry
+17:11:27.355 DBG Received protocol message: Orderer. from=0
+17:11:27.355 DBG Globalorderer handling message. senderID=0 sn=33
+17:11:27.355 DBG Received LogEntry message. SenderId=0
+17:11:27.355 WRN Not overwriting log entry. sn=33
+17:11:27.357 DBG Receive msg from peer ... SenderId=2 Sn=33 height=0 type=ProtocolMessage_LogEntry
+17:11:27.357 DBG Received protocol message: Orderer. from=2
+17:11:27.358 DBG Globalorderer handling message. senderID=2 sn=33
+17:11:27.358 DBG Received LogEntry message. SenderId=2
+17:11:27.358 WRN Not overwriting log entry. sn=33
+17:11:27.375 DBG Receive msg from peer ... SenderId=4 Sn=34 height=0 type=ProtocolMessage_LogEntry
+17:11:27.375 DBG Received protocol message: Orderer. from=4
+17:11:27.375 DBG Globalorderer handling message. senderID=4 sn=34
+17:11:27.375 DBG Received LogEntry message. SenderId=4
+17:11:27.375 WRN Not overwriting log entry. sn=34
+17:11:27.402 DBG Receive msg from peer ... SenderId=4 Sn=32 height=0 type=ProtocolMessage_LogEntry
+17:11:27.402 DBG Received protocol message: Orderer. from=4
+17:11:27.402 DBG Receive msg from peer ... SenderId=3 Sn=32 height=0 type=ProtocolMessage_LogEntry
+17:11:27.402 DBG Globalorderer handling message. senderID=4 sn=32
+17:11:27.402 DBG Received protocol message: Orderer. from=3
+17:11:27.402 DBG Received LogEntry message. SenderId=4
+17:11:27.402 DBG Globalorderer handling message. senderID=3 sn=32
+17:11:27.402 INF Committed entry. latency=0 nReq=216 sn=32
+17:11:27.403 INF Delivered batch. nReq=216 sn=32
+17:11:27.403 INF Delivered batch. nReq=219 sn=33
+17:11:27.403 INF Delivered batch. nReq=220 sn=34
+17:11:27.403 INF Delivered batch. nReq=217 sn=35
+17:11:27.403 DBG Received LogEntry message. SenderId=3
+17:11:27.403 WRN Not overwriting log entry. sn=32
+17:11:27.409 DBG Receive msg from peer ... SenderId=0 Sn=32 height=0 type=ProtocolMessage_LogEntry
+17:11:27.409 DBG Received protocol message: Orderer. from=0
+17:11:27.409 DBG Globalorderer handling message. senderID=0 sn=32
+17:11:27.409 DBG Received LogEntry message. SenderId=0
+17:11:27.410 WRN Not overwriting log entry. sn=32
+17:11:27.412 DBG Receive msg from peer ... SenderId=2 Sn=32 height=0 type=ProtocolMessage_LogEntry
+17:11:27.412 DBG Received protocol message: Orderer. from=2
+17:11:27.412 DBG Globalorderer handling message. senderID=2 sn=32
+17:11:27.412 DBG Received LogEntry message. SenderId=2
+17:11:27.413 WRN Not overwriting log entry. sn=32
+17:11:28.238 DBG Receive msg from peer ... SenderId=4 Sn=39 height=0 type=ProtocolMessage_LogEntry
+17:11:28.238 DBG Received protocol message: Orderer. from=4
+17:11:28.238 DBG Globalorderer handling message. senderID=4 sn=39
+17:11:28.238 DBG Received LogEntry message. SenderId=4
+17:11:28.238 INF Committed entry. latency=0 nReq=212 sn=39
+17:11:28.242 DBG Receive msg from peer ... SenderId=0 Sn=39 height=0 type=ProtocolMessage_LogEntry
+17:11:28.242 DBG Received protocol message: Orderer. from=0
+17:11:28.242 DBG Globalorderer handling message. senderID=0 sn=39
+17:11:28.243 DBG Received LogEntry message. SenderId=0
+17:11:28.243 WRN Not overwriting log entry. sn=39
+17:11:28.248 DBG Receive msg from peer ... SenderId=2 Sn=39 height=0 type=ProtocolMessage_LogEntry
+17:11:28.248 DBG Received protocol message: Orderer. from=2
+17:11:28.248 DBG Globalorderer handling message. senderID=2 sn=39
+17:11:28.248 DBG Received LogEntry message. SenderId=2
+17:11:28.248 WRN Not overwriting log entry. sn=39
+17:11:28.254 DBG Receive msg from peer ... SenderId=3 Sn=39 height=0 type=ProtocolMessage_LogEntry
+17:11:28.254 DBG Received protocol message: Orderer. from=3
+17:11:28.255 DBG Globalorderer handling message. senderID=3 sn=39
+17:11:28.255 DBG Received LogEntry message. SenderId=3
+17:11:28.255 WRN Not overwriting log entry. sn=39
+17:11:28.326 DBG Receive msg from peer ... SenderId=3 Sn=37 height=0 type=ProtocolMessage_LogEntry
+17:11:28.326 DBG Received protocol message: Orderer. from=3
+17:11:28.326 DBG Globalorderer handling message. senderID=3 sn=37
+17:11:28.326 DBG Received LogEntry message. SenderId=3
+17:11:28.327 INF Committed entry. latency=0 nReq=219 sn=37
+17:11:28.335 DBG Receive msg from peer ... SenderId=2 Sn=37 height=0 type=ProtocolMessage_LogEntry
+17:11:28.335 DBG Received protocol message: Orderer. from=2
+17:11:28.335 DBG Globalorderer handling message. senderID=2 sn=37
+17:11:28.335 DBG Received LogEntry message. SenderId=2
+17:11:28.335 WRN Not overwriting log entry. sn=37
+17:11:28.339 DBG Receive msg from peer ... SenderId=4 Sn=37 height=0 type=ProtocolMessage_LogEntry
+17:11:28.339 DBG Received protocol message: Orderer. from=4
+17:11:28.339 DBG Globalorderer handling message. senderID=4 sn=37
+17:11:28.339 DBG Received LogEntry message. SenderId=4
+17:11:28.340 WRN Not overwriting log entry. sn=37
+17:11:28.345 DBG Receive msg from peer ... SenderId=2 Sn=38 height=0 type=ProtocolMessage_LogEntry
+17:11:28.347 DBG Received protocol message: Orderer. from=2
+17:11:28.347 DBG Globalorderer handling message. senderID=2 sn=38
+17:11:28.347 DBG Received LogEntry message. SenderId=2
+17:11:28.347 INF Committed entry. latency=0 nReq=212 sn=38
+17:11:28.349 DBG Receive msg from peer ... SenderId=0 Sn=37 height=0 type=ProtocolMessage_LogEntry
+17:11:28.350 DBG Received protocol message: Orderer. from=0
+17:11:28.350 DBG Globalorderer handling message. senderID=0 sn=37
+17:11:28.350 DBG Received LogEntry message. SenderId=0
+17:11:28.350 WRN Not overwriting log entry. sn=37
+17:11:28.352 DBG Receive msg from peer ... SenderId=3 Sn=38 height=0 type=ProtocolMessage_LogEntry
+17:11:28.352 DBG Received protocol message: Orderer. from=3
+17:11:28.352 DBG Globalorderer handling message. senderID=3 sn=38
+17:11:28.352 DBG Received LogEntry message. SenderId=3
+17:11:28.352 WRN Not overwriting log entry. sn=38
+17:11:28.352 DBG Receive msg from peer ... SenderId=0 Sn=38 height=0 type=ProtocolMessage_LogEntry
+17:11:28.352 DBG Received protocol message: Orderer. from=0
+17:11:28.352 DBG Globalorderer handling message. senderID=0 sn=38
+17:11:28.353 DBG Received LogEntry message. SenderId=0
+17:11:28.353 WRN Not overwriting log entry. sn=38
+17:11:28.355 DBG Receive msg from peer ... SenderId=4 Sn=38 height=0 type=ProtocolMessage_LogEntry
+17:11:28.355 DBG Received protocol message: Orderer. from=4
+17:11:28.355 DBG Globalorderer handling message. senderID=4 sn=38
+17:11:28.355 DBG Received LogEntry message. SenderId=4
+17:11:28.356 WRN Not overwriting log entry. sn=38
+17:11:28.405 DBG Receive msg from peer ... SenderId=4 Sn=36 height=0 type=ProtocolMessage_LogEntry
+17:11:28.406 DBG Received protocol message: Orderer. from=4
+17:11:28.406 DBG Globalorderer handling message. senderID=4 sn=36
+17:11:28.406 DBG Received LogEntry message. SenderId=4
+17:11:28.406 INF Committed entry. latency=0 nReq=222 sn=36
+17:11:28.406 INF Delivered batch. nReq=222 sn=36
+17:11:28.406 INF Delivered batch. nReq=219 sn=37
+17:11:28.406 INF Delivered batch. nReq=212 sn=38
+17:11:28.406 INF Delivered batch. nReq=212 sn=39
+17:11:28.407 DBG Receive msg from peer ... SenderId=2 Sn=36 height=0 type=ProtocolMessage_LogEntry
+17:11:28.407 DBG Received protocol message: Orderer. from=2
+17:11:28.407 DBG Globalorderer handling message. senderID=2 sn=36
+17:11:28.408 DBG Received LogEntry message. SenderId=2
+17:11:28.408 WRN Not overwriting log entry. sn=36
+17:11:28.416 DBG Receive msg from peer ... SenderId=3 Sn=36 height=0 type=ProtocolMessage_LogEntry
+17:11:28.417 DBG Received protocol message: Orderer. from=3
+17:11:28.417 DBG Globalorderer handling message. senderID=3 sn=36
+17:11:28.417 DBG Received LogEntry message. SenderId=3
+17:11:28.417 WRN Not overwriting log entry. sn=36
+17:11:28.420 DBG Receive msg from peer ... SenderId=0 Sn=36 height=0 type=ProtocolMessage_LogEntry
+17:11:28.420 DBG Received protocol message: Orderer. from=0
+17:11:28.420 DBG Globalorderer handling message. senderID=0 sn=36
+17:11:28.420 DBG Received LogEntry message. SenderId=0
+17:11:28.420 WRN Not overwriting log entry. sn=36
+17:11:29.280 DBG Receive msg from peer ... SenderId=3 Sn=43 height=0 type=ProtocolMessage_LogEntry
+17:11:29.280 DBG Received protocol message: Orderer. from=3
+17:11:29.280 DBG Globalorderer handling message. senderID=3 sn=43
+17:11:29.280 DBG Received LogEntry message. SenderId=3
+17:11:29.280 INF Committed entry. latency=0 nReq=238 sn=43
+17:11:29.286 DBG Receive msg from peer ... SenderId=4 Sn=43 height=0 type=ProtocolMessage_LogEntry
+17:11:29.287 DBG Received protocol message: Orderer. from=4
+17:11:29.287 DBG Globalorderer handling message. senderID=4 sn=43
+17:11:29.288 DBG Received LogEntry message. SenderId=4
+17:11:29.288 WRN Not overwriting log entry. sn=43
+17:11:29.289 DBG Receive msg from peer ... SenderId=0 Sn=43 height=0 type=ProtocolMessage_LogEntry
+17:11:29.289 DBG Received protocol message: Orderer. from=0
+17:11:29.289 DBG Globalorderer handling message. senderID=0 sn=43
+17:11:29.289 DBG Received LogEntry message. SenderId=0
+17:11:29.289 WRN Not overwriting log entry. sn=43
+17:11:29.289 DBG Receive msg from peer ... SenderId=2 Sn=43 height=0 type=ProtocolMessage_LogEntry
+17:11:29.290 DBG Received protocol message: Orderer. from=2
+17:11:29.290 DBG Globalorderer handling message. senderID=2 sn=43
+17:11:29.290 DBG Received LogEntry message. SenderId=2
+17:11:29.290 WRN Not overwriting log entry. sn=43
+17:11:29.343 DBG Receive msg from peer ... SenderId=4 Sn=42 height=0 type=ProtocolMessage_LogEntry
+17:11:29.343 DBG Received protocol message: Orderer. from=4
+17:11:29.343 DBG Globalorderer handling message. senderID=4 sn=42
+17:11:29.344 DBG Received LogEntry message. SenderId=4
+17:11:29.344 INF Committed entry. latency=0 nReq=234 sn=42
+17:11:29.350 DBG Receive msg from peer ... SenderId=2 Sn=42 height=0 type=ProtocolMessage_LogEntry
+17:11:29.350 DBG Received protocol message: Orderer. from=2
+17:11:29.350 DBG Globalorderer handling message. senderID=2 sn=42
+17:11:29.350 DBG Received LogEntry message. SenderId=2
+17:11:29.350 WRN Not overwriting log entry. sn=42
+17:11:29.354 DBG Receive msg from peer ... SenderId=0 Sn=42 height=0 type=ProtocolMessage_LogEntry
+17:11:29.354 DBG Received protocol message: Orderer. from=0
+17:11:29.354 DBG Globalorderer handling message. senderID=0 sn=42
+17:11:29.354 DBG Received LogEntry message. SenderId=0
+17:11:29.355 WRN Not overwriting log entry. sn=42
+17:11:29.357 DBG Receive msg from peer ... SenderId=2 Sn=41 height=0 type=ProtocolMessage_LogEntry
+17:11:29.357 DBG Received protocol message: Orderer. from=2
+17:11:29.357 DBG Globalorderer handling message. senderID=2 sn=41
+17:11:29.357 DBG Received LogEntry message. SenderId=2
+17:11:29.357 DBG Receive msg from peer ... SenderId=4 Sn=41 height=0 type=ProtocolMessage_LogEntry
+17:11:29.357 INF Committed entry. latency=0 nReq=238 sn=41
+17:11:29.357 DBG Received protocol message: Orderer. from=4
+17:11:29.358 DBG Globalorderer handling message. senderID=4 sn=41
+17:11:29.358 DBG Received LogEntry message. SenderId=4
+17:11:29.358 WRN Not overwriting log entry. sn=41
+17:11:29.358 DBG Receive msg from peer ... SenderId=3 Sn=42 height=0 type=ProtocolMessage_LogEntry
+17:11:29.359 DBG Received protocol message: Orderer. from=3
+17:11:29.359 DBG Globalorderer handling message. senderID=3 sn=42
+17:11:29.359 DBG Received LogEntry message. SenderId=3
+17:11:29.359 WRN Not overwriting log entry. sn=42
+17:11:29.361 DBG Receive msg from peer ... SenderId=3 Sn=41 height=0 type=ProtocolMessage_LogEntry
+17:11:29.361 DBG Received protocol message: Orderer. from=3
+17:11:29.361 DBG Globalorderer handling message. senderID=3 sn=41
+17:11:29.361 DBG Received LogEntry message. SenderId=3
+17:11:29.361 WRN Not overwriting log entry. sn=41
+17:11:29.388 DBG Receive msg from peer ... SenderId=0 Sn=41 height=0 type=ProtocolMessage_LogEntry
+17:11:29.388 DBG Received protocol message: Orderer. from=0
+17:11:29.388 DBG Globalorderer handling message. senderID=0 sn=41
+17:11:29.388 DBG Received LogEntry message. SenderId=0
+17:11:29.388 WRN Not overwriting log entry. sn=41
+17:11:29.414 DBG Receive msg from peer ... SenderId=3 Sn=40 height=0 type=ProtocolMessage_LogEntry
+17:11:29.414 DBG Received protocol message: Orderer. from=3
+17:11:29.414 DBG Globalorderer handling message. senderID=3 sn=40
+17:11:29.414 DBG Received LogEntry message. SenderId=3
+17:11:29.415 INF Committed entry. latency=0 nReq=231 sn=40
+17:11:29.415 INF Delivered batch. nReq=231 sn=40
+17:11:29.415 INF Delivered batch. nReq=238 sn=41
+17:11:29.415 INF Delivered batch. nReq=234 sn=42
+17:11:29.415 INF Delivered batch. nReq=238 sn=43
+17:11:29.418 DBG Receive msg from peer ... SenderId=2 Sn=40 height=0 type=ProtocolMessage_LogEntry
+17:11:29.418 DBG Received protocol message: Orderer. from=2
+17:11:29.418 DBG Globalorderer handling message. senderID=2 sn=40
+17:11:29.418 DBG Received LogEntry message. SenderId=2
+17:11:29.418 WRN Not overwriting log entry. sn=40
+17:11:29.422 DBG Receive msg from peer ... SenderId=0 Sn=40 height=0 type=ProtocolMessage_LogEntry
+17:11:29.422 DBG Received protocol message: Orderer. from=0
+17:11:29.422 DBG Globalorderer handling message. senderID=0 sn=40
+17:11:29.422 DBG Received LogEntry message. SenderId=0
+17:11:29.422 WRN Not overwriting log entry. sn=40
+17:11:29.428 DBG Receive msg from peer ... SenderId=4 Sn=40 height=0 type=ProtocolMessage_LogEntry
+17:11:29.428 DBG Received protocol message: Orderer. from=4
+17:11:29.428 DBG Globalorderer handling message. senderID=4 sn=40
+17:11:29.428 DBG Received LogEntry message. SenderId=4
+17:11:29.428 WRN Not overwriting log entry. sn=40
+17:11:30.262 DBG Receive msg from peer ... SenderId=0 Sn=47 height=0 type=ProtocolMessage_LogEntry
+17:11:30.263 DBG Received protocol message: Orderer. from=0
+17:11:30.263 DBG Globalorderer handling message. senderID=0 sn=47
+17:11:30.263 DBG Received LogEntry message. SenderId=0
+17:11:30.263 INF Committed entry. latency=0 nReq=229 sn=47
+17:11:30.263 DBG Receive msg from peer ... SenderId=4 Sn=47 height=0 type=ProtocolMessage_LogEntry
+17:11:30.264 DBG Received protocol message: Orderer. from=4
+17:11:30.265 DBG Globalorderer handling message. senderID=4 sn=47
+17:11:30.265 DBG Received LogEntry message. SenderId=4
+17:11:30.265 WRN Not overwriting log entry. sn=47
+17:11:30.266 DBG Receive msg from peer ... SenderId=3 Sn=47 height=0 type=ProtocolMessage_LogEntry
+17:11:30.266 DBG Received protocol message: Orderer. from=3
+17:11:30.266 DBG Globalorderer handling message. senderID=3 sn=47
+17:11:30.267 DBG Received LogEntry message. SenderId=3
+17:11:30.267 WRN Not overwriting log entry. sn=47
+17:11:30.277 DBG Receive msg from peer ... SenderId=4 Sn=46 height=0 type=ProtocolMessage_LogEntry
+17:11:30.277 DBG Received protocol message: Orderer. from=4
+17:11:30.277 DBG Globalorderer handling message. senderID=4 sn=46
+17:11:30.277 DBG Received LogEntry message. SenderId=4
+17:11:30.277 INF Committed entry. latency=0 nReq=233 sn=46
+17:11:30.282 DBG Receive msg from peer ... SenderId=0 Sn=46 height=0 type=ProtocolMessage_LogEntry
+17:11:30.282 DBG Received protocol message: Orderer. from=0
+17:11:30.282 DBG Globalorderer handling message. senderID=0 sn=46
+17:11:30.283 DBG Received LogEntry message. SenderId=0
+17:11:30.283 WRN Not overwriting log entry. sn=46
+17:11:30.283 DBG Receive msg from peer ... SenderId=2 Sn=47 height=0 type=ProtocolMessage_LogEntry
+17:11:30.283 DBG Received protocol message: Orderer. from=2
+17:11:30.283 DBG Globalorderer handling message. senderID=2 sn=47
+17:11:30.283 DBG Received LogEntry message. SenderId=2
+17:11:30.283 WRN Not overwriting log entry. sn=47
+17:11:30.284 DBG Receive msg from peer ... SenderId=3 Sn=46 height=0 type=ProtocolMessage_LogEntry
+17:11:30.284 DBG Received protocol message: Orderer. from=3
+17:11:30.284 DBG Globalorderer handling message. senderID=3 sn=46
+17:11:30.284 DBG Received LogEntry message. SenderId=3
+17:11:30.284 WRN Not overwriting log entry. sn=46
+17:11:30.312 DBG Receive msg from peer ... SenderId=2 Sn=46 height=0 type=ProtocolMessage_LogEntry
+17:11:30.312 DBG Received protocol message: Orderer. from=2
+17:11:30.312 DBG Globalorderer handling message. senderID=2 sn=46
+17:11:30.312 DBG Received LogEntry message. SenderId=2
+17:11:30.312 WRN Not overwriting log entry. sn=46
+17:11:30.367 DBG Receive msg from peer ... SenderId=2 Sn=45 height=0 type=ProtocolMessage_LogEntry
+17:11:30.367 DBG Received protocol message: Orderer. from=2
+17:11:30.367 DBG Globalorderer handling message. senderID=2 sn=45
+17:11:30.367 DBG Received LogEntry message. SenderId=2
+17:11:30.367 INF Committed entry. latency=0 nReq=239 sn=45
+17:11:30.368 DBG Receive msg from peer ... SenderId=4 Sn=45 height=0 type=ProtocolMessage_LogEntry
+17:11:30.368 DBG Received protocol message: Orderer. from=4
+17:11:30.368 DBG Globalorderer handling message. senderID=4 sn=45
+17:11:30.368 DBG Received LogEntry message. SenderId=4
+17:11:30.368 WRN Not overwriting log entry. sn=45
+17:11:30.375 DBG Receive msg from peer ... SenderId=3 Sn=45 height=0 type=ProtocolMessage_LogEntry
+17:11:30.376 DBG Received protocol message: Orderer. from=3
+17:11:30.376 DBG Globalorderer handling message. senderID=3 sn=45
+17:11:30.376 DBG Received LogEntry message. SenderId=3
+17:11:30.376 WRN Not overwriting log entry. sn=45
+17:11:30.397 DBG Receive msg from peer ... SenderId=0 Sn=45 height=0 type=ProtocolMessage_LogEntry
+17:11:30.397 DBG Received protocol message: Orderer. from=0
+17:11:30.397 DBG Globalorderer handling message. senderID=0 sn=45
+17:11:30.397 DBG Received LogEntry message. SenderId=0
+17:11:30.398 WRN Not overwriting log entry. sn=45
+17:11:30.424 DBG Receive msg from peer ... SenderId=0 Sn=44 height=0 type=ProtocolMessage_LogEntry
+17:11:30.424 DBG Received protocol message: Orderer. from=0
+17:11:30.425 DBG Globalorderer handling message. senderID=0 sn=44
+17:11:30.425 DBG Received LogEntry message. SenderId=0
+17:11:30.425 INF Committed entry. latency=0 nReq=244 sn=44
+17:11:30.425 INF Delivered batch. nReq=244 sn=44
+17:11:30.425 INF Delivered batch. nReq=239 sn=45
+17:11:30.431 INF Delivered batch. nReq=233 sn=46
+17:11:30.432 INF Delivered batch. nReq=229 sn=47
+17:11:30.437 DBG Receive msg from peer ... SenderId=3 Sn=44 height=0 type=ProtocolMessage_LogEntry
+17:11:30.438 DBG Received protocol message: Orderer. from=3
+17:11:30.438 DBG Globalorderer handling message. senderID=3 sn=44
+17:11:30.438 DBG Received LogEntry message. SenderId=3
+17:11:30.438 WRN Not overwriting log entry. sn=44
+17:11:30.438 DBG Receive msg from peer ... SenderId=2 Sn=44 height=0 type=ProtocolMessage_LogEntry
+17:11:30.438 DBG Received protocol message: Orderer. from=2
+17:11:30.438 DBG Globalorderer handling message. senderID=2 sn=44
+17:11:30.439 DBG Received LogEntry message. SenderId=2
+17:11:30.439 WRN Not overwriting log entry. sn=44
+17:11:30.443 DBG Receive msg from peer ... SenderId=4 Sn=44 height=0 type=ProtocolMessage_LogEntry
+17:11:30.443 DBG Received protocol message: Orderer. from=4
+17:11:30.443 DBG Globalorderer handling message. senderID=4 sn=44
+17:11:30.443 DBG Received LogEntry message. SenderId=4
+17:11:30.443 WRN Not overwriting log entry. sn=44
+17:11:31.247 DBG Receive msg from peer ... SenderId=4 Sn=51 height=0 type=ProtocolMessage_LogEntry
+17:11:31.247 DBG Received protocol message: Orderer. from=4
+17:11:31.247 DBG Globalorderer handling message. senderID=4 sn=51
+17:11:31.247 DBG Received LogEntry message. SenderId=4
+17:11:31.247 INF Committed entry. latency=0 nReq=210 sn=51
+17:11:31.249 DBG Receive msg from peer ... SenderId=2 Sn=51 height=0 type=ProtocolMessage_LogEntry
+17:11:31.249 DBG Received protocol message: Orderer. from=2
+17:11:31.250 DBG Globalorderer handling message. senderID=2 sn=51
+17:11:31.250 DBG Received LogEntry message. SenderId=2
+17:11:31.250 WRN Not overwriting log entry. sn=51
+17:11:31.252 DBG Receive msg from peer ... SenderId=0 Sn=51 height=0 type=ProtocolMessage_LogEntry
+17:11:31.253 DBG Received protocol message: Orderer. from=0
+17:11:31.253 DBG Globalorderer handling message. senderID=0 sn=51
+17:11:31.253 DBG Received LogEntry message. SenderId=0
+17:11:31.253 WRN Not overwriting log entry. sn=51
+17:11:31.262 DBG Receive msg from peer ... SenderId=3 Sn=51 height=0 type=ProtocolMessage_LogEntry
+17:11:31.262 DBG Received protocol message: Orderer. from=3
+17:11:31.262 DBG Globalorderer handling message. senderID=3 sn=51
+17:11:31.262 DBG Received LogEntry message. SenderId=3
+17:11:31.262 WRN Not overwriting log entry. sn=51
+17:11:31.280 DBG Receive msg from peer ... SenderId=2 Sn=50 height=0 type=ProtocolMessage_LogEntry
+17:11:31.281 DBG Received protocol message: Orderer. from=2
+17:11:31.281 DBG Globalorderer handling message. senderID=2 sn=50
+17:11:31.281 DBG Received LogEntry message. SenderId=2
+17:11:31.281 INF Committed entry. latency=0 nReq=206 sn=50
+17:11:31.281 DBG Receive msg from peer ... SenderId=0 Sn=50 height=0 type=ProtocolMessage_LogEntry
+17:11:31.281 DBG Received protocol message: Orderer. from=0
+17:11:31.281 DBG Globalorderer handling message. senderID=0 sn=50
+17:11:31.281 DBG Received LogEntry message. SenderId=0
+17:11:31.282 WRN Not overwriting log entry. sn=50
+17:11:31.284 DBG Receive msg from peer ... SenderId=3 Sn=50 height=0 type=ProtocolMessage_LogEntry
+17:11:31.284 DBG Received protocol message: Orderer. from=3
+17:11:31.285 DBG Globalorderer handling message. senderID=3 sn=50
+17:11:31.285 DBG Received LogEntry message. SenderId=3
+17:11:31.285 WRN Not overwriting log entry. sn=50
+17:11:31.287 DBG Receive msg from peer ... SenderId=4 Sn=50 height=0 type=ProtocolMessage_LogEntry
+17:11:31.287 DBG Received protocol message: Orderer. from=4
+17:11:31.287 DBG Globalorderer handling message. senderID=4 sn=50
+17:11:31.287 DBG Received LogEntry message. SenderId=4
+17:11:31.287 WRN Not overwriting log entry. sn=50
+17:11:31.345 DBG Receive msg from peer ... SenderId=0 Sn=49 height=0 type=ProtocolMessage_LogEntry
+17:11:31.345 DBG Received protocol message: Orderer. from=0
+17:11:31.345 DBG Globalorderer handling message. senderID=0 sn=49
+17:11:31.345 DBG Received LogEntry message. SenderId=0
+17:11:31.346 INF Committed entry. latency=0 nReq=210 sn=49
+17:11:31.349 DBG Receive msg from peer ... SenderId=2 Sn=49 height=0 type=ProtocolMessage_LogEntry
+17:11:31.349 DBG Received protocol message: Orderer. from=2
+17:11:31.349 DBG Globalorderer handling message. senderID=2 sn=49
+17:11:31.349 DBG Received LogEntry message. SenderId=2
+17:11:31.349 WRN Not overwriting log entry. sn=49
+17:11:31.351 DBG Receive msg from peer ... SenderId=3 Sn=49 height=0 type=ProtocolMessage_LogEntry
+17:11:31.351 DBG Received protocol message: Orderer. from=3
+17:11:31.351 DBG Globalorderer handling message. senderID=3 sn=49
+17:11:31.351 DBG Received LogEntry message. SenderId=3
+17:11:31.352 WRN Not overwriting log entry. sn=49
+17:11:31.352 DBG Receive msg from peer ... SenderId=4 Sn=49 height=0 type=ProtocolMessage_LogEntry
+17:11:31.352 DBG Received protocol message: Orderer. from=4
+17:11:31.352 DBG Globalorderer handling message. senderID=4 sn=49
+17:11:31.352 DBG Received LogEntry message. SenderId=4
+17:11:31.352 WRN Not overwriting log entry. sn=49
+17:11:31.430 DBG Receive msg from peer ... SenderId=0 Sn=48 height=0 type=ProtocolMessage_LogEntry
+17:11:31.430 DBG Received protocol message: Orderer. from=0
+17:11:31.430 DBG Globalorderer handling message. senderID=0 sn=48
+17:11:31.430 DBG Received LogEntry message. SenderId=0
+17:11:31.430 INF Committed entry. latency=0 nReq=215 sn=48
+17:11:31.430 INF Delivered batch. nReq=215 sn=48
+17:11:31.430 INF Delivered batch. nReq=210 sn=49
+17:11:31.431 INF Delivered batch. nReq=206 sn=50
+17:11:31.431 INF Delivered batch. nReq=210 sn=51
+17:11:31.438 DBG Receive msg from peer ... SenderId=2 Sn=48 height=0 type=ProtocolMessage_LogEntry
+17:11:31.438 DBG Received protocol message: Orderer. from=2
+17:11:31.438 DBG Receive msg from peer ... SenderId=4 Sn=48 height=0 type=ProtocolMessage_LogEntry
+17:11:31.438 DBG Globalorderer handling message. senderID=2 sn=48
+17:11:31.438 DBG Received protocol message: Orderer. from=4
+17:11:31.438 DBG Globalorderer handling message. senderID=4 sn=48
+17:11:31.438 DBG Received LogEntry message. SenderId=2
+17:11:31.438 WRN Not overwriting log entry. sn=48
+17:11:31.438 DBG Received LogEntry message. SenderId=4
+17:11:31.439 WRN Not overwriting log entry. sn=48
+17:11:31.440 DBG Receive msg from peer ... SenderId=3 Sn=48 height=0 type=ProtocolMessage_LogEntry
+17:11:31.440 DBG Received protocol message: Orderer. from=3
+17:11:31.440 DBG Globalorderer handling message. senderID=3 sn=48
+17:11:31.440 DBG Received LogEntry message. SenderId=3
+17:11:31.440 WRN Not overwriting log entry. sn=48
+17:11:32.256 DBG Receive msg from peer ... SenderId=4 Sn=55 height=0 type=ProtocolMessage_LogEntry
+17:11:32.256 DBG Received protocol message: Orderer. from=4
+17:11:32.256 DBG Globalorderer handling message. senderID=4 sn=55
+17:11:32.257 DBG Receive msg from peer ... SenderId=3 Sn=55 height=0 type=ProtocolMessage_LogEntry
+17:11:32.257 DBG Received protocol message: Orderer. from=3
+17:11:32.257 DBG Globalorderer handling message. senderID=3 sn=55
+17:11:32.257 DBG Received LogEntry message. SenderId=4
+17:11:32.258 INF Committed entry. latency=0 nReq=218 sn=55
+17:11:32.258 DBG Received LogEntry message. SenderId=3
+17:11:32.258 WRN Not overwriting log entry. sn=55
+17:11:32.258 DBG Receive msg from peer ... SenderId=0 Sn=55 height=0 type=ProtocolMessage_LogEntry
+17:11:32.259 DBG Received protocol message: Orderer. from=0
+17:11:32.259 DBG Globalorderer handling message. senderID=0 sn=55
+17:11:32.259 DBG Received LogEntry message. SenderId=0
+17:11:32.259 WRN Not overwriting log entry. sn=55
+17:11:32.263 DBG Receive msg from peer ... SenderId=2 Sn=55 height=0 type=ProtocolMessage_LogEntry
+17:11:32.263 DBG Received protocol message: Orderer. from=2
+17:11:32.263 DBG Globalorderer handling message. senderID=2 sn=55
+17:11:32.263 DBG Received LogEntry message. SenderId=2
+17:11:32.264 WRN Not overwriting log entry. sn=55
+17:11:32.308 DBG Receive msg from peer ... SenderId=4 Sn=54 height=0 type=ProtocolMessage_LogEntry
+17:11:32.308 DBG Received protocol message: Orderer. from=4
+17:11:32.308 DBG Globalorderer handling message. senderID=4 sn=54
+17:11:32.309 DBG Received LogEntry message. SenderId=4
+17:11:32.309 INF Committed entry. latency=0 nReq=228 sn=54
+17:11:32.309 DBG Receive msg from peer ... SenderId=3 Sn=54 height=0 type=ProtocolMessage_LogEntry
+17:11:32.309 DBG Received protocol message: Orderer. from=3
+17:11:32.309 DBG Globalorderer handling message. senderID=3 sn=54
+17:11:32.309 DBG Received LogEntry message. SenderId=3
+17:11:32.309 WRN Not overwriting log entry. sn=54
+17:11:32.312 DBG Receive msg from peer ... SenderId=0 Sn=54 height=0 type=ProtocolMessage_LogEntry
+17:11:32.313 DBG Received protocol message: Orderer. from=0
+17:11:32.313 DBG Globalorderer handling message. senderID=0 sn=54
+17:11:32.313 DBG Received LogEntry message. SenderId=0
+17:11:32.313 WRN Not overwriting log entry. sn=54
+17:11:32.315 DBG Receive msg from peer ... SenderId=2 Sn=54 height=0 type=ProtocolMessage_LogEntry
+17:11:32.315 DBG Received protocol message: Orderer. from=2
+17:11:32.315 DBG Globalorderer handling message. senderID=2 sn=54
+17:11:32.315 DBG Received LogEntry message. SenderId=2
+17:11:32.315 WRN Not overwriting log entry. sn=54
+17:11:32.364 DBG Receive msg from peer ... SenderId=0 Sn=53 height=0 type=ProtocolMessage_LogEntry
+17:11:32.364 DBG Received protocol message: Orderer. from=0
+17:11:32.364 DBG Globalorderer handling message. senderID=0 sn=53
+17:11:32.364 DBG Received LogEntry message. SenderId=0
+17:11:32.364 INF Committed entry. latency=0 nReq=226 sn=53
+17:11:32.367 DBG Receive msg from peer ... SenderId=3 Sn=53 height=0 type=ProtocolMessage_LogEntry
+17:11:32.367 DBG Received protocol message: Orderer. from=3
+17:11:32.367 DBG Globalorderer handling message. senderID=3 sn=53
+17:11:32.367 DBG Received LogEntry message. SenderId=3
+17:11:32.367 WRN Not overwriting log entry. sn=53
+17:11:32.370 DBG Receive msg from peer ... SenderId=4 Sn=53 height=0 type=ProtocolMessage_LogEntry
+17:11:32.370 DBG Received protocol message: Orderer. from=4
+17:11:32.370 DBG Globalorderer handling message. senderID=4 sn=53
+17:11:32.370 DBG Received LogEntry message. SenderId=4
+17:11:32.370 WRN Not overwriting log entry. sn=53
+17:11:32.372 DBG Receive msg from peer ... SenderId=2 Sn=53 height=0 type=ProtocolMessage_LogEntry
+17:11:32.372 DBG Received protocol message: Orderer. from=2
+17:11:32.373 DBG Globalorderer handling message. senderID=2 sn=53
+17:11:32.373 DBG Received LogEntry message. SenderId=2
+17:11:32.373 WRN Not overwriting log entry. sn=53
+17:11:32.445 DBG Receive msg from peer ... SenderId=0 Sn=52 height=0 type=ProtocolMessage_LogEntry
+17:11:32.446 DBG Received protocol message: Orderer. from=0
+17:11:32.446 DBG Globalorderer handling message. senderID=0 sn=52
+17:11:32.446 DBG Received LogEntry message. SenderId=0
+17:11:32.446 INF Committed entry. latency=0 nReq=225 sn=52
+17:11:32.446 INF Delivered batch. nReq=225 sn=52
+17:11:32.446 INF Delivered batch. nReq=226 sn=53
+17:11:32.446 INF Delivered batch. nReq=228 sn=54
+17:11:32.446 INF Delivered batch. nReq=218 sn=55
+17:11:32.448 DBG Receive msg from peer ... SenderId=4 Sn=52 height=0 type=ProtocolMessage_LogEntry
+17:11:32.448 DBG Received protocol message: Orderer. from=4
+17:11:32.449 DBG Globalorderer handling message. senderID=4 sn=52
+17:11:32.449 DBG Received LogEntry message. SenderId=4
+17:11:32.449 WRN Not overwriting log entry. sn=52
+17:11:32.457 DBG Receive msg from peer ... SenderId=2 Sn=52 height=0 type=ProtocolMessage_LogEntry
+17:11:32.457 DBG Received protocol message: Orderer. from=2
+17:11:32.458 DBG Globalorderer handling message. senderID=2 sn=52
+17:11:32.458 DBG Received LogEntry message. SenderId=2
+17:11:32.458 WRN Not overwriting log entry. sn=52
+17:11:32.462 DBG Receive msg from peer ... SenderId=3 Sn=52 height=0 type=ProtocolMessage_LogEntry
+17:11:32.462 DBG Received protocol message: Orderer. from=3
+17:11:32.462 DBG Globalorderer handling message. senderID=3 sn=52
+17:11:32.462 DBG Received LogEntry message. SenderId=3
+17:11:32.462 WRN Not overwriting log entry. sn=52
+17:11:33.283 DBG Receive msg from peer ... SenderId=2 Sn=59 height=0 type=ProtocolMessage_LogEntry
+17:11:33.284 DBG Received protocol message: Orderer. from=2
+17:11:33.284 DBG Globalorderer handling message. senderID=2 sn=59
+17:11:33.284 DBG Received LogEntry message. SenderId=2
+17:11:33.284 INF Committed entry. latency=0 nReq=241 sn=59
+17:11:33.286 DBG Receive msg from peer ... SenderId=4 Sn=59 height=0 type=ProtocolMessage_LogEntry
+17:11:33.286 DBG Received protocol message: Orderer. from=4
+17:11:33.286 DBG Globalorderer handling message. senderID=4 sn=59
+17:11:33.286 DBG Received LogEntry message. SenderId=4
+17:11:33.287 WRN Not overwriting log entry. sn=59
+17:11:33.289 DBG Receive msg from peer ... SenderId=3 Sn=59 height=0 type=ProtocolMessage_LogEntry
+17:11:33.289 DBG Received protocol message: Orderer. from=3
+17:11:33.289 DBG Globalorderer handling message. senderID=3 sn=59
+17:11:33.289 DBG Received LogEntry message. SenderId=3
+17:11:33.289 WRN Not overwriting log entry. sn=59
+17:11:33.293 DBG Receive msg from peer ... SenderId=0 Sn=59 height=0 type=ProtocolMessage_LogEntry
+17:11:33.294 DBG Received protocol message: Orderer. from=0
+17:11:33.294 DBG Globalorderer handling message. senderID=0 sn=59
+17:11:33.294 DBG Received LogEntry message. SenderId=0
+17:11:33.294 WRN Not overwriting log entry. sn=59
+17:11:33.332 DBG Receive msg from peer ... SenderId=0 Sn=58 height=0 type=ProtocolMessage_LogEntry
+17:11:33.332 DBG Received protocol message: Orderer. from=0
+17:11:33.332 DBG Globalorderer handling message. senderID=0 sn=58
+17:11:33.333 DBG Received LogEntry message. SenderId=0
+17:11:33.333 INF Committed entry. latency=0 nReq=243 sn=58
+17:11:33.335 DBG Receive msg from peer ... SenderId=4 Sn=58 height=0 type=ProtocolMessage_LogEntry
+17:11:33.335 DBG Received protocol message: Orderer. from=4
+17:11:33.335 DBG Globalorderer handling message. senderID=4 sn=58
+17:11:33.335 DBG Received LogEntry message. SenderId=4
+17:11:33.335 WRN Not overwriting log entry. sn=58
+17:11:33.338 DBG Receive msg from peer ... SenderId=3 Sn=58 height=0 type=ProtocolMessage_LogEntry
+17:11:33.338 DBG Received protocol message: Orderer. from=3
+17:11:33.338 DBG Globalorderer handling message. senderID=3 sn=58
+17:11:33.338 DBG Received LogEntry message. SenderId=3
+17:11:33.338 WRN Not overwriting log entry. sn=58
+17:11:33.370 DBG Receive msg from peer ... SenderId=2 Sn=58 height=0 type=ProtocolMessage_LogEntry
+17:11:33.370 DBG Received protocol message: Orderer. from=2
+17:11:33.370 DBG Globalorderer handling message. senderID=2 sn=58
+17:11:33.370 DBG Received LogEntry message. SenderId=2
+17:11:33.370 WRN Not overwriting log entry. sn=58
+17:11:33.380 DBG Receive msg from peer ... SenderId=0 Sn=57 height=0 type=ProtocolMessage_LogEntry
+17:11:33.380 DBG Received protocol message: Orderer. from=0
+17:11:33.380 DBG Globalorderer handling message. senderID=0 sn=57
+17:11:33.380 DBG Received LogEntry message. SenderId=0
+17:11:33.380 INF Committed entry. latency=0 nReq=237 sn=57
+17:11:33.383 DBG Receive msg from peer ... SenderId=4 Sn=57 height=0 type=ProtocolMessage_LogEntry
+17:11:33.383 DBG Received protocol message: Orderer. from=4
+17:11:33.383 DBG Globalorderer handling message. senderID=4 sn=57
+17:11:33.383 DBG Received LogEntry message. SenderId=4
+17:11:33.383 WRN Not overwriting log entry. sn=57
+17:11:33.385 DBG Receive msg from peer ... SenderId=3 Sn=57 height=0 type=ProtocolMessage_LogEntry
+17:11:33.385 DBG Received protocol message: Orderer. from=3
+17:11:33.386 DBG Globalorderer handling message. senderID=3 sn=57
+17:11:33.386 DBG Received LogEntry message. SenderId=3
+17:11:33.386 WRN Not overwriting log entry. sn=57
+17:11:33.387 DBG Receive msg from peer ... SenderId=2 Sn=57 height=0 type=ProtocolMessage_LogEntry
+17:11:33.387 DBG Received protocol message: Orderer. from=2
+17:11:33.387 DBG Globalorderer handling message. senderID=2 sn=57
+17:11:33.387 DBG Received LogEntry message. SenderId=2
+17:11:33.388 WRN Not overwriting log entry. sn=57
+17:11:33.461 DBG Receive msg from peer ... SenderId=3 Sn=56 height=0 type=ProtocolMessage_LogEntry
+17:11:33.461 DBG Received protocol message: Orderer. from=3
+17:11:33.461 DBG Globalorderer handling message. senderID=3 sn=56
+17:11:33.461 DBG Received LogEntry message. SenderId=3
+17:11:33.462 INF Committed entry. latency=0 nReq=238 sn=56
+17:11:33.462 INF Delivered batch. nReq=238 sn=56
+17:11:33.462 INF Delivered batch. nReq=237 sn=57
+17:11:33.462 INF Delivered batch. nReq=243 sn=58
+17:11:33.462 INF Delivered batch. nReq=241 sn=59
+17:11:33.465 DBG Receive msg from peer ... SenderId=0 Sn=56 height=0 type=ProtocolMessage_LogEntry
+17:11:33.465 DBG Received protocol message: Orderer. from=0
+17:11:33.465 DBG Globalorderer handling message. senderID=0 sn=56
+17:11:33.465 DBG Received LogEntry message. SenderId=0
+17:11:33.465 WRN Not overwriting log entry. sn=56
+17:11:33.471 DBG Receive msg from peer ... SenderId=2 Sn=56 height=0 type=ProtocolMessage_LogEntry
+17:11:33.471 DBG Received protocol message: Orderer. from=2
+17:11:33.471 DBG Globalorderer handling message. senderID=2 sn=56
+17:11:33.471 DBG Received LogEntry message. SenderId=2
+17:11:33.472 WRN Not overwriting log entry. sn=56
+17:11:33.475 DBG Receive msg from peer ... SenderId=4 Sn=56 height=0 type=ProtocolMessage_LogEntry
+17:11:33.475 DBG Received protocol message: Orderer. from=4
+17:11:33.475 DBG Globalorderer handling message. senderID=4 sn=56
+17:11:33.475 DBG Received LogEntry message. SenderId=4
+17:11:33.475 WRN Not overwriting log entry. sn=56
+17:11:34.274 DBG Receive msg from peer ... SenderId=2 Sn=63 height=0 type=ProtocolMessage_LogEntry
+17:11:34.275 DBG Received protocol message: Orderer. from=2
+17:11:34.275 DBG Globalorderer handling message. senderID=2 sn=63
+17:11:34.275 DBG Received LogEntry message. SenderId=2
+17:11:34.275 INF Committed entry. latency=0 nReq=211 sn=63
+17:11:34.277 DBG Receive msg from peer ... SenderId=0 Sn=63 height=0 type=ProtocolMessage_LogEntry
+17:11:34.277 DBG Received protocol message: Orderer. from=0
+17:11:34.278 DBG Globalorderer handling message. senderID=0 sn=63
+17:11:34.278 DBG Received LogEntry message. SenderId=0
+17:11:34.278 WRN Not overwriting log entry. sn=63
+17:11:34.279 DBG Receive msg from peer ... SenderId=3 Sn=63 height=0 type=ProtocolMessage_LogEntry
+17:11:34.280 DBG Received protocol message: Orderer. from=3
+17:11:34.280 DBG Globalorderer handling message. senderID=3 sn=63
+17:11:34.280 DBG Received LogEntry message. SenderId=3
+17:11:34.280 WRN Not overwriting log entry. sn=63
+17:11:34.281 DBG Receive msg from peer ... SenderId=4 Sn=63 height=0 type=ProtocolMessage_LogEntry
+17:11:34.281 DBG Received protocol message: Orderer. from=4
+17:11:34.281 DBG Globalorderer handling message. senderID=4 sn=63
+17:11:34.281 DBG Received LogEntry message. SenderId=4
+17:11:34.282 WRN Not overwriting log entry. sn=63
+17:11:34.325 DBG Receive msg from peer ... SenderId=3 Sn=62 height=0 type=ProtocolMessage_LogEntry
+17:11:34.325 DBG Received protocol message: Orderer. from=3
+17:11:34.325 DBG Globalorderer handling message. senderID=3 sn=62
+17:11:34.326 DBG Received LogEntry message. SenderId=3
+17:11:34.326 INF Committed entry. latency=0 nReq=206 sn=62
+17:11:34.327 DBG Receive msg from peer ... SenderId=4 Sn=62 height=0 type=ProtocolMessage_LogEntry
+17:11:34.327 DBG Received protocol message: Orderer. from=4
+17:11:34.327 DBG Globalorderer handling message. senderID=4 sn=62
+17:11:34.327 DBG Received LogEntry message. SenderId=4
+17:11:34.327 WRN Not overwriting log entry. sn=62
+17:11:34.329 DBG Receive msg from peer ... SenderId=2 Sn=62 height=0 type=ProtocolMessage_LogEntry
+17:11:34.330 DBG Received protocol message: Orderer. from=2
+17:11:34.330 DBG Globalorderer handling message. senderID=2 sn=62
+17:11:34.330 DBG Received LogEntry message. SenderId=2
+17:11:34.330 WRN Not overwriting log entry. sn=62
+17:11:34.345 DBG Receive msg from peer ... SenderId=0 Sn=62 height=0 type=ProtocolMessage_LogEntry
+17:11:34.345 DBG Received protocol message: Orderer. from=0
+17:11:34.345 DBG Globalorderer handling message. senderID=0 sn=62
+17:11:34.345 DBG Received LogEntry message. SenderId=0
+17:11:34.345 WRN Not overwriting log entry. sn=62
+17:11:34.384 DBG Receive msg from peer ... SenderId=0 Sn=61 height=0 type=ProtocolMessage_LogEntry
+17:11:34.384 DBG Received protocol message: Orderer. from=0
+17:11:34.384 DBG Globalorderer handling message. senderID=0 sn=61
+17:11:34.384 DBG Received LogEntry message. SenderId=0
+17:11:34.384 INF Committed entry. latency=0 nReq=207 sn=61
+17:11:34.385 DBG Receive msg from peer ... SenderId=3 Sn=61 height=0 type=ProtocolMessage_LogEntry
+17:11:34.385 DBG Received protocol message: Orderer. from=3
+17:11:34.385 DBG Globalorderer handling message. senderID=3 sn=61
+17:11:34.385 DBG Received LogEntry message. SenderId=3
+17:11:34.385 WRN Not overwriting log entry. sn=61
+17:11:34.386 DBG Receive msg from peer ... SenderId=4 Sn=61 height=0 type=ProtocolMessage_LogEntry
+17:11:34.387 DBG Received protocol message: Orderer. from=4
+17:11:34.387 DBG Globalorderer handling message. senderID=4 sn=61
+17:11:34.387 DBG Received LogEntry message. SenderId=4
+17:11:34.387 WRN Not overwriting log entry. sn=61
+17:11:34.387 DBG Receive msg from peer ... SenderId=2 Sn=61 height=0 type=ProtocolMessage_LogEntry
+17:11:34.387 DBG Received protocol message: Orderer. from=2
+17:11:34.387 DBG Globalorderer handling message. senderID=2 sn=61
+17:11:34.387 DBG Received LogEntry message. SenderId=2
+17:11:34.388 WRN Not overwriting log entry. sn=61
+17:11:34.449 DBG Receive msg from peer ... SenderId=2 Sn=60 height=0 type=ProtocolMessage_LogEntry
+17:11:34.449 DBG Received protocol message: Orderer. from=2
+17:11:34.449 DBG Globalorderer handling message. senderID=2 sn=60
+17:11:34.449 DBG Received LogEntry message. SenderId=2
+17:11:34.449 INF Committed entry. latency=0 nReq=206 sn=60
+17:11:34.449 INF Delivered batch. nReq=206 sn=60
+17:11:34.449 INF Delivered batch. nReq=207 sn=61
+17:11:34.449 INF Delivered batch. nReq=206 sn=62
+17:11:34.450 INF Delivered batch. nReq=211 sn=63
+17:11:34.452 DBG Receive msg from peer ... SenderId=0 Sn=60 height=0 type=ProtocolMessage_LogEntry
+17:11:34.452 DBG Received protocol message: Orderer. from=0
+17:11:34.452 DBG Globalorderer handling message. senderID=0 sn=60
+17:11:34.452 DBG Received LogEntry message. SenderId=0
+17:11:34.452 WRN Not overwriting log entry. sn=60
+17:11:34.455 DBG Receive msg from peer ... SenderId=3 Sn=60 height=0 type=ProtocolMessage_LogEntry
+17:11:34.455 DBG Received protocol message: Orderer. from=3
+17:11:34.455 DBG Globalorderer handling message. senderID=3 sn=60
+17:11:34.455 DBG Received LogEntry message. SenderId=3
+17:11:34.455 WRN Not overwriting log entry. sn=60
+17:11:34.473 DBG Receive msg from peer ... SenderId=4 Sn=60 height=0 type=ProtocolMessage_LogEntry
+17:11:34.473 DBG Received protocol message: Orderer. from=4
+17:11:34.473 DBG Globalorderer handling message. senderID=4 sn=60
+17:11:34.474 DBG Received LogEntry message. SenderId=4
+17:11:34.474 WRN Not overwriting log entry. sn=60
+17:11:35.286 DBG Receive msg from peer ... SenderId=4 Sn=67 height=0 type=ProtocolMessage_LogEntry
+17:11:35.286 DBG Received protocol message: Orderer. from=4
+17:11:35.286 DBG Globalorderer handling message. senderID=4 sn=67
+17:11:35.286 DBG Received LogEntry message. SenderId=4
+17:11:35.286 INF Committed entry. latency=0 nReq=215 sn=67
+17:11:35.290 DBG Receive msg from peer ... SenderId=0 Sn=67 height=0 type=ProtocolMessage_LogEntry
+17:11:35.290 DBG Received protocol message: Orderer. from=0
+17:11:35.290 DBG Globalorderer handling message. senderID=0 sn=67
+17:11:35.290 DBG Receive msg from peer ... SenderId=3 Sn=67 height=0 type=ProtocolMessage_LogEntry
+17:11:35.290 DBG Received LogEntry message. SenderId=0
+17:11:35.290 WRN Not overwriting log entry. sn=67
+17:11:35.290 DBG Received protocol message: Orderer. from=3
+17:11:35.290 DBG Receive msg from peer ... SenderId=2 Sn=67 height=0 type=ProtocolMessage_LogEntry
+17:11:35.290 DBG Globalorderer handling message. senderID=3 sn=67
+17:11:35.290 DBG Received protocol message: Orderer. from=2
+17:11:35.290 DBG Received LogEntry message. SenderId=3
+17:11:35.290 DBG Globalorderer handling message. senderID=2 sn=67
+17:11:35.290 WRN Not overwriting log entry. sn=67
+17:11:35.290 DBG Received LogEntry message. SenderId=2
+17:11:35.291 WRN Not overwriting log entry. sn=67
+17:11:35.363 DBG Receive msg from peer ... SenderId=2 Sn=66 height=0 type=ProtocolMessage_LogEntry
+17:11:35.363 DBG Received protocol message: Orderer. from=2
+17:11:35.363 DBG Globalorderer handling message. senderID=2 sn=66
+17:11:35.363 DBG Received LogEntry message. SenderId=2
+17:11:35.363 INF Committed entry. latency=0 nReq=221 sn=66
+17:11:35.369 DBG Receive msg from peer ... SenderId=3 Sn=66 height=0 type=ProtocolMessage_LogEntry
+17:11:35.369 DBG Received protocol message: Orderer. from=3
+17:11:35.369 DBG Globalorderer handling message. senderID=3 sn=66
+17:11:35.369 DBG Received LogEntry message. SenderId=3
+17:11:35.369 WRN Not overwriting log entry. sn=66
+17:11:35.373 DBG Receive msg from peer ... SenderId=0 Sn=66 height=0 type=ProtocolMessage_LogEntry
+17:11:35.374 DBG Received protocol message: Orderer. from=0
+17:11:35.374 DBG Globalorderer handling message. senderID=0 sn=66
+17:11:35.374 DBG Received LogEntry message. SenderId=0
+17:11:35.374 WRN Not overwriting log entry. sn=66
+17:11:35.377 DBG Receive msg from peer ... SenderId=4 Sn=66 height=0 type=ProtocolMessage_LogEntry
+17:11:35.377 DBG Received protocol message: Orderer. from=4
+17:11:35.377 DBG Globalorderer handling message. senderID=4 sn=66
+17:11:35.377 DBG Received LogEntry message. SenderId=4
+17:11:35.377 WRN Not overwriting log entry. sn=66
+17:11:35.390 DBG Receive msg from peer ... SenderId=0 Sn=65 height=0 type=ProtocolMessage_LogEntry
+17:11:35.391 DBG Received protocol message: Orderer. from=0
+17:11:35.391 DBG Globalorderer handling message. senderID=0 sn=65
+17:11:35.391 DBG Received LogEntry message. SenderId=0
+17:11:35.391 INF Committed entry. latency=0 nReq=220 sn=65
+17:11:35.396 DBG Receive msg from peer ... SenderId=4 Sn=65 height=0 type=ProtocolMessage_LogEntry
+17:11:35.396 DBG Received protocol message: Orderer. from=4
+17:11:35.396 DBG Globalorderer handling message. senderID=4 sn=65
+17:11:35.396 DBG Received LogEntry message. SenderId=4
+17:11:35.396 WRN Not overwriting log entry. sn=65
+17:11:35.403 DBG Receive msg from peer ... SenderId=2 Sn=65 height=0 type=ProtocolMessage_LogEntry
+17:11:35.403 DBG Received protocol message: Orderer. from=2
+17:11:35.403 DBG Globalorderer handling message. senderID=2 sn=65
+17:11:35.403 DBG Received LogEntry message. SenderId=2
+17:11:35.403 WRN Not overwriting log entry. sn=65
+17:11:35.418 DBG Receive msg from peer ... SenderId=3 Sn=65 height=0 type=ProtocolMessage_LogEntry
+17:11:35.418 DBG Received protocol message: Orderer. from=3
+17:11:35.418 DBG Globalorderer handling message. senderID=3 sn=65
+17:11:35.418 DBG Received LogEntry message. SenderId=3
+17:11:35.418 WRN Not overwriting log entry. sn=65
+17:11:35.458 DBG Receive msg from peer ... SenderId=4 Sn=64 height=0 type=ProtocolMessage_LogEntry
+17:11:35.458 DBG Received protocol message: Orderer. from=4
+17:11:35.458 DBG Globalorderer handling message. senderID=4 sn=64
+17:11:35.458 DBG Received LogEntry message. SenderId=4
+17:11:35.458 INF Committed entry. latency=0 nReq=213 sn=64
+17:11:35.458 INF Delivered batch. nReq=213 sn=64
+17:11:35.458 INF Delivered batch. nReq=220 sn=65
+17:11:35.461 INF Delivered batch. nReq=221 sn=66
+17:11:35.462 INF Delivered batch. nReq=215 sn=67
+17:11:35.470 DBG Receive msg from peer ... SenderId=3 Sn=64 height=0 type=ProtocolMessage_LogEntry
+17:11:35.470 DBG Received protocol message: Orderer. from=3
+17:11:35.470 DBG Globalorderer handling message. senderID=3 sn=64
+17:11:35.470 DBG Received LogEntry message. SenderId=3
+17:11:35.470 WRN Not overwriting log entry. sn=64
+17:11:35.477 DBG Receive msg from peer ... SenderId=0 Sn=64 height=0 type=ProtocolMessage_LogEntry
+17:11:35.477 DBG Received protocol message: Orderer. from=0
+17:11:35.477 DBG Globalorderer handling message. senderID=0 sn=64
+17:11:35.477 DBG Received LogEntry message. SenderId=0
+17:11:35.477 WRN Not overwriting log entry. sn=64
+17:11:35.477 DBG Receive msg from peer ... SenderId=2 Sn=64 height=0 type=ProtocolMessage_LogEntry
+17:11:35.478 DBG Received protocol message: Orderer. from=2
+17:11:35.478 DBG Globalorderer handling message. senderID=2 sn=64
+17:11:35.478 DBG Received LogEntry message. SenderId=2
+17:11:35.478 WRN Not overwriting log entry. sn=64
+17:11:36.276 DBG Receive msg from peer ... SenderId=4 Sn=71 height=0 type=ProtocolMessage_LogEntry
+17:11:36.276 DBG Received protocol message: Orderer. from=4
+17:11:36.276 DBG Globalorderer handling message. senderID=4 sn=71
+17:11:36.276 DBG Received LogEntry message. SenderId=4
+17:11:36.276 INF Committed entry. latency=0 nReq=208 sn=71
+17:11:36.282 DBG Receive msg from peer ... SenderId=0 Sn=71 height=0 type=ProtocolMessage_LogEntry
+17:11:36.282 DBG Received protocol message: Orderer. from=0
+17:11:36.282 DBG Globalorderer handling message. senderID=0 sn=71
+17:11:36.282 DBG Received LogEntry message. SenderId=0
+17:11:36.282 WRN Not overwriting log entry. sn=71
+17:11:36.289 DBG Receive msg from peer ... SenderId=2 Sn=71 height=0 type=ProtocolMessage_LogEntry
+17:11:36.289 DBG Received protocol message: Orderer. from=2
+17:11:36.289 DBG Globalorderer handling message. senderID=2 sn=71
+17:11:36.290 DBG Received LogEntry message. SenderId=2
+17:11:36.290 WRN Not overwriting log entry. sn=71
+17:11:36.295 DBG Receive msg from peer ... SenderId=3 Sn=71 height=0 type=ProtocolMessage_LogEntry
+17:11:36.296 DBG Received protocol message: Orderer. from=3
+17:11:36.296 DBG Globalorderer handling message. senderID=3 sn=71
+17:11:36.296 DBG Received LogEntry message. SenderId=3
+17:11:36.296 WRN Not overwriting log entry. sn=71
+17:11:36.358 DBG Receive msg from peer ... SenderId=4 Sn=70 height=0 type=ProtocolMessage_LogEntry
+17:11:36.358 DBG Received protocol message: Orderer. from=4
+17:11:36.358 DBG Receive msg from peer ... SenderId=3 Sn=70 height=0 type=ProtocolMessage_LogEntry
+17:11:36.358 DBG Globalorderer handling message. senderID=4 sn=70
+17:11:36.358 DBG Received protocol message: Orderer. from=3
+17:11:36.359 DBG Received LogEntry message. SenderId=4
+17:11:36.359 DBG Globalorderer handling message. senderID=3 sn=70
+17:11:36.359 INF Committed entry. latency=0 nReq=205 sn=70
+17:11:36.359 DBG Received LogEntry message. SenderId=3
+17:11:36.359 WRN Not overwriting log entry. sn=70
+17:11:36.360 DBG Receive msg from peer ... SenderId=0 Sn=70 height=0 type=ProtocolMessage_LogEntry
+17:11:36.361 DBG Received protocol message: Orderer. from=0
+17:11:36.361 DBG Globalorderer handling message. senderID=0 sn=70
+17:11:36.361 DBG Received LogEntry message. SenderId=0
+17:11:36.361 WRN Not overwriting log entry. sn=70
+17:11:36.364 DBG Receive msg from peer ... SenderId=2 Sn=70 height=0 type=ProtocolMessage_LogEntry
+17:11:36.364 DBG Received protocol message: Orderer. from=2
+17:11:36.364 DBG Globalorderer handling message. senderID=2 sn=70
+17:11:36.364 DBG Received LogEntry message. SenderId=2
+17:11:36.365 WRN Not overwriting log entry. sn=70
+17:11:36.416 DBG Receive msg from peer ... SenderId=0 Sn=69 height=0 type=ProtocolMessage_LogEntry
+17:11:36.420 DBG Receive msg from peer ... SenderId=3 Sn=69 height=0 type=ProtocolMessage_LogEntry
+17:11:36.420 DBG Received protocol message: Orderer. from=3
+17:11:36.420 DBG Globalorderer handling message. senderID=3 sn=69
+17:11:36.420 DBG Receive msg from peer ... SenderId=2 Sn=69 height=0 type=ProtocolMessage_LogEntry
+17:11:36.420 DBG Received LogEntry message. SenderId=3
+17:11:36.420 DBG Received protocol message: Orderer. from=2
+17:11:36.420 DBG Globalorderer handling message. senderID=2 sn=69
+17:11:36.420 INF Committed entry. latency=0 nReq=212 sn=69
+17:11:36.420 DBG Received LogEntry message. SenderId=2
+17:11:36.420 WRN Not overwriting log entry. sn=69
+17:11:36.417 DBG Received protocol message: Orderer. from=0
+17:11:36.421 DBG Globalorderer handling message. senderID=0 sn=69
+17:11:36.422 DBG Received LogEntry message. SenderId=0
+17:11:36.422 WRN Not overwriting log entry. sn=69
+17:11:36.432 DBG Receive msg from peer ... SenderId=4 Sn=69 height=0 type=ProtocolMessage_LogEntry
+17:11:36.432 DBG Received protocol message: Orderer. from=4
+17:11:36.432 DBG Globalorderer handling message. senderID=4 sn=69
+17:11:36.432 DBG Received LogEntry message. SenderId=4
+17:11:36.433 WRN Not overwriting log entry. sn=69
+17:11:36.498 DBG Receive msg from peer ... SenderId=0 Sn=68 height=0 type=ProtocolMessage_LogEntry
+17:11:36.498 DBG Received protocol message: Orderer. from=0
+17:11:36.498 DBG Globalorderer handling message. senderID=0 sn=68
+17:11:36.498 DBG Received LogEntry message. SenderId=0
+17:11:36.499 INF Committed entry. latency=0 nReq=214 sn=68
+17:11:36.499 INF Delivered batch. nReq=214 sn=68
+17:11:36.499 INF Delivered batch. nReq=212 sn=69
+17:11:36.499 INF Delivered batch. nReq=205 sn=70
+17:11:36.499 INF Delivered batch. nReq=208 sn=71
+17:11:36.501 DBG Receive msg from peer ... SenderId=3 Sn=68 height=0 type=ProtocolMessage_LogEntry
+17:11:36.501 DBG Received protocol message: Orderer. from=3
+17:11:36.501 DBG Globalorderer handling message. senderID=3 sn=68
+17:11:36.501 DBG Received LogEntry message. SenderId=3
+17:11:36.501 WRN Not overwriting log entry. sn=68
+17:11:36.514 DBG Receive msg from peer ... SenderId=4 Sn=68 height=0 type=ProtocolMessage_LogEntry
+17:11:36.515 DBG Received protocol message: Orderer. from=4
+17:11:36.515 DBG Globalorderer handling message. senderID=4 sn=68
+17:11:36.515 DBG Received LogEntry message. SenderId=4
+17:11:36.515 WRN Not overwriting log entry. sn=68
+17:11:36.517 DBG Receive msg from peer ... SenderId=2 Sn=68 height=0 type=ProtocolMessage_LogEntry
+17:11:36.517 DBG Received protocol message: Orderer. from=2
+17:11:36.517 DBG Globalorderer handling message. senderID=2 sn=68
+17:11:36.517 DBG Received LogEntry message. SenderId=2
+17:11:36.517 WRN Not overwriting log entry. sn=68
+17:11:37.268 DBG Receive msg from peer ... SenderId=2 Sn=75 height=0 type=ProtocolMessage_LogEntry
+17:11:37.268 DBG Receive msg from peer ... SenderId=4 Sn=75 height=0 type=ProtocolMessage_LogEntry
+17:11:37.269 DBG Received protocol message: Orderer. from=4
+17:11:37.269 DBG Globalorderer handling message. senderID=4 sn=75
+17:11:37.268 DBG Received protocol message: Orderer. from=2
+17:11:37.269 DBG Received LogEntry message. SenderId=4
+17:11:37.269 DBG Globalorderer handling message. senderID=2 sn=75
+17:11:37.269 INF Committed entry. latency=0 nReq=202 sn=75
+17:11:37.269 DBG Received LogEntry message. SenderId=2
+17:11:37.269 WRN Not overwriting log entry. sn=75
+17:11:37.271 DBG Receive msg from peer ... SenderId=0 Sn=75 height=0 type=ProtocolMessage_LogEntry
+17:11:37.271 DBG Received protocol message: Orderer. from=0
+17:11:37.272 DBG Globalorderer handling message. senderID=0 sn=75
+17:11:37.272 DBG Received LogEntry message. SenderId=0
+17:11:37.272 WRN Not overwriting log entry. sn=75
+17:11:37.273 DBG Receive msg from peer ... SenderId=3 Sn=75 height=0 type=ProtocolMessage_LogEntry
+17:11:37.273 DBG Received protocol message: Orderer. from=3
+17:11:37.273 DBG Globalorderer handling message. senderID=3 sn=75
+17:11:37.273 DBG Received LogEntry message. SenderId=3
+17:11:37.273 WRN Not overwriting log entry. sn=75
+17:11:37.352 DBG Receive msg from peer ... SenderId=3 Sn=74 height=0 type=ProtocolMessage_LogEntry
+17:11:37.353 DBG Received protocol message: Orderer. from=3
+17:11:37.352 DBG Receive msg from peer ... SenderId=4 Sn=74 height=0 type=ProtocolMessage_LogEntry
+17:11:37.353 DBG Globalorderer handling message. senderID=3 sn=74
+17:11:37.353 DBG Received LogEntry message. SenderId=3
+17:11:37.353 INF Committed entry. latency=0 nReq=207 sn=74
+17:11:37.353 DBG Received protocol message: Orderer. from=4
+17:11:37.353 DBG Globalorderer handling message. senderID=4 sn=74
+17:11:37.354 DBG Received LogEntry message. SenderId=4
+17:11:37.354 WRN Not overwriting log entry. sn=74
+17:11:37.360 DBG Receive msg from peer ... SenderId=0 Sn=74 height=0 type=ProtocolMessage_LogEntry
+17:11:37.360 DBG Received protocol message: Orderer. from=0
+17:11:37.360 DBG Globalorderer handling message. senderID=0 sn=74
+17:11:37.360 DBG Received LogEntry message. SenderId=0
+17:11:37.361 WRN Not overwriting log entry. sn=74
+17:11:37.363 DBG Receive msg from peer ... SenderId=2 Sn=74 height=0 type=ProtocolMessage_LogEntry
+17:11:37.363 DBG Received protocol message: Orderer. from=2
+17:11:37.364 DBG Globalorderer handling message. senderID=2 sn=74
+17:11:37.364 DBG Received LogEntry message. SenderId=2
+17:11:37.364 WRN Not overwriting log entry. sn=74
+17:11:37.407 DBG Receive msg from peer ... SenderId=0 Sn=73 height=0 type=ProtocolMessage_LogEntry
+17:11:37.407 DBG Received protocol message: Orderer. from=0
+17:11:37.407 DBG Globalorderer handling message. senderID=0 sn=73
+17:11:37.407 DBG Received LogEntry message. SenderId=0
+17:11:37.407 INF Committed entry. latency=0 nReq=202 sn=73
+17:11:37.407 DBG Receive msg from peer ... SenderId=2 Sn=73 height=0 type=ProtocolMessage_LogEntry
+17:11:37.407 DBG Received protocol message: Orderer. from=2
+17:11:37.407 DBG Globalorderer handling message. senderID=2 sn=73
+17:11:37.407 DBG Received LogEntry message. SenderId=2
+17:11:37.408 WRN Not overwriting log entry. sn=73
+17:11:37.408 DBG Receive msg from peer ... SenderId=3 Sn=73 height=0 type=ProtocolMessage_LogEntry
+17:11:37.408 DBG Received protocol message: Orderer. from=3
+17:11:37.408 DBG Globalorderer handling message. senderID=3 sn=73
+17:11:37.408 DBG Received LogEntry message. SenderId=3
+17:11:37.408 WRN Not overwriting log entry. sn=73
+17:11:37.411 DBG Receive msg from peer ... SenderId=4 Sn=73 height=0 type=ProtocolMessage_LogEntry
+17:11:37.411 DBG Received protocol message: Orderer. from=4
+17:11:37.411 DBG Globalorderer handling message. senderID=4 sn=73
+17:11:37.411 DBG Received LogEntry message. SenderId=4
+17:11:37.411 WRN Not overwriting log entry. sn=73
+17:11:37.480 DBG Receive msg from peer ... SenderId=0 Sn=72 height=0 type=ProtocolMessage_LogEntry
+17:11:37.480 DBG Received protocol message: Orderer. from=0
+17:11:37.481 DBG Globalorderer handling message. senderID=0 sn=72
+17:11:37.481 DBG Received LogEntry message. SenderId=0
+17:11:37.481 INF Committed entry. latency=0 nReq=208 sn=72
+17:11:37.481 INF Delivered batch. nReq=208 sn=72
+17:11:37.481 INF Delivered batch. nReq=202 sn=73
+17:11:37.481 INF Delivered batch. nReq=207 sn=74
+17:11:37.481 INF Delivered batch. nReq=202 sn=75
+17:11:37.486 DBG Receive msg from peer ... SenderId=4 Sn=72 height=0 type=ProtocolMessage_LogEntry
+17:11:37.486 DBG Received protocol message: Orderer. from=4
+17:11:37.486 DBG Globalorderer handling message. senderID=4 sn=72
+17:11:37.486 DBG Received LogEntry message. SenderId=4
+17:11:37.486 WRN Not overwriting log entry. sn=72
+17:11:37.488 DBG Receive msg from peer ... SenderId=3 Sn=72 height=0 type=ProtocolMessage_LogEntry
+17:11:37.489 DBG Received protocol message: Orderer. from=3
+17:11:37.489 DBG Globalorderer handling message. senderID=3 sn=72
+17:11:37.489 DBG Received LogEntry message. SenderId=3
+17:11:37.489 WRN Not overwriting log entry. sn=72
+17:11:37.500 DBG Receive msg from peer ... SenderId=2 Sn=72 height=0 type=ProtocolMessage_LogEntry
+17:11:37.500 DBG Received protocol message: Orderer. from=2
+17:11:37.500 DBG Globalorderer handling message. senderID=2 sn=72
+17:11:37.500 DBG Received LogEntry message. SenderId=2
+17:11:37.500 WRN Not overwriting log entry. sn=72
+17:11:38.276 DBG Receive msg from peer ... SenderId=2 Sn=79 height=0 type=ProtocolMessage_LogEntry
+17:11:38.277 DBG Received protocol message: Orderer. from=2
+17:11:38.277 DBG Globalorderer handling message. senderID=2 sn=79
+17:11:38.277 DBG Received LogEntry message. SenderId=2
+17:11:38.277 INF Committed entry. latency=0 nReq=225 sn=79
+17:11:38.283 DBG Receive msg from peer ... SenderId=0 Sn=79 height=0 type=ProtocolMessage_LogEntry
+17:11:38.283 DBG Received protocol message: Orderer. from=0
+17:11:38.283 DBG Globalorderer handling message. senderID=0 sn=79
+17:11:38.283 DBG Received LogEntry message. SenderId=0
+17:11:38.283 WRN Not overwriting log entry. sn=79
+17:11:38.284 DBG Receive msg from peer ... SenderId=3 Sn=79 height=0 type=ProtocolMessage_LogEntry
+17:11:38.284 DBG Received protocol message: Orderer. from=3
+17:11:38.284 DBG Globalorderer handling message. senderID=3 sn=79
+17:11:38.284 DBG Received LogEntry message. SenderId=3
+17:11:38.284 DBG Receive msg from peer ... SenderId=4 Sn=79 height=0 type=ProtocolMessage_LogEntry
+17:11:38.284 WRN Not overwriting log entry. sn=79
+17:11:38.284 DBG Received protocol message: Orderer. from=4
+17:11:38.284 DBG Globalorderer handling message. senderID=4 sn=79
+17:11:38.285 DBG Received LogEntry message. SenderId=4
+17:11:38.285 WRN Not overwriting log entry. sn=79
+17:11:38.363 DBG Receive msg from peer ... SenderId=3 Sn=78 height=0 type=ProtocolMessage_LogEntry
+17:11:38.363 DBG Received protocol message: Orderer. from=3
+17:11:38.363 DBG Globalorderer handling message. senderID=3 sn=78
+17:11:38.364 DBG Received LogEntry message. SenderId=3
+17:11:38.364 INF Committed entry. latency=0 nReq=233 sn=78
+17:11:38.364 DBG Receive msg from peer ... SenderId=4 Sn=78 height=0 type=ProtocolMessage_LogEntry
+17:11:38.364 DBG Received protocol message: Orderer. from=4
+17:11:38.364 DBG Globalorderer handling message. senderID=4 sn=78
+17:11:38.364 DBG Received LogEntry message. SenderId=4
+17:11:38.364 WRN Not overwriting log entry. sn=78
+17:11:38.367 DBG Receive msg from peer ... SenderId=0 Sn=78 height=0 type=ProtocolMessage_LogEntry
+17:11:38.367 DBG Received protocol message: Orderer. from=0
+17:11:38.367 DBG Globalorderer handling message. senderID=0 sn=78
+17:11:38.367 DBG Received LogEntry message. SenderId=0
+17:11:38.367 WRN Not overwriting log entry. sn=78
+17:11:38.383 DBG Receive msg from peer ... SenderId=2 Sn=78 height=0 type=ProtocolMessage_LogEntry
+17:11:38.383 DBG Received protocol message: Orderer. from=2
+17:11:38.383 DBG Globalorderer handling message. senderID=2 sn=78
+17:11:38.383 DBG Received LogEntry message. SenderId=2
+17:11:38.383 WRN Not overwriting log entry. sn=78
+17:11:38.413 DBG Receive msg from peer ... SenderId=0 Sn=77 height=0 type=ProtocolMessage_LogEntry
+17:11:38.413 DBG Received protocol message: Orderer. from=0
+17:11:38.413 DBG Globalorderer handling message. senderID=0 sn=77
+17:11:38.414 DBG Received LogEntry message. SenderId=0
+17:11:38.414 INF Committed entry. latency=0 nReq=230 sn=77
+17:11:38.418 DBG Receive msg from peer ... SenderId=3 Sn=77 height=0 type=ProtocolMessage_LogEntry
+17:11:38.419 DBG Received protocol message: Orderer. from=3
+17:11:38.419 DBG Receive msg from peer ... SenderId=2 Sn=77 height=0 type=ProtocolMessage_LogEntry
+17:11:38.419 DBG Globalorderer handling message. senderID=3 sn=77
+17:11:38.419 DBG Received protocol message: Orderer. from=2
+17:11:38.419 DBG Received LogEntry message. SenderId=3
+17:11:38.419 DBG Globalorderer handling message. senderID=2 sn=77
+17:11:38.419 WRN Not overwriting log entry. sn=77
+17:11:38.419 DBG Received LogEntry message. SenderId=2
+17:11:38.419 WRN Not overwriting log entry. sn=77
+17:11:38.422 DBG Receive msg from peer ... SenderId=4 Sn=77 height=0 type=ProtocolMessage_LogEntry
+17:11:38.422 DBG Received protocol message: Orderer. from=4
+17:11:38.422 DBG Globalorderer handling message. senderID=4 sn=77
+17:11:38.422 DBG Received LogEntry message. SenderId=4
+17:11:38.423 WRN Not overwriting log entry. sn=77
+17:11:38.491 DBG Receive msg from peer ... SenderId=2 Sn=76 height=0 type=ProtocolMessage_LogEntry
+17:11:38.491 DBG Received protocol message: Orderer. from=2
+17:11:38.491 DBG Globalorderer handling message. senderID=2 sn=76
+17:11:38.491 DBG Received LogEntry message. SenderId=2
+17:11:38.491 INF Committed entry. latency=0 nReq=226 sn=76
+17:11:38.491 INF Delivered batch. nReq=226 sn=76
+17:11:38.492 INF Delivered batch. nReq=230 sn=77
+17:11:38.492 INF Delivered batch. nReq=233 sn=78
+17:11:38.492 INF Delivered batch. nReq=225 sn=79
+17:11:38.499 DBG Receive msg from peer ... SenderId=0 Sn=76 height=0 type=ProtocolMessage_LogEntry
+17:11:38.499 DBG Received protocol message: Orderer. from=0
+17:11:38.499 DBG Globalorderer handling message. senderID=0 sn=76
+17:11:38.499 DBG Received LogEntry message. SenderId=0
+17:11:38.499 WRN Not overwriting log entry. sn=76
+17:11:38.504 DBG Receive msg from peer ... SenderId=4 Sn=76 height=0 type=ProtocolMessage_LogEntry
+17:11:38.505 DBG Received protocol message: Orderer. from=4
+17:11:38.505 DBG Globalorderer handling message. senderID=4 sn=76
+17:11:38.505 DBG Received LogEntry message. SenderId=4
+17:11:38.505 WRN Not overwriting log entry. sn=76
+17:11:38.507 DBG Receive msg from peer ... SenderId=3 Sn=76 height=0 type=ProtocolMessage_LogEntry
+17:11:38.507 DBG Received protocol message: Orderer. from=3
+17:11:38.507 DBG Globalorderer handling message. senderID=3 sn=76
+17:11:38.507 DBG Received LogEntry message. SenderId=3
+17:11:38.507 WRN Not overwriting log entry. sn=76
+17:11:39.282 DBG Receive msg from peer ... SenderId=2 Sn=83 height=0 type=ProtocolMessage_LogEntry
+17:11:39.282 DBG Received protocol message: Orderer. from=2
+17:11:39.282 DBG Globalorderer handling message. senderID=2 sn=83
+17:11:39.282 DBG Received LogEntry message. SenderId=2
+17:11:39.282 INF Committed entry. latency=0 nReq=240 sn=83
+17:11:39.286 DBG Receive msg from peer ... SenderId=4 Sn=83 height=0 type=ProtocolMessage_LogEntry
+17:11:39.286 DBG Received protocol message: Orderer. from=4
+17:11:39.286 DBG Globalorderer handling message. senderID=4 sn=83
+17:11:39.286 DBG Received LogEntry message. SenderId=4
+17:11:39.286 WRN Not overwriting log entry. sn=83
+17:11:39.287 DBG Receive msg from peer ... SenderId=3 Sn=83 height=0 type=ProtocolMessage_LogEntry
+17:11:39.287 DBG Received protocol message: Orderer. from=3
+17:11:39.287 DBG Globalorderer handling message. senderID=3 sn=83
+17:11:39.287 DBG Received LogEntry message. SenderId=3
+17:11:39.287 WRN Not overwriting log entry. sn=83
+17:11:39.288 DBG Receive msg from peer ... SenderId=0 Sn=83 height=0 type=ProtocolMessage_LogEntry
+17:11:39.288 DBG Received protocol message: Orderer. from=0
+17:11:39.288 DBG Globalorderer handling message. senderID=0 sn=83
+17:11:39.288 DBG Received LogEntry message. SenderId=0
+17:11:39.288 WRN Not overwriting log entry. sn=83
+17:11:39.372 DBG Receive msg from peer ... SenderId=3 Sn=82 height=0 type=ProtocolMessage_LogEntry
+17:11:39.372 DBG Received protocol message: Orderer. from=3
+17:11:39.372 DBG Globalorderer handling message. senderID=3 sn=82
+17:11:39.372 DBG Received LogEntry message. SenderId=3
+17:11:39.372 INF Committed entry. latency=0 nReq=241 sn=82
+17:11:39.375 DBG Receive msg from peer ... SenderId=0 Sn=82 height=0 type=ProtocolMessage_LogEntry
+17:11:39.376 DBG Received protocol message: Orderer. from=0
+17:11:39.377 DBG Globalorderer handling message. senderID=0 sn=82
+17:11:39.377 DBG Received LogEntry message. SenderId=0
+17:11:39.377 WRN Not overwriting log entry. sn=82
+17:11:39.378 DBG Receive msg from peer ... SenderId=4 Sn=82 height=0 type=ProtocolMessage_LogEntry
+17:11:39.378 DBG Received protocol message: Orderer. from=4
+17:11:39.378 DBG Globalorderer handling message. senderID=4 sn=82
+17:11:39.378 DBG Received LogEntry message. SenderId=4
+17:11:39.378 WRN Not overwriting log entry. sn=82
+17:11:39.380 DBG Receive msg from peer ... SenderId=2 Sn=82 height=0 type=ProtocolMessage_LogEntry
+17:11:39.380 DBG Received protocol message: Orderer. from=2
+17:11:39.380 DBG Globalorderer handling message. senderID=2 sn=82
+17:11:39.380 DBG Received LogEntry message. SenderId=2
+17:11:39.380 WRN Not overwriting log entry. sn=82
+17:11:39.425 DBG Receive msg from peer ... SenderId=2 Sn=81 height=0 type=ProtocolMessage_LogEntry
+17:11:39.425 DBG Received protocol message: Orderer. from=2
+17:11:39.425 DBG Globalorderer handling message. senderID=2 sn=81
+17:11:39.425 DBG Received LogEntry message. SenderId=2
+17:11:39.425 INF Committed entry. latency=0 nReq=243 sn=81
+17:11:39.430 DBG Receive msg from peer ... SenderId=0 Sn=81 height=0 type=ProtocolMessage_LogEntry
+17:11:39.430 DBG Received protocol message: Orderer. from=0
+17:11:39.430 DBG Receive msg from peer ... SenderId=4 Sn=81 height=0 type=ProtocolMessage_LogEntry
+17:11:39.430 DBG Globalorderer handling message. senderID=0 sn=81
+17:11:39.430 DBG Received protocol message: Orderer. from=4
+17:11:39.430 DBG Received LogEntry message. SenderId=0
+17:11:39.430 DBG Globalorderer handling message. senderID=4 sn=81
+17:11:39.430 WRN Not overwriting log entry. sn=81
+17:11:39.430 DBG Received LogEntry message. SenderId=4
+17:11:39.430 WRN Not overwriting log entry. sn=81
+17:11:39.453 DBG Receive msg from peer ... SenderId=3 Sn=81 height=0 type=ProtocolMessage_LogEntry
+17:11:39.454 DBG Received protocol message: Orderer. from=3
+17:11:39.454 DBG Globalorderer handling message. senderID=3 sn=81
+17:11:39.454 DBG Received LogEntry message. SenderId=3
+17:11:39.454 WRN Not overwriting log entry. sn=81
+17:11:39.507 DBG Receive msg from peer ... SenderId=4 Sn=80 height=0 type=ProtocolMessage_LogEntry
+17:11:39.508 DBG Received protocol message: Orderer. from=4
+17:11:39.508 DBG Globalorderer handling message. senderID=4 sn=80
+17:11:39.508 DBG Received LogEntry message. SenderId=4
+17:11:39.508 INF Committed entry. latency=0 nReq=243 sn=80
+17:11:39.508 INF Delivered batch. nReq=243 sn=80
+17:11:39.508 INF Delivered batch. nReq=243 sn=81
+17:11:39.508 INF Delivered batch. nReq=241 sn=82
+17:11:39.508 INF Delivered batch. nReq=240 sn=83
+17:11:39.514 DBG Receive msg from peer ... SenderId=0 Sn=80 height=0 type=ProtocolMessage_LogEntry
+17:11:39.514 DBG Received protocol message: Orderer. from=0
+17:11:39.514 DBG Globalorderer handling message. senderID=0 sn=80
+17:11:39.514 DBG Received LogEntry message. SenderId=0
+17:11:39.514 WRN Not overwriting log entry. sn=80
+17:11:39.516 DBG Receive msg from peer ... SenderId=2 Sn=80 height=0 type=ProtocolMessage_LogEntry
+17:11:39.517 DBG Received protocol message: Orderer. from=2
+17:11:39.517 DBG Globalorderer handling message. senderID=2 sn=80
+17:11:39.517 DBG Received LogEntry message. SenderId=2
+17:11:39.517 WRN Not overwriting log entry. sn=80
+17:11:39.527 DBG Receive msg from peer ... SenderId=3 Sn=80 height=0 type=ProtocolMessage_LogEntry
+17:11:39.527 DBG Received protocol message: Orderer. from=3
+17:11:39.527 DBG Globalorderer handling message. senderID=3 sn=80
+17:11:39.528 DBG Received LogEntry message. SenderId=3
+17:11:39.528 WRN Not overwriting log entry. sn=80
+17:11:40.287 DBG Receive msg from peer ... SenderId=3 Sn=87 height=0 type=ProtocolMessage_LogEntry
+17:11:40.287 DBG Received protocol message: Orderer. from=3
+17:11:40.287 DBG Globalorderer handling message. senderID=3 sn=87
+17:11:40.288 DBG Received LogEntry message. SenderId=3
+17:11:40.288 INF Committed entry. latency=0 nReq=240 sn=87
+17:11:40.291 DBG Receive msg from peer ... SenderId=2 Sn=87 height=0 type=ProtocolMessage_LogEntry
+17:11:40.291 DBG Received protocol message: Orderer. from=2
+17:11:40.295 DBG Receive msg from peer ... SenderId=4 Sn=87 height=0 type=ProtocolMessage_LogEntry
+17:11:40.296 DBG Received protocol message: Orderer. from=4
+17:11:40.296 DBG Globalorderer handling message. senderID=4 sn=87
+17:11:40.296 DBG Received LogEntry message. SenderId=4
+17:11:40.296 WRN Not overwriting log entry. sn=87
+17:11:40.296 DBG Globalorderer handling message. senderID=2 sn=87
+17:11:40.296 DBG Received LogEntry message. SenderId=2
+17:11:40.296 WRN Not overwriting log entry. sn=87
+17:11:40.299 DBG Receive msg from peer ... SenderId=0 Sn=87 height=0 type=ProtocolMessage_LogEntry
+17:11:40.299 DBG Received protocol message: Orderer. from=0
+17:11:40.300 DBG Globalorderer handling message. senderID=0 sn=87
+17:11:40.300 DBG Received LogEntry message. SenderId=0
+17:11:40.300 WRN Not overwriting log entry. sn=87
+17:11:40.378 DBG Receive msg from peer ... SenderId=4 Sn=86 height=0 type=ProtocolMessage_LogEntry
+17:11:40.378 DBG Received protocol message: Orderer. from=4
+17:11:40.378 DBG Globalorderer handling message. senderID=4 sn=86
+17:11:40.378 DBG Received LogEntry message. SenderId=4
+17:11:40.378 INF Committed entry. latency=0 nReq=244 sn=86
+17:11:40.383 DBG Receive msg from peer ... SenderId=0 Sn=86 height=0 type=ProtocolMessage_LogEntry
+17:11:40.383 DBG Received protocol message: Orderer. from=0
+17:11:40.383 DBG Globalorderer handling message. senderID=0 sn=86
+17:11:40.383 DBG Received LogEntry message. SenderId=0
+17:11:40.383 WRN Not overwriting log entry. sn=86
+17:11:40.384 DBG Receive msg from peer ... SenderId=3 Sn=86 height=0 type=ProtocolMessage_LogEntry
+17:11:40.384 DBG Received protocol message: Orderer. from=3
+17:11:40.384 DBG Globalorderer handling message. senderID=3 sn=86
+17:11:40.384 DBG Received LogEntry message. SenderId=3
+17:11:40.384 WRN Not overwriting log entry. sn=86
+17:11:40.389 DBG Receive msg from peer ... SenderId=2 Sn=86 height=0 type=ProtocolMessage_LogEntry
+17:11:40.389 DBG Received protocol message: Orderer. from=2
+17:11:40.389 DBG Globalorderer handling message. senderID=2 sn=86
+17:11:40.389 DBG Received LogEntry message. SenderId=2
+17:11:40.389 WRN Not overwriting log entry. sn=86
+17:11:40.448 DBG Receive msg from peer ... SenderId=4 Sn=85 height=0 type=ProtocolMessage_LogEntry
+17:11:40.448 DBG Received protocol message: Orderer. from=4
+17:11:40.448 DBG Globalorderer handling message. senderID=4 sn=85
+17:11:40.449 DBG Received LogEntry message. SenderId=4
+17:11:40.449 INF Committed entry. latency=0 nReq=245 sn=85
+17:11:40.450 DBG Receive msg from peer ... SenderId=3 Sn=85 height=0 type=ProtocolMessage_LogEntry
+17:11:40.450 DBG Received protocol message: Orderer. from=3
+17:11:40.450 DBG Globalorderer handling message. senderID=3 sn=85
+17:11:40.450 DBG Received LogEntry message. SenderId=3
+17:11:40.450 WRN Not overwriting log entry. sn=85
+17:11:40.452 DBG Receive msg from peer ... SenderId=0 Sn=85 height=0 type=ProtocolMessage_LogEntry
+17:11:40.452 DBG Received protocol message: Orderer. from=0
+17:11:40.452 DBG Globalorderer handling message. senderID=0 sn=85
+17:11:40.452 DBG Received LogEntry message. SenderId=0
+17:11:40.452 WRN Not overwriting log entry. sn=85
+17:11:40.454 DBG Receive msg from peer ... SenderId=2 Sn=85 height=0 type=ProtocolMessage_LogEntry
+17:11:40.454 DBG Received protocol message: Orderer. from=2
+17:11:40.454 DBG Globalorderer handling message. senderID=2 sn=85
+17:11:40.454 DBG Received LogEntry message. SenderId=2
+17:11:40.454 WRN Not overwriting log entry. sn=85
+17:11:40.517 DBG Receive msg from peer ... SenderId=0 Sn=84 height=0 type=ProtocolMessage_LogEntry
+17:11:40.517 DBG Received protocol message: Orderer. from=0
+17:11:40.517 DBG Globalorderer handling message. senderID=0 sn=84
+17:11:40.517 DBG Received LogEntry message. SenderId=0
+17:11:40.517 INF Committed entry. latency=0 nReq=235 sn=84
+17:11:40.517 INF Delivered batch. nReq=235 sn=84
+17:11:40.517 INF Delivered batch. nReq=245 sn=85
+17:11:40.518 INF Delivered batch. nReq=244 sn=86
+17:11:40.518 INF Delivered batch. nReq=240 sn=87
+17:11:40.521 DBG Receive msg from peer ... SenderId=4 Sn=84 height=0 type=ProtocolMessage_LogEntry
+17:11:40.522 DBG Received protocol message: Orderer. from=4
+17:11:40.522 DBG Globalorderer handling message. senderID=4 sn=84
+17:11:40.522 DBG Received LogEntry message. SenderId=4
+17:11:40.522 WRN Not overwriting log entry. sn=84
+17:11:40.531 DBG Receive msg from peer ... SenderId=3 Sn=84 height=0 type=ProtocolMessage_LogEntry
+17:11:40.532 DBG Received protocol message: Orderer. from=3
+17:11:40.532 DBG Globalorderer handling message. senderID=3 sn=84
+17:11:40.532 DBG Received LogEntry message. SenderId=3
+17:11:40.533 WRN Not overwriting log entry. sn=84
+17:11:40.537 DBG Receive msg from peer ... SenderId=2 Sn=84 height=0 type=ProtocolMessage_LogEntry
+17:11:40.537 DBG Received protocol message: Orderer. from=2
+17:11:40.537 DBG Globalorderer handling message. senderID=2 sn=84
+17:11:40.537 DBG Received LogEntry message. SenderId=2
+17:11:40.537 WRN Not overwriting log entry. sn=84
+17:11:41.279 DBG Receive msg from peer ... SenderId=3 Sn=91 height=0 type=ProtocolMessage_LogEntry
+17:11:41.279 DBG Received protocol message: Orderer. from=3
+17:11:41.279 DBG Globalorderer handling message. senderID=3 sn=91
+17:11:41.279 DBG Received LogEntry message. SenderId=3
+17:11:41.279 INF Committed entry. latency=0 nReq=209 sn=91
+17:11:41.279 DBG Receive msg from peer ... SenderId=4 Sn=91 height=0 type=ProtocolMessage_LogEntry
+17:11:41.279 DBG Receive msg from peer ... SenderId=0 Sn=91 height=0 type=ProtocolMessage_LogEntry
+17:11:41.279 DBG Received protocol message: Orderer. from=4
+17:11:41.279 DBG Received protocol message: Orderer. from=0
+17:11:41.279 DBG Globalorderer handling message. senderID=4 sn=91
+17:11:41.279 DBG Globalorderer handling message. senderID=0 sn=91
+17:11:41.279 DBG Received LogEntry message. SenderId=4
+17:11:41.280 WRN Not overwriting log entry. sn=91
+17:11:41.280 DBG Received LogEntry message. SenderId=0
+17:11:41.280 WRN Not overwriting log entry. sn=91
+17:11:41.280 DBG Receive msg from peer ... SenderId=2 Sn=91 height=0 type=ProtocolMessage_LogEntry
+17:11:41.280 DBG Received protocol message: Orderer. from=2
+17:11:41.280 DBG Globalorderer handling message. senderID=2 sn=91
+17:11:41.280 DBG Received LogEntry message. SenderId=2
+17:11:41.280 WRN Not overwriting log entry. sn=91
+17:11:41.367 DBG Receive msg from peer ... SenderId=2 Sn=90 height=0 type=ProtocolMessage_LogEntry
+17:11:41.367 DBG Received protocol message: Orderer. from=2
+17:11:41.367 DBG Globalorderer handling message. senderID=2 sn=90
+17:11:41.368 DBG Received LogEntry message. SenderId=2
+17:11:41.368 INF Committed entry. latency=0 nReq=198 sn=90
+17:11:41.370 DBG Receive msg from peer ... SenderId=3 Sn=90 height=0 type=ProtocolMessage_LogEntry
+17:11:41.370 DBG Received protocol message: Orderer. from=3
+17:11:41.370 DBG Globalorderer handling message. senderID=3 sn=90
+17:11:41.370 DBG Received LogEntry message. SenderId=3
+17:11:41.370 WRN Not overwriting log entry. sn=90
+17:11:41.372 DBG Receive msg from peer ... SenderId=4 Sn=90 height=0 type=ProtocolMessage_LogEntry
+17:11:41.372 DBG Received protocol message: Orderer. from=4
+17:11:41.372 DBG Globalorderer handling message. senderID=4 sn=90
+17:11:41.372 DBG Received LogEntry message. SenderId=4
+17:11:41.372 WRN Not overwriting log entry. sn=90
+17:11:41.406 DBG Receive msg from peer ... SenderId=0 Sn=90 height=0 type=ProtocolMessage_LogEntry
+17:11:41.406 DBG Received protocol message: Orderer. from=0
+17:11:41.406 DBG Globalorderer handling message. senderID=0 sn=90
+17:11:41.406 DBG Received LogEntry message. SenderId=0
+17:11:41.406 WRN Not overwriting log entry. sn=90
+17:11:41.454 DBG Receive msg from peer ... SenderId=4 Sn=89 height=0 type=ProtocolMessage_LogEntry
+17:11:41.454 DBG Received protocol message: Orderer. from=4
+17:11:41.454 DBG Globalorderer handling message. senderID=4 sn=89
+17:11:41.454 DBG Received LogEntry message. SenderId=4
+17:11:41.454 INF Committed entry. latency=0 nReq=197 sn=89
+17:11:41.456 DBG Receive msg from peer ... SenderId=0 Sn=89 height=0 type=ProtocolMessage_LogEntry
+17:11:41.456 DBG Received protocol message: Orderer. from=0
+17:11:41.456 DBG Globalorderer handling message. senderID=0 sn=89
+17:11:41.456 DBG Received LogEntry message. SenderId=0
+17:11:41.456 WRN Not overwriting log entry. sn=89
+17:11:41.457 DBG Receive msg from peer ... SenderId=2 Sn=89 height=0 type=ProtocolMessage_LogEntry
+17:11:41.457 DBG Received protocol message: Orderer. from=2
+17:11:41.457 DBG Globalorderer handling message. senderID=2 sn=89
+17:11:41.458 DBG Received LogEntry message. SenderId=2
+17:11:41.458 WRN Not overwriting log entry. sn=89
+17:11:41.459 DBG Receive msg from peer ... SenderId=3 Sn=89 height=0 type=ProtocolMessage_LogEntry
+17:11:41.459 DBG Received protocol message: Orderer. from=3
+17:11:41.459 DBG Globalorderer handling message. senderID=3 sn=89
+17:11:41.459 DBG Received LogEntry message. SenderId=3
+17:11:41.459 WRN Not overwriting log entry. sn=89
+17:11:41.505 DBG Receive msg from peer ... SenderId=0 Sn=88 height=0 type=ProtocolMessage_LogEntry
+17:11:41.505 DBG Received protocol message: Orderer. from=0
+17:11:41.505 DBG Globalorderer handling message. senderID=0 sn=88
+17:11:41.505 DBG Received LogEntry message. SenderId=0
+17:11:41.508 DBG Receive msg from peer ... SenderId=2 Sn=88 height=0 type=ProtocolMessage_LogEntry
+17:11:41.508 DBG Received protocol message: Orderer. from=2
+17:11:41.508 DBG Globalorderer handling message. senderID=2 sn=88
+17:11:41.508 INF Committed entry. latency=0 nReq=205 sn=88
+17:11:41.508 INF Delivered batch. nReq=205 sn=88
+17:11:41.508 DBG Receive msg from peer ... SenderId=3 Sn=88 height=0 type=ProtocolMessage_LogEntry
+17:11:41.508 INF Delivered batch. nReq=197 sn=89
+17:11:41.508 DBG Received protocol message: Orderer. from=3
+17:11:41.509 INF Delivered batch. nReq=198 sn=90
+17:11:41.509 DBG Globalorderer handling message. senderID=3 sn=88
+17:11:41.509 INF Delivered batch. nReq=209 sn=91
+17:11:41.509 DBG Received LogEntry message. SenderId=2
+17:11:41.509 WRN Not overwriting log entry. sn=88
+17:11:41.509 DBG Received LogEntry message. SenderId=3
+17:11:41.509 WRN Not overwriting log entry. sn=88
+17:11:41.515 DBG Receive msg from peer ... SenderId=4 Sn=88 height=0 type=ProtocolMessage_LogEntry
+17:11:41.515 DBG Received protocol message: Orderer. from=4
+17:11:41.515 DBG Globalorderer handling message. senderID=4 sn=88
+17:11:41.515 DBG Received LogEntry message. SenderId=4
+17:11:41.516 WRN Not overwriting log entry. sn=88
+17:11:42.284 DBG Receive msg from peer ... SenderId=0 Sn=95 height=0 type=ProtocolMessage_LogEntry
+17:11:42.284 DBG Received protocol message: Orderer. from=0
+17:11:42.284 DBG Globalorderer handling message. senderID=0 sn=95
+17:11:42.284 DBG Received LogEntry message. SenderId=0
+17:11:42.285 INF Committed entry. latency=0 nReq=223 sn=95
+17:11:42.287 DBG Receive msg from peer ... SenderId=4 Sn=95 height=0 type=ProtocolMessage_LogEntry
+17:11:42.287 DBG Received protocol message: Orderer. from=4
+17:11:42.287 DBG Globalorderer handling message. senderID=4 sn=95
+17:11:42.287 DBG Received LogEntry message. SenderId=4
+17:11:42.287 WRN Not overwriting log entry. sn=95
+17:11:42.287 DBG Receive msg from peer ... SenderId=3 Sn=95 height=0 type=ProtocolMessage_LogEntry
+17:11:42.287 DBG Received protocol message: Orderer. from=3
+17:11:42.288 DBG Globalorderer handling message. senderID=3 sn=95
+17:11:42.288 DBG Received LogEntry message. SenderId=3
+17:11:42.288 WRN Not overwriting log entry. sn=95
+17:11:42.292 DBG Receive msg from peer ... SenderId=2 Sn=95 height=0 type=ProtocolMessage_LogEntry
+17:11:42.292 DBG Received protocol message: Orderer. from=2
+17:11:42.292 DBG Globalorderer handling message. senderID=2 sn=95
+17:11:42.292 DBG Received LogEntry message. SenderId=2
+17:11:42.292 WRN Not overwriting log entry. sn=95
+17:11:42.384 DBG Receive msg from peer ... SenderId=4 Sn=94 height=0 type=ProtocolMessage_LogEntry
+17:11:42.384 DBG Received protocol message: Orderer. from=4
+17:11:42.384 DBG Globalorderer handling message. senderID=4 sn=94
+17:11:42.384 DBG Received LogEntry message. SenderId=4
+17:11:42.384 INF Committed entry. latency=0 nReq=231 sn=94
+17:11:42.385 DBG Receive msg from peer ... SenderId=2 Sn=94 height=0 type=ProtocolMessage_LogEntry
+17:11:42.385 DBG Received protocol message: Orderer. from=2
+17:11:42.385 DBG Globalorderer handling message. senderID=2 sn=94
+17:11:42.386 DBG Received LogEntry message. SenderId=2
+17:11:42.386 WRN Not overwriting log entry. sn=94
+17:11:42.386 DBG Receive msg from peer ... SenderId=0 Sn=94 height=0 type=ProtocolMessage_LogEntry
+17:11:42.386 DBG Received protocol message: Orderer. from=0
+17:11:42.386 DBG Globalorderer handling message. senderID=0 sn=94
+17:11:42.386 DBG Received LogEntry message. SenderId=0
+17:11:42.386 WRN Not overwriting log entry. sn=94
+17:11:42.388 DBG Receive msg from peer ... SenderId=3 Sn=94 height=0 type=ProtocolMessage_LogEntry
+17:11:42.388 DBG Received protocol message: Orderer. from=3
+17:11:42.388 DBG Globalorderer handling message. senderID=3 sn=94
+17:11:42.388 DBG Received LogEntry message. SenderId=3
+17:11:42.389 WRN Not overwriting log entry. sn=94
+17:11:42.459 DBG Receive msg from peer ... SenderId=0 Sn=93 height=0 type=ProtocolMessage_LogEntry
+17:11:42.459 DBG Received protocol message: Orderer. from=0
+17:11:42.459 DBG Globalorderer handling message. senderID=0 sn=93
+17:11:42.459 DBG Received LogEntry message. SenderId=0
+17:11:42.460 INF Committed entry. latency=0 nReq=236 sn=93
+17:11:42.460 DBG Receive msg from peer ... SenderId=2 Sn=93 height=0 type=ProtocolMessage_LogEntry
+17:11:42.460 DBG Received protocol message: Orderer. from=2
+17:11:42.460 DBG Globalorderer handling message. senderID=2 sn=93
+17:11:42.460 DBG Received LogEntry message. SenderId=2
+17:11:42.460 WRN Not overwriting log entry. sn=93
+17:11:42.461 DBG Receive msg from peer ... SenderId=4 Sn=93 height=0 type=ProtocolMessage_LogEntry
+17:11:42.461 DBG Received protocol message: Orderer. from=4
+17:11:42.461 DBG Globalorderer handling message. senderID=4 sn=93
+17:11:42.461 DBG Received LogEntry message. SenderId=4
+17:11:42.461 DBG Receive msg from peer ... SenderId=3 Sn=93 height=0 type=ProtocolMessage_LogEntry
+17:11:42.461 WRN Not overwriting log entry. sn=93
+17:11:42.461 DBG Received protocol message: Orderer. from=3
+17:11:42.461 DBG Globalorderer handling message. senderID=3 sn=93
+17:11:42.462 DBG Received LogEntry message. SenderId=3
+17:11:42.462 WRN Not overwriting log entry. sn=93
+17:11:42.533 DBG Receive msg from peer ... SenderId=0 Sn=92 height=0 type=ProtocolMessage_LogEntry
+17:11:42.533 DBG Received protocol message: Orderer. from=0
+17:11:42.533 DBG Globalorderer handling message. senderID=0 sn=92
+17:11:42.533 DBG Received LogEntry message. SenderId=0
+17:11:42.533 INF Committed entry. latency=0 nReq=232 sn=92
+17:11:42.533 INF Delivered batch. nReq=232 sn=92
+17:11:42.533 INF Delivered batch. nReq=236 sn=93
+17:11:42.533 INF Delivered batch. nReq=231 sn=94
+17:11:42.533 INF Delivered batch. nReq=223 sn=95
+17:11:42.538 DBG Receive msg from peer ... SenderId=4 Sn=92 height=0 type=ProtocolMessage_LogEntry
+17:11:42.538 DBG Received protocol message: Orderer. from=4
+17:11:42.538 DBG Globalorderer handling message. senderID=4 sn=92
+17:11:42.538 DBG Received LogEntry message. SenderId=4
+17:11:42.539 WRN Not overwriting log entry. sn=92
+17:11:42.541 DBG Receive msg from peer ... SenderId=2 Sn=92 height=0 type=ProtocolMessage_LogEntry
+17:11:42.541 DBG Received protocol message: Orderer. from=2
+17:11:42.541 DBG Globalorderer handling message. senderID=2 sn=92
+17:11:42.541 DBG Received LogEntry message. SenderId=2
+17:11:42.541 WRN Not overwriting log entry. sn=92
+17:11:42.545 DBG Receive msg from peer ... SenderId=3 Sn=92 height=0 type=ProtocolMessage_LogEntry
+17:11:42.546 DBG Received protocol message: Orderer. from=3
+17:11:42.546 DBG Globalorderer handling message. senderID=3 sn=92
+17:11:42.546 DBG Received LogEntry message. SenderId=3
+17:11:42.546 WRN Not overwriting log entry. sn=92
+17:11:43.303 DBG Receive msg from peer ... SenderId=4 Sn=99 height=0 type=ProtocolMessage_LogEntry
+17:11:43.303 DBG Received protocol message: Orderer. from=4
+17:11:43.303 DBG Globalorderer handling message. senderID=4 sn=99
+17:11:43.303 DBG Received LogEntry message. SenderId=4
+17:11:43.303 INF Committed entry. latency=0 nReq=225 sn=99
+17:11:43.307 DBG Receive msg from peer ... SenderId=0 Sn=99 height=0 type=ProtocolMessage_LogEntry
+17:11:43.307 DBG Received protocol message: Orderer. from=0
+17:11:43.307 DBG Globalorderer handling message. senderID=0 sn=99
+17:11:43.307 DBG Received LogEntry message. SenderId=0
+17:11:43.307 WRN Not overwriting log entry. sn=99
+17:11:43.308 DBG Receive msg from peer ... SenderId=2 Sn=99 height=0 type=ProtocolMessage_LogEntry
+17:11:43.308 DBG Received protocol message: Orderer. from=2
+17:11:43.308 DBG Globalorderer handling message. senderID=2 sn=99
+17:11:43.308 DBG Received LogEntry message. SenderId=2
+17:11:43.308 WRN Not overwriting log entry. sn=99
+17:11:43.309 DBG Receive msg from peer ... SenderId=3 Sn=99 height=0 type=ProtocolMessage_LogEntry
+17:11:43.309 DBG Received protocol message: Orderer. from=3
+17:11:43.309 DBG Globalorderer handling message. senderID=3 sn=99
+17:11:43.309 DBG Received LogEntry message. SenderId=3
+17:11:43.310 WRN Not overwriting log entry. sn=99
+17:11:43.392 DBG Receive msg from peer ... SenderId=3 Sn=98 height=0 type=ProtocolMessage_LogEntry
+17:11:43.392 DBG Received protocol message: Orderer. from=3
+17:11:43.392 DBG Globalorderer handling message. senderID=3 sn=98
+17:11:43.392 DBG Received LogEntry message. SenderId=3
+17:11:43.392 INF Committed entry. latency=0 nReq=220 sn=98
+17:11:43.395 DBG Receive msg from peer ... SenderId=2 Sn=98 height=0 type=ProtocolMessage_LogEntry
+17:11:43.395 DBG Received protocol message: Orderer. from=2
+17:11:43.395 DBG Receive msg from peer ... SenderId=0 Sn=98 height=0 type=ProtocolMessage_LogEntry
+17:11:43.395 DBG Receive msg from peer ... SenderId=4 Sn=98 height=0 type=ProtocolMessage_LogEntry
+17:11:43.395 DBG Received protocol message: Orderer. from=0
+17:11:43.395 DBG Globalorderer handling message. senderID=0 sn=98
+17:11:43.395 DBG Globalorderer handling message. senderID=2 sn=98
+17:11:43.395 DBG Received protocol message: Orderer. from=4
+17:11:43.395 DBG Received LogEntry message. SenderId=0
+17:11:43.395 DBG Globalorderer handling message. senderID=4 sn=98
+17:11:43.395 WRN Not overwriting log entry. sn=98
+17:11:43.396 DBG Received LogEntry message. SenderId=2
+17:11:43.396 WRN Not overwriting log entry. sn=98
+17:11:43.396 DBG Received LogEntry message. SenderId=4
+17:11:43.396 WRN Not overwriting log entry. sn=98
+17:11:43.458 DBG Receive msg from peer ... SenderId=4 Sn=97 height=0 type=ProtocolMessage_LogEntry
+17:11:43.458 DBG Received protocol message: Orderer. from=4
+17:11:43.458 DBG Globalorderer handling message. senderID=4 sn=97
+17:11:43.458 DBG Received LogEntry message. SenderId=4
+17:11:43.458 INF Committed entry. latency=0 nReq=216 sn=97
+17:11:43.461 DBG Receive msg from peer ... SenderId=2 Sn=97 height=0 type=ProtocolMessage_LogEntry
+17:11:43.461 DBG Received protocol message: Orderer. from=2
+17:11:43.461 DBG Globalorderer handling message. senderID=2 sn=97
+17:11:43.461 DBG Received LogEntry message. SenderId=2
+17:11:43.461 WRN Not overwriting log entry. sn=97
+17:11:43.463 DBG Receive msg from peer ... SenderId=3 Sn=97 height=0 type=ProtocolMessage_LogEntry
+17:11:43.463 DBG Received protocol message: Orderer. from=3
+17:11:43.463 DBG Globalorderer handling message. senderID=3 sn=97
+17:11:43.463 DBG Received LogEntry message. SenderId=3
+17:11:43.463 WRN Not overwriting log entry. sn=97
+17:11:43.464 DBG Receive msg from peer ... SenderId=0 Sn=97 height=0 type=ProtocolMessage_LogEntry
+17:11:43.464 DBG Received protocol message: Orderer. from=0
+17:11:43.464 DBG Globalorderer handling message. senderID=0 sn=97
+17:11:43.464 DBG Received LogEntry message. SenderId=0
+17:11:43.465 WRN Not overwriting log entry. sn=97
+17:11:43.534 DBG Receive msg from peer ... SenderId=0 Sn=96 height=0 type=ProtocolMessage_LogEntry
+17:11:43.534 DBG Received protocol message: Orderer. from=0
+17:11:43.534 DBG Globalorderer handling message. senderID=0 sn=96
+17:11:43.534 DBG Received LogEntry message. SenderId=0
+17:11:43.534 INF Committed entry. latency=0 nReq=224 sn=96
+17:11:43.534 INF Delivered batch. nReq=224 sn=96
+17:11:43.534 INF Delivered batch. nReq=216 sn=97
+17:11:43.534 INF Delivered batch. nReq=220 sn=98
+17:11:43.534 INF Delivered batch. nReq=225 sn=99
+17:11:43.544 DBG Receive msg from peer ... SenderId=3 Sn=96 height=0 type=ProtocolMessage_LogEntry
+17:11:43.544 DBG Received protocol message: Orderer. from=3
+17:11:43.544 DBG Globalorderer handling message. senderID=3 sn=96
+17:11:43.544 DBG Received LogEntry message. SenderId=3
+17:11:43.544 WRN Not overwriting log entry. sn=96
+17:11:43.553 DBG Receive msg from peer ... SenderId=2 Sn=96 height=0 type=ProtocolMessage_LogEntry
+17:11:43.553 DBG Received protocol message: Orderer. from=2
+17:11:43.553 DBG Globalorderer handling message. senderID=2 sn=96
+17:11:43.554 DBG Received LogEntry message. SenderId=2
+17:11:43.554 WRN Not overwriting log entry. sn=96
+17:11:43.559 DBG Receive msg from peer ... SenderId=4 Sn=96 height=0 type=ProtocolMessage_LogEntry
+17:11:43.559 DBG Received protocol message: Orderer. from=4
+17:11:43.559 DBG Globalorderer handling message. senderID=4 sn=96
+17:11:43.560 DBG Received LogEntry message. SenderId=4
+17:11:43.560 WRN Not overwriting log entry. sn=96
+17:11:44.320 DBG Receive msg from peer ... SenderId=4 Sn=103 height=0 type=ProtocolMessage_LogEntry
+17:11:44.320 DBG Received protocol message: Orderer. from=4
+17:11:44.320 DBG Globalorderer handling message. senderID=4 sn=103
+17:11:44.320 DBG Received LogEntry message. SenderId=4
+17:11:44.320 INF Committed entry. latency=0 nReq=231 sn=103
+17:11:44.321 DBG Receive msg from peer ... SenderId=3 Sn=103 height=0 type=ProtocolMessage_LogEntry
+17:11:44.321 DBG Received protocol message: Orderer. from=3
+17:11:44.321 DBG Receive msg from peer ... SenderId=0 Sn=103 height=0 type=ProtocolMessage_LogEntry
+17:11:44.321 DBG Globalorderer handling message. senderID=3 sn=103
+17:11:44.322 DBG Received protocol message: Orderer. from=0
+17:11:44.322 DBG Received LogEntry message. SenderId=3
+17:11:44.322 DBG Globalorderer handling message. senderID=0 sn=103
+17:11:44.321 DBG Receive msg from peer ... SenderId=2 Sn=103 height=0 type=ProtocolMessage_LogEntry
+17:11:44.322 WRN Not overwriting log entry. sn=103
+17:11:44.322 DBG Received protocol message: Orderer. from=2
+17:11:44.322 DBG Received LogEntry message. SenderId=0
+17:11:44.322 DBG Globalorderer handling message. senderID=2 sn=103
+17:11:44.322 WRN Not overwriting log entry. sn=103
+17:11:44.322 DBG Received LogEntry message. SenderId=2
+17:11:44.322 WRN Not overwriting log entry. sn=103
+17:11:44.422 DBG Receive msg from peer ... SenderId=4 Sn=102 height=0 type=ProtocolMessage_LogEntry
+17:11:44.422 DBG Received protocol message: Orderer. from=4
+17:11:44.422 DBG Globalorderer handling message. senderID=4 sn=102
+17:11:44.422 DBG Received LogEntry message. SenderId=4
+17:11:44.423 INF Committed entry. latency=0 nReq=236 sn=102
+17:11:44.426 DBG Receive msg from peer ... SenderId=3 Sn=102 height=0 type=ProtocolMessage_LogEntry
+17:11:44.427 DBG Received protocol message: Orderer. from=3
+17:11:44.426 DBG Receive msg from peer ... SenderId=0 Sn=102 height=0 type=ProtocolMessage_LogEntry
+17:11:44.427 DBG Globalorderer handling message. senderID=3 sn=102
+17:11:44.427 DBG Received protocol message: Orderer. from=0
+17:11:44.427 DBG Received LogEntry message. SenderId=3
+17:11:44.427 DBG Globalorderer handling message. senderID=0 sn=102
+17:11:44.427 WRN Not overwriting log entry. sn=102
+17:11:44.427 DBG Received LogEntry message. SenderId=0
+17:11:44.427 WRN Not overwriting log entry. sn=102
+17:11:44.431 DBG Receive msg from peer ... SenderId=2 Sn=102 height=0 type=ProtocolMessage_LogEntry
+17:11:44.431 DBG Received protocol message: Orderer. from=2
+17:11:44.431 DBG Globalorderer handling message. senderID=2 sn=102
+17:11:44.431 DBG Received LogEntry message. SenderId=2
+17:11:44.431 WRN Not overwriting log entry. sn=102
+17:11:44.464 DBG Receive msg from peer ... SenderId=2 Sn=101 height=0 type=ProtocolMessage_LogEntry
+17:11:44.464 DBG Received protocol message: Orderer. from=2
+17:11:44.464 DBG Globalorderer handling message. senderID=2 sn=101
+17:11:44.464 DBG Received LogEntry message. SenderId=2
+17:11:44.464 INF Committed entry. latency=0 nReq=232 sn=101
+17:11:44.465 DBG Receive msg from peer ... SenderId=0 Sn=101 height=0 type=ProtocolMessage_LogEntry
+17:11:44.465 DBG Received protocol message: Orderer. from=0
+17:11:44.465 DBG Globalorderer handling message. senderID=0 sn=101
+17:11:44.465 DBG Received LogEntry message. SenderId=0
+17:11:44.465 WRN Not overwriting log entry. sn=101
+17:11:44.467 DBG Receive msg from peer ... SenderId=3 Sn=101 height=0 type=ProtocolMessage_LogEntry
+17:11:44.467 DBG Received protocol message: Orderer. from=3
+17:11:44.467 DBG Globalorderer handling message. senderID=3 sn=101
+17:11:44.467 DBG Received LogEntry message. SenderId=3
+17:11:44.467 WRN Not overwriting log entry. sn=101
+17:11:44.469 DBG Receive msg from peer ... SenderId=4 Sn=101 height=0 type=ProtocolMessage_LogEntry
+17:11:44.469 DBG Received protocol message: Orderer. from=4
+17:11:44.469 DBG Globalorderer handling message. senderID=4 sn=101
+17:11:44.469 DBG Received LogEntry message. SenderId=4
+17:11:44.469 WRN Not overwriting log entry. sn=101
+17:11:44.545 DBG Receive msg from peer ... SenderId=3 Sn=100 height=0 type=ProtocolMessage_LogEntry
+17:11:44.545 DBG Received protocol message: Orderer. from=3
+17:11:44.545 DBG Globalorderer handling message. senderID=3 sn=100
+17:11:44.545 DBG Received LogEntry message. SenderId=3
+17:11:44.545 INF Committed entry. latency=0 nReq=233 sn=100
+17:11:44.545 INF Delivered batch. nReq=233 sn=100
+17:11:44.545 INF Delivered batch. nReq=232 sn=101
+17:11:44.545 INF Delivered batch. nReq=236 sn=102
+17:11:44.546 INF Delivered batch. nReq=231 sn=103
+17:11:44.554 DBG Receive msg from peer ... SenderId=0 Sn=100 height=0 type=ProtocolMessage_LogEntry
+17:11:44.554 DBG Received protocol message: Orderer. from=0
+17:11:44.554 DBG Globalorderer handling message. senderID=0 sn=100
+17:11:44.554 DBG Received LogEntry message. SenderId=0
+17:11:44.554 WRN Not overwriting log entry. sn=100
+17:11:44.554 DBG Receive msg from peer ... SenderId=2 Sn=100 height=0 type=ProtocolMessage_LogEntry
+17:11:44.554 DBG Received protocol message: Orderer. from=2
+17:11:44.554 DBG Globalorderer handling message. senderID=2 sn=100
+17:11:44.554 DBG Received LogEntry message. SenderId=2
+17:11:44.555 WRN Not overwriting log entry. sn=100
+17:11:44.562 DBG Receive msg from peer ... SenderId=4 Sn=100 height=0 type=ProtocolMessage_LogEntry
+17:11:44.562 DBG Received protocol message: Orderer. from=4
+17:11:44.562 DBG Globalorderer handling message. senderID=4 sn=100
+17:11:44.563 DBG Received LogEntry message. SenderId=4
+17:11:44.563 WRN Not overwriting log entry. sn=100
+17:11:45.333 DBG Receive msg from peer ... SenderId=3 Sn=107 height=0 type=ProtocolMessage_LogEntry
+17:11:45.333 DBG Received protocol message: Orderer. from=3
+17:11:45.333 DBG Globalorderer handling message. senderID=3 sn=107
+17:11:45.333 DBG Received LogEntry message. SenderId=3
+17:11:45.333 INF Committed entry. latency=0 nReq=234 sn=107
+17:11:45.334 DBG Receive msg from peer ... SenderId=0 Sn=107 height=0 type=ProtocolMessage_LogEntry
+17:11:45.334 DBG Received protocol message: Orderer. from=0
+17:11:45.334 DBG Globalorderer handling message. senderID=0 sn=107
+17:11:45.334 DBG Received LogEntry message. SenderId=0
+17:11:45.335 WRN Not overwriting log entry. sn=107
+17:11:45.337 DBG Receive msg from peer ... SenderId=4 Sn=107 height=0 type=ProtocolMessage_LogEntry
+17:11:45.337 DBG Received protocol message: Orderer. from=4
+17:11:45.337 DBG Globalorderer handling message. senderID=4 sn=107
+17:11:45.337 DBG Receive msg from peer ... SenderId=2 Sn=107 height=0 type=ProtocolMessage_LogEntry
+17:11:45.337 DBG Received LogEntry message. SenderId=4
+17:11:45.337 DBG Received protocol message: Orderer. from=2
+17:11:45.338 WRN Not overwriting log entry. sn=107
+17:11:45.338 DBG Globalorderer handling message. senderID=2 sn=107
+17:11:45.338 DBG Received LogEntry message. SenderId=2
+17:11:45.338 WRN Not overwriting log entry. sn=107
+17:11:45.442 DBG Receive msg from peer ... SenderId=0 Sn=106 height=0 type=ProtocolMessage_LogEntry
+17:11:45.442 DBG Received protocol message: Orderer. from=0
+17:11:45.442 DBG Globalorderer handling message. senderID=0 sn=106
+17:11:45.442 DBG Received LogEntry message. SenderId=0
+17:11:45.442 INF Committed entry. latency=0 nReq=239 sn=106
+17:11:45.444 DBG Receive msg from peer ... SenderId=4 Sn=106 height=0 type=ProtocolMessage_LogEntry
+17:11:45.444 DBG Received protocol message: Orderer. from=4
+17:11:45.444 DBG Globalorderer handling message. senderID=4 sn=106
+17:11:45.444 DBG Received LogEntry message. SenderId=4
+17:11:45.444 WRN Not overwriting log entry. sn=106
+17:11:45.449 DBG Receive msg from peer ... SenderId=2 Sn=106 height=0 type=ProtocolMessage_LogEntry
+17:11:45.449 DBG Received protocol message: Orderer. from=2
+17:11:45.449 DBG Globalorderer handling message. senderID=2 sn=106
+17:11:45.450 DBG Received LogEntry message. SenderId=2
+17:11:45.450 WRN Not overwriting log entry. sn=106
+17:11:45.452 DBG Receive msg from peer ... SenderId=3 Sn=106 height=0 type=ProtocolMessage_LogEntry
+17:11:45.452 DBG Received protocol message: Orderer. from=3
+17:11:45.453 DBG Globalorderer handling message. senderID=3 sn=106
+17:11:45.453 DBG Received LogEntry message. SenderId=3
+17:11:45.453 WRN Not overwriting log entry. sn=106
+17:11:45.496 DBG Receive msg from peer ... SenderId=2 Sn=105 height=0 type=ProtocolMessage_LogEntry
+17:11:45.496 DBG Received protocol message: Orderer. from=2
+17:11:45.496 DBG Globalorderer handling message. senderID=2 sn=105
+17:11:45.496 DBG Received LogEntry message. SenderId=2
+17:11:45.496 INF Committed entry. latency=0 nReq=237 sn=105
+17:11:45.499 DBG Receive msg from peer ... SenderId=0 Sn=105 height=0 type=ProtocolMessage_LogEntry
+17:11:45.499 DBG Received protocol message: Orderer. from=0
+17:11:45.499 DBG Globalorderer handling message. senderID=0 sn=105
+17:11:45.499 DBG Received LogEntry message. SenderId=0
+17:11:45.499 WRN Not overwriting log entry. sn=105
+17:11:45.501 DBG Receive msg from peer ... SenderId=4 Sn=105 height=0 type=ProtocolMessage_LogEntry
+17:11:45.502 DBG Received protocol message: Orderer. from=4
+17:11:45.502 DBG Globalorderer handling message. senderID=4 sn=105
+17:11:45.502 DBG Received LogEntry message. SenderId=4
+17:11:45.502 WRN Not overwriting log entry. sn=105
+17:11:45.504 DBG Receive msg from peer ... SenderId=3 Sn=105 height=0 type=ProtocolMessage_LogEntry
+17:11:45.504 DBG Received protocol message: Orderer. from=3
+17:11:45.505 DBG Globalorderer handling message. senderID=3 sn=105
+17:11:45.505 DBG Received LogEntry message. SenderId=3
+17:11:45.505 WRN Not overwriting log entry. sn=105
+17:11:45.563 DBG Receive msg from peer ... SenderId=3 Sn=104 height=0 type=ProtocolMessage_LogEntry
+17:11:45.563 DBG Received protocol message: Orderer. from=3
+17:11:45.563 DBG Globalorderer handling message. senderID=3 sn=104
+17:11:45.563 DBG Received LogEntry message. SenderId=3
+17:11:45.563 INF Committed entry. latency=0 nReq=235 sn=104
+17:11:45.564 INF Delivered batch. nReq=235 sn=104
+17:11:45.564 INF Delivered batch. nReq=237 sn=105
+17:11:45.564 INF Delivered batch. nReq=239 sn=106
+17:11:45.564 INF Delivered batch. nReq=234 sn=107
+17:11:45.571 DBG Receive msg from peer ... SenderId=2 Sn=104 height=0 type=ProtocolMessage_LogEntry
+17:11:45.572 DBG Received protocol message: Orderer. from=2
+17:11:45.572 DBG Globalorderer handling message. senderID=2 sn=104
+17:11:45.572 DBG Received LogEntry message. SenderId=2
+17:11:45.572 WRN Not overwriting log entry. sn=104
+17:11:45.576 DBG Receive msg from peer ... SenderId=0 Sn=104 height=0 type=ProtocolMessage_LogEntry
+17:11:45.576 DBG Received protocol message: Orderer. from=0
+17:11:45.577 DBG Globalorderer handling message. senderID=0 sn=104
+17:11:45.577 DBG Received LogEntry message. SenderId=0
+17:11:45.577 WRN Not overwriting log entry. sn=104
+17:11:45.577 DBG Receive msg from peer ... SenderId=4 Sn=104 height=0 type=ProtocolMessage_LogEntry
+17:11:45.577 DBG Received protocol message: Orderer. from=4
+17:11:45.577 DBG Globalorderer handling message. senderID=4 sn=104
+17:11:45.577 DBG Received LogEntry message. SenderId=4
+17:11:45.578 WRN Not overwriting log entry. sn=104
+17:11:46.331 DBG Receive msg from peer ... SenderId=4 Sn=111 height=0 type=ProtocolMessage_LogEntry
+17:11:46.331 DBG Received protocol message: Orderer. from=4
+17:11:46.331 DBG Receive msg from peer ... SenderId=3 Sn=111 height=0 type=ProtocolMessage_LogEntry
+17:11:46.331 DBG Globalorderer handling message. senderID=4 sn=111
+17:11:46.331 DBG Received protocol message: Orderer. from=3
+17:11:46.331 DBG Received LogEntry message. SenderId=4
+17:11:46.331 DBG Globalorderer handling message. senderID=3 sn=111
+17:11:46.331 INF Committed entry. latency=0 nReq=229 sn=111
+17:11:46.331 DBG Received LogEntry message. SenderId=3
+17:11:46.332 WRN Not overwriting log entry. sn=111
+17:11:46.334 DBG Receive msg from peer ... SenderId=0 Sn=111 height=0 type=ProtocolMessage_LogEntry
+17:11:46.334 DBG Received protocol message: Orderer. from=0
+17:11:46.334 DBG Globalorderer handling message. senderID=0 sn=111
+17:11:46.334 DBG Received LogEntry message. SenderId=0
+17:11:46.335 WRN Not overwriting log entry. sn=111
+17:11:46.335 DBG Receive msg from peer ... SenderId=2 Sn=111 height=0 type=ProtocolMessage_LogEntry
+17:11:46.335 DBG Received protocol message: Orderer. from=2
+17:11:46.335 DBG Globalorderer handling message. senderID=2 sn=111
+17:11:46.335 DBG Received LogEntry message. SenderId=2
+17:11:46.335 WRN Not overwriting log entry. sn=111
+17:11:46.457 DBG Receive msg from peer ... SenderId=0 Sn=110 height=0 type=ProtocolMessage_LogEntry
+17:11:46.457 DBG Received protocol message: Orderer. from=0
+17:11:46.457 DBG Globalorderer handling message. senderID=0 sn=110
+17:11:46.457 DBG Received LogEntry message. SenderId=0
+17:11:46.459 INF Committed entry. latency=0 nReq=230 sn=110
+17:11:46.465 DBG Receive msg from peer ... SenderId=2 Sn=110 height=0 type=ProtocolMessage_LogEntry
+17:11:46.465 DBG Received protocol message: Orderer. from=2
+17:11:46.465 DBG Globalorderer handling message. senderID=2 sn=110
+17:11:46.465 DBG Received LogEntry message. SenderId=2
+17:11:46.465 WRN Not overwriting log entry. sn=110
+17:11:46.466 DBG Receive msg from peer ... SenderId=3 Sn=110 height=0 type=ProtocolMessage_LogEntry
+17:11:46.466 DBG Received protocol message: Orderer. from=3
+17:11:46.466 DBG Globalorderer handling message. senderID=3 sn=110
+17:11:46.466 DBG Received LogEntry message. SenderId=3
+17:11:46.466 WRN Not overwriting log entry. sn=110
+17:11:46.469 DBG Receive msg from peer ... SenderId=4 Sn=110 height=0 type=ProtocolMessage_LogEntry
+17:11:46.469 DBG Received protocol message: Orderer. from=4
+17:11:46.469 DBG Globalorderer handling message. senderID=4 sn=110
+17:11:46.469 DBG Received LogEntry message. SenderId=4
+17:11:46.470 WRN Not overwriting log entry. sn=110
+17:11:46.502 DBG Receive msg from peer ... SenderId=4 Sn=109 height=0 type=ProtocolMessage_LogEntry
+17:11:46.502 DBG Received protocol message: Orderer. from=4
+17:11:46.502 DBG Globalorderer handling message. senderID=4 sn=109
+17:11:46.503 DBG Received LogEntry message. SenderId=4
+17:11:46.503 INF Committed entry. latency=0 nReq=237 sn=109
+17:11:46.504 DBG Receive msg from peer ... SenderId=2 Sn=109 height=0 type=ProtocolMessage_LogEntry
+17:11:46.504 DBG Received protocol message: Orderer. from=2
+17:11:46.504 DBG Globalorderer handling message. senderID=2 sn=109
+17:11:46.504 DBG Received LogEntry message. SenderId=2
+17:11:46.504 WRN Not overwriting log entry. sn=109
+17:11:46.508 DBG Receive msg from peer ... SenderId=3 Sn=109 height=0 type=ProtocolMessage_LogEntry
+17:11:46.509 DBG Received protocol message: Orderer. from=3
+17:11:46.509 DBG Globalorderer handling message. senderID=3 sn=109
+17:11:46.509 DBG Received LogEntry message. SenderId=3
+17:11:46.509 WRN Not overwriting log entry. sn=109
+17:11:46.533 DBG Receive msg from peer ... SenderId=0 Sn=109 height=0 type=ProtocolMessage_LogEntry
+17:11:46.533 DBG Received protocol message: Orderer. from=0
+17:11:46.533 DBG Globalorderer handling message. senderID=0 sn=109
+17:11:46.533 DBG Received LogEntry message. SenderId=0
+17:11:46.533 WRN Not overwriting log entry. sn=109
+17:11:46.576 DBG Receive msg from peer ... SenderId=2 Sn=108 height=0 type=ProtocolMessage_LogEntry
+17:11:46.576 DBG Received protocol message: Orderer. from=2
+17:11:46.576 DBG Globalorderer handling message. senderID=2 sn=108
+17:11:46.576 DBG Received LogEntry message. SenderId=2
+17:11:46.576 INF Committed entry. latency=0 nReq=238 sn=108
+17:11:46.576 INF Delivered batch. nReq=238 sn=108
+17:11:46.576 INF Delivered batch. nReq=237 sn=109
+17:11:46.576 INF Delivered batch. nReq=230 sn=110
+17:11:46.576 INF Delivered batch. nReq=229 sn=111
+17:11:46.581 DBG Receive msg from peer ... SenderId=3 Sn=108 height=0 type=ProtocolMessage_LogEntry
+17:11:46.582 DBG Received protocol message: Orderer. from=3
+17:11:46.582 DBG Globalorderer handling message. senderID=3 sn=108
+17:11:46.582 DBG Received LogEntry message. SenderId=3
+17:11:46.582 WRN Not overwriting log entry. sn=108
+17:11:46.583 DBG Receive msg from peer ... SenderId=4 Sn=108 height=0 type=ProtocolMessage_LogEntry
+17:11:46.584 DBG Received protocol message: Orderer. from=4
+17:11:46.584 DBG Globalorderer handling message. senderID=4 sn=108
+17:11:46.584 DBG Received LogEntry message. SenderId=4
+17:11:46.584 WRN Not overwriting log entry. sn=108
+17:11:46.595 DBG Receive msg from peer ... SenderId=0 Sn=108 height=0 type=ProtocolMessage_LogEntry
+17:11:46.595 DBG Received protocol message: Orderer. from=0
+17:11:46.595 DBG Globalorderer handling message. senderID=0 sn=108
+17:11:46.596 DBG Received LogEntry message. SenderId=0
+17:11:46.596 WRN Not overwriting log entry. sn=108
+17:11:47.346 DBG Receive msg from peer ... SenderId=4 Sn=115 height=0 type=ProtocolMessage_LogEntry
+17:11:47.346 DBG Received protocol message: Orderer. from=4
+17:11:47.346 DBG Globalorderer handling message. senderID=4 sn=115
+17:11:47.347 DBG Received LogEntry message. SenderId=4
+17:11:47.347 INF Committed entry. latency=0 nReq=226 sn=115
+17:11:47.349 DBG Receive msg from peer ... SenderId=3 Sn=115 height=0 type=ProtocolMessage_LogEntry
+17:11:47.349 DBG Received protocol message: Orderer. from=3
+17:11:47.349 DBG Globalorderer handling message. senderID=3 sn=115
+17:11:47.349 DBG Received LogEntry message. SenderId=3
+17:11:47.349 WRN Not overwriting log entry. sn=115
+17:11:47.352 DBG Receive msg from peer ... SenderId=0 Sn=115 height=0 type=ProtocolMessage_LogEntry
+17:11:47.352 DBG Received protocol message: Orderer. from=0
+17:11:47.352 DBG Globalorderer handling message. senderID=0 sn=115
+17:11:47.352 DBG Received LogEntry message. SenderId=0
+17:11:47.352 WRN Not overwriting log entry. sn=115
+17:11:47.353 DBG Receive msg from peer ... SenderId=2 Sn=115 height=0 type=ProtocolMessage_LogEntry
+17:11:47.353 DBG Received protocol message: Orderer. from=2
+17:11:47.353 DBG Globalorderer handling message. senderID=2 sn=115
+17:11:47.353 DBG Received LogEntry message. SenderId=2
+17:11:47.353 WRN Not overwriting log entry. sn=115
+17:11:47.468 DBG Receive msg from peer ... SenderId=0 Sn=114 height=0 type=ProtocolMessage_LogEntry
+17:11:47.468 DBG Received protocol message: Orderer. from=0
+17:11:47.468 DBG Globalorderer handling message. senderID=0 sn=114
+17:11:47.468 DBG Received LogEntry message. SenderId=0
+17:11:47.468 INF Committed entry. latency=0 nReq=225 sn=114
+17:11:47.472 DBG Receive msg from peer ... SenderId=3 Sn=114 height=0 type=ProtocolMessage_LogEntry
+17:11:47.473 DBG Received protocol message: Orderer. from=3
+17:11:47.473 DBG Globalorderer handling message. senderID=3 sn=114
+17:11:47.473 DBG Received LogEntry message. SenderId=3
+17:11:47.473 WRN Not overwriting log entry. sn=114
+17:11:47.475 DBG Receive msg from peer ... SenderId=4 Sn=114 height=0 type=ProtocolMessage_LogEntry
+17:11:47.475 DBG Received protocol message: Orderer. from=4
+17:11:47.475 DBG Globalorderer handling message. senderID=4 sn=114
+17:11:47.475 DBG Received LogEntry message. SenderId=4
+17:11:47.475 WRN Not overwriting log entry. sn=114
+17:11:47.477 DBG Receive msg from peer ... SenderId=2 Sn=114 height=0 type=ProtocolMessage_LogEntry
+17:11:47.477 DBG Received protocol message: Orderer. from=2
+17:11:47.477 DBG Globalorderer handling message. senderID=2 sn=114
+17:11:47.477 DBG Received LogEntry message. SenderId=2
+17:11:47.477 WRN Not overwriting log entry. sn=114
+17:11:47.528 DBG Receive msg from peer ... SenderId=3 Sn=113 height=0 type=ProtocolMessage_LogEntry
+17:11:47.528 DBG Received protocol message: Orderer. from=3
+17:11:47.528 DBG Globalorderer handling message. senderID=3 sn=113
+17:11:47.528 DBG Received LogEntry message. SenderId=3
+17:11:47.529 INF Committed entry. latency=0 nReq=223 sn=113
+17:11:47.536 DBG Receive msg from peer ... SenderId=0 Sn=113 height=0 type=ProtocolMessage_LogEntry
+17:11:47.536 DBG Received protocol message: Orderer. from=0
+17:11:47.538 DBG Globalorderer handling message. senderID=0 sn=113
+17:11:47.538 DBG Received LogEntry message. SenderId=0
+17:11:47.538 WRN Not overwriting log entry. sn=113
+17:11:47.545 DBG Receive msg from peer ... SenderId=2 Sn=113 height=0 type=ProtocolMessage_LogEntry
+17:11:47.545 DBG Received protocol message: Orderer. from=2
+17:11:47.545 DBG Globalorderer handling message. senderID=2 sn=113
+17:11:47.545 DBG Received LogEntry message. SenderId=2
+17:11:47.545 WRN Not overwriting log entry. sn=113
+17:11:47.546 DBG Receive msg from peer ... SenderId=4 Sn=113 height=0 type=ProtocolMessage_LogEntry
+17:11:47.546 DBG Received protocol message: Orderer. from=4
+17:11:47.546 DBG Globalorderer handling message. senderID=4 sn=113
+17:11:47.546 DBG Received LogEntry message. SenderId=4
+17:11:47.546 WRN Not overwriting log entry. sn=113
+17:11:47.577 DBG Receive msg from peer ... SenderId=3 Sn=112 height=0 type=ProtocolMessage_LogEntry
+17:11:47.578 DBG Received protocol message: Orderer. from=3
+17:11:47.578 DBG Globalorderer handling message. senderID=3 sn=112
+17:11:47.578 DBG Received LogEntry message. SenderId=3
+17:11:47.578 INF Committed entry. latency=0 nReq=221 sn=112
+17:11:47.578 INF Delivered batch. nReq=221 sn=112
+17:11:47.578 INF Delivered batch. nReq=223 sn=113
+17:11:47.578 INF Delivered batch. nReq=225 sn=114
+17:11:47.578 INF Delivered batch. nReq=226 sn=115
+17:11:47.580 DBG Receive msg from peer ... SenderId=0 Sn=112 height=0 type=ProtocolMessage_LogEntry
+17:11:47.580 DBG Received protocol message: Orderer. from=0
+17:11:47.580 DBG Globalorderer handling message. senderID=0 sn=112
+17:11:47.580 DBG Received LogEntry message. SenderId=0
+17:11:47.580 WRN Not overwriting log entry. sn=112
+17:11:47.582 DBG Receive msg from peer ... SenderId=4 Sn=112 height=0 type=ProtocolMessage_LogEntry
+17:11:47.582 DBG Received protocol message: Orderer. from=4
+17:11:47.582 DBG Globalorderer handling message. senderID=4 sn=112
+17:11:47.582 DBG Received LogEntry message. SenderId=4
+17:11:47.582 WRN Not overwriting log entry. sn=112
+17:11:47.584 DBG Receive msg from peer ... SenderId=2 Sn=112 height=0 type=ProtocolMessage_LogEntry
+17:11:47.584 DBG Received protocol message: Orderer. from=2
+17:11:47.584 DBG Globalorderer handling message. senderID=2 sn=112
+17:11:47.584 DBG Received LogEntry message. SenderId=2
+17:11:47.584 WRN Not overwriting log entry. sn=112
+17:11:48.355 DBG Receive msg from peer ... SenderId=3 Sn=119 height=0 type=ProtocolMessage_LogEntry
+17:11:48.359 DBG Received protocol message: Orderer. from=3
+17:11:48.359 DBG Globalorderer handling message. senderID=3 sn=119
+17:11:48.359 DBG Receive msg from peer ... SenderId=0 Sn=119 height=0 type=ProtocolMessage_LogEntry
+17:11:48.359 DBG Received LogEntry message. SenderId=3
+17:11:48.359 INF Committed entry. latency=0 nReq=248 sn=119
+17:11:48.359 DBG Received protocol message: Orderer. from=0
+17:11:48.360 DBG Globalorderer handling message. senderID=0 sn=119
+17:11:48.360 DBG Received LogEntry message. SenderId=0
+17:11:48.360 WRN Not overwriting log entry. sn=119
+17:11:48.360 DBG Receive msg from peer ... SenderId=4 Sn=119 height=0 type=ProtocolMessage_LogEntry
+17:11:48.360 DBG Received protocol message: Orderer. from=4
+17:11:48.360 DBG Receive msg from peer ... SenderId=2 Sn=119 height=0 type=ProtocolMessage_LogEntry
+17:11:48.360 DBG Globalorderer handling message. senderID=4 sn=119
+17:11:48.360 DBG Received protocol message: Orderer. from=2
+17:11:48.361 DBG Received LogEntry message. SenderId=4
+17:11:48.361 DBG Globalorderer handling message. senderID=2 sn=119
+17:11:48.361 WRN Not overwriting log entry. sn=119
+17:11:48.361 DBG Received LogEntry message. SenderId=2
+17:11:48.361 WRN Not overwriting log entry. sn=119
+17:11:48.486 DBG Receive msg from peer ... SenderId=3 Sn=118 height=0 type=ProtocolMessage_LogEntry
+17:11:48.486 DBG Received protocol message: Orderer. from=3
+17:11:48.486 DBG Globalorderer handling message. senderID=3 sn=118
+17:11:48.486 DBG Received LogEntry message. SenderId=3
+17:11:48.486 INF Committed entry. latency=0 nReq=252 sn=118
+17:11:48.487 DBG Receive msg from peer ... SenderId=4 Sn=118 height=0 type=ProtocolMessage_LogEntry
+17:11:48.487 DBG Received protocol message: Orderer. from=4
+17:11:48.487 DBG Globalorderer handling message. senderID=4 sn=118
+17:11:48.487 DBG Received LogEntry message. SenderId=4
+17:11:48.488 WRN Not overwriting log entry. sn=118
+17:11:48.489 DBG Receive msg from peer ... SenderId=0 Sn=118 height=0 type=ProtocolMessage_LogEntry
+17:11:48.489 DBG Received protocol message: Orderer. from=0
+17:11:48.489 DBG Globalorderer handling message. senderID=0 sn=118
+17:11:48.490 DBG Received LogEntry message. SenderId=0
+17:11:48.490 WRN Not overwriting log entry. sn=118
+17:11:48.493 DBG Receive msg from peer ... SenderId=2 Sn=118 height=0 type=ProtocolMessage_LogEntry
+17:11:48.493 DBG Received protocol message: Orderer. from=2
+17:11:48.493 DBG Globalorderer handling message. senderID=2 sn=118
+17:11:48.493 DBG Received LogEntry message. SenderId=2
+17:11:48.493 WRN Not overwriting log entry. sn=118
+17:11:48.544 DBG Receive msg from peer ... SenderId=4 Sn=117 height=0 type=ProtocolMessage_LogEntry
+17:11:48.545 DBG Received protocol message: Orderer. from=4
+17:11:48.545 DBG Globalorderer handling message. senderID=4 sn=117
+17:11:48.545 DBG Received LogEntry message. SenderId=4
+17:11:48.545 INF Committed entry. latency=0 nReq=255 sn=117
+17:11:48.547 DBG Receive msg from peer ... SenderId=3 Sn=117 height=0 type=ProtocolMessage_LogEntry
+17:11:48.547 DBG Received protocol message: Orderer. from=3
+17:11:48.547 DBG Globalorderer handling message. senderID=3 sn=117
+17:11:48.547 DBG Received LogEntry message. SenderId=3
+17:11:48.548 WRN Not overwriting log entry. sn=117
+17:11:48.551 DBG Receive msg from peer ... SenderId=2 Sn=117 height=0 type=ProtocolMessage_LogEntry
+17:11:48.551 DBG Received protocol message: Orderer. from=2
+17:11:48.551 DBG Globalorderer handling message. senderID=2 sn=117
+17:11:48.551 DBG Received LogEntry message. SenderId=2
+17:11:48.551 WRN Not overwriting log entry. sn=117
+17:11:48.555 DBG Receive msg from peer ... SenderId=0 Sn=117 height=0 type=ProtocolMessage_LogEntry
+17:11:48.555 DBG Received protocol message: Orderer. from=0
+17:11:48.555 DBG Globalorderer handling message. senderID=0 sn=117
+17:11:48.555 DBG Received LogEntry message. SenderId=0
+17:11:48.555 WRN Not overwriting log entry. sn=117
+17:11:48.598 DBG Receive msg from peer ... SenderId=4 Sn=116 height=0 type=ProtocolMessage_LogEntry
+17:11:48.603 DBG Receive msg from peer ... SenderId=3 Sn=116 height=0 type=ProtocolMessage_LogEntry
+17:11:48.603 DBG Received protocol message: Orderer. from=3
+17:11:48.609 DBG Receive msg from peer ... SenderId=2 Sn=116 height=0 type=ProtocolMessage_LogEntry
+17:11:48.610 DBG Received protocol message: Orderer. from=2
+17:11:48.610 DBG Globalorderer handling message. senderID=2 sn=116
+17:11:48.610 DBG Received LogEntry message. SenderId=2
+17:11:48.610 INF Committed entry. latency=0 nReq=248 sn=116
+17:11:48.610 INF Delivered batch. nReq=248 sn=116
+17:11:48.610 INF Delivered batch. nReq=255 sn=117
+17:11:48.610 INF Delivered batch. nReq=252 sn=118
+17:11:48.610 INF Delivered batch. nReq=248 sn=119
+17:11:48.598 DBG Received protocol message: Orderer. from=4
+17:11:48.611 DBG Receive msg from peer ... SenderId=0 Sn=116 height=0 type=ProtocolMessage_LogEntry
+17:11:48.612 DBG Received protocol message: Orderer. from=0
+17:11:48.612 DBG Globalorderer handling message. senderID=0 sn=116
+17:11:48.612 DBG Received LogEntry message. SenderId=0
+17:11:48.612 WRN Not overwriting log entry. sn=116
+17:11:48.603 DBG Globalorderer handling message. senderID=3 sn=116
+17:11:48.613 DBG Received LogEntry message. SenderId=3
+17:11:48.614 WRN Not overwriting log entry. sn=116
+17:11:48.615 DBG Globalorderer handling message. senderID=4 sn=116
+17:11:48.615 DBG Received LogEntry message. SenderId=4
+17:11:48.615 WRN Not overwriting log entry. sn=116
+17:11:49.376 DBG Receive msg from peer ... SenderId=3 Sn=123 height=0 type=ProtocolMessage_LogEntry
+17:11:49.376 DBG Received protocol message: Orderer. from=3
+17:11:49.376 DBG Globalorderer handling message. senderID=3 sn=123
+17:11:49.376 DBG Received LogEntry message. SenderId=3
+17:11:49.376 INF Committed entry. latency=0 nReq=219 sn=123
+17:11:49.380 DBG Receive msg from peer ... SenderId=4 Sn=123 height=0 type=ProtocolMessage_LogEntry
+17:11:49.380 DBG Received protocol message: Orderer. from=4
+17:11:49.380 DBG Globalorderer handling message. senderID=4 sn=123
+17:11:49.381 DBG Received LogEntry message. SenderId=4
+17:11:49.381 WRN Not overwriting log entry. sn=123
+17:11:49.383 DBG Receive msg from peer ... SenderId=0 Sn=123 height=0 type=ProtocolMessage_LogEntry
+17:11:49.383 DBG Received protocol message: Orderer. from=0
+17:11:49.383 DBG Globalorderer handling message. senderID=0 sn=123
+17:11:49.383 DBG Received LogEntry message. SenderId=0
+17:11:49.384 WRN Not overwriting log entry. sn=123
+17:11:49.385 DBG Receive msg from peer ... SenderId=2 Sn=123 height=0 type=ProtocolMessage_LogEntry
+17:11:49.385 DBG Received protocol message: Orderer. from=2
+17:11:49.385 DBG Globalorderer handling message. senderID=2 sn=123
+17:11:49.385 DBG Received LogEntry message. SenderId=2
+17:11:49.385 WRN Not overwriting log entry. sn=123
+17:11:49.474 DBG Receive msg from peer ... SenderId=4 Sn=122 height=0 type=ProtocolMessage_LogEntry
+17:11:49.474 DBG Received protocol message: Orderer. from=4
+17:11:49.474 DBG Globalorderer handling message. senderID=4 sn=122
+17:11:49.474 DBG Received LogEntry message. SenderId=4
+17:11:49.474 INF Committed entry. latency=0 nReq=210 sn=122
+17:11:49.474 DBG Receive msg from peer ... SenderId=3 Sn=122 height=0 type=ProtocolMessage_LogEntry
+17:11:49.474 DBG Received protocol message: Orderer. from=3
+17:11:49.474 DBG Globalorderer handling message. senderID=3 sn=122
+17:11:49.475 DBG Received LogEntry message. SenderId=3
+17:11:49.475 WRN Not overwriting log entry. sn=122
+17:11:49.477 DBG Receive msg from peer ... SenderId=2 Sn=122 height=0 type=ProtocolMessage_LogEntry
+17:11:49.477 DBG Received protocol message: Orderer. from=2
+17:11:49.477 DBG Globalorderer handling message. senderID=2 sn=122
+17:11:49.477 DBG Received LogEntry message. SenderId=2
+17:11:49.477 WRN Not overwriting log entry. sn=122
+17:11:49.503 DBG Receive msg from peer ... SenderId=0 Sn=122 height=0 type=ProtocolMessage_LogEntry
+17:11:49.503 DBG Received protocol message: Orderer. from=0
+17:11:49.503 DBG Globalorderer handling message. senderID=0 sn=122
+17:11:49.503 DBG Received LogEntry message. SenderId=0
+17:11:49.504 WRN Not overwriting log entry. sn=122
+17:11:49.538 DBG Receive msg from peer ... SenderId=3 Sn=121 height=0 type=ProtocolMessage_LogEntry
+17:11:49.538 DBG Received protocol message: Orderer. from=3
+17:11:49.538 DBG Globalorderer handling message. senderID=3 sn=121
+17:11:49.538 DBG Received LogEntry message. SenderId=3
+17:11:49.538 INF Committed entry. latency=0 nReq=209 sn=121
+17:11:49.543 DBG Receive msg from peer ... SenderId=2 Sn=121 height=0 type=ProtocolMessage_LogEntry
+17:11:49.544 DBG Received protocol message: Orderer. from=2
+17:11:49.544 DBG Globalorderer handling message. senderID=2 sn=121
+17:11:49.544 DBG Received LogEntry message. SenderId=2
+17:11:49.544 DBG Receive msg from peer ... SenderId=4 Sn=121 height=0 type=ProtocolMessage_LogEntry
+17:11:49.544 WRN Not overwriting log entry. sn=121
+17:11:49.544 DBG Received protocol message: Orderer. from=4
+17:11:49.544 DBG Globalorderer handling message. senderID=4 sn=121
+17:11:49.544 DBG Received LogEntry message. SenderId=4
+17:11:49.544 WRN Not overwriting log entry. sn=121
+17:11:49.550 DBG Receive msg from peer ... SenderId=0 Sn=121 height=0 type=ProtocolMessage_LogEntry
+17:11:49.551 DBG Received protocol message: Orderer. from=0
+17:11:49.551 DBG Globalorderer handling message. senderID=0 sn=121
+17:11:49.551 DBG Received LogEntry message. SenderId=0
+17:11:49.551 WRN Not overwriting log entry. sn=121
+17:11:49.605 DBG Receive msg from peer ... SenderId=4 Sn=120 height=0 type=ProtocolMessage_LogEntry
+17:11:49.611 DBG Receive msg from peer ... SenderId=2 Sn=120 height=0 type=ProtocolMessage_LogEntry
+17:11:49.611 DBG Received protocol message: Orderer. from=2
+17:11:49.611 DBG Globalorderer handling message. senderID=2 sn=120
+17:11:49.611 DBG Received LogEntry message. SenderId=2
+17:11:49.611 DBG Receive msg from peer ... SenderId=3 Sn=120 height=0 type=ProtocolMessage_LogEntry
+17:11:49.611 INF Committed entry. latency=0 nReq=210 sn=120
+17:11:49.612 DBG Received protocol message: Orderer. from=3
+17:11:49.612 INF Delivered batch. nReq=210 sn=120
+17:11:49.612 DBG Globalorderer handling message. senderID=3 sn=120
+17:11:49.612 INF Delivered batch. nReq=209 sn=121
+17:11:49.612 INF Delivered batch. nReq=210 sn=122
+17:11:49.612 INF Delivered batch. nReq=219 sn=123
+17:11:49.612 DBG Received LogEntry message. SenderId=3
+17:11:49.612 WRN Not overwriting log entry. sn=120
+17:11:49.605 DBG Received protocol message: Orderer. from=4
+17:11:49.620 DBG Globalorderer handling message. senderID=4 sn=120
+17:11:49.620 DBG Received LogEntry message. SenderId=4
+17:11:49.620 WRN Not overwriting log entry. sn=120
+17:11:49.629 DBG Receive msg from peer ... SenderId=0 Sn=120 height=0 type=ProtocolMessage_LogEntry
+17:11:49.630 DBG Received protocol message: Orderer. from=0
+17:11:49.630 DBG Globalorderer handling message. senderID=0 sn=120
+17:11:49.630 DBG Received LogEntry message. SenderId=0
+17:11:49.630 WRN Not overwriting log entry. sn=120
+17:11:50.340 DBG Receive msg from peer ... SenderId=0 Sn=127 height=0 type=ProtocolMessage_LogEntry
+17:11:50.341 DBG Received protocol message: Orderer. from=0
+17:11:50.341 DBG Receive msg from peer ... SenderId=4 Sn=127 height=0 type=ProtocolMessage_LogEntry
+17:11:50.341 DBG Globalorderer handling message. senderID=0 sn=127
+17:11:50.341 DBG Received protocol message: Orderer. from=4
+17:11:50.341 DBG Received LogEntry message. SenderId=0
+17:11:50.341 DBG Receive msg from peer ... SenderId=3 Sn=127 height=0 type=ProtocolMessage_LogEntry
+17:11:50.341 INF Committed entry. latency=0 nReq=164 sn=127
+17:11:50.341 DBG Received protocol message: Orderer. from=3
+17:11:50.341 DBG Globalorderer handling message. senderID=4 sn=127
+17:11:50.341 DBG Globalorderer handling message. senderID=3 sn=127
+17:11:50.341 DBG Received LogEntry message. SenderId=4
+17:11:50.341 WRN Not overwriting log entry. sn=127
+17:11:50.341 DBG Received LogEntry message. SenderId=3
+17:11:50.341 WRN Not overwriting log entry. sn=127
+17:11:50.344 DBG Receive msg from peer ... SenderId=2 Sn=127 height=0 type=ProtocolMessage_LogEntry
+17:11:50.344 DBG Received protocol message: Orderer. from=2
+17:11:50.344 DBG Globalorderer handling message. senderID=2 sn=127
+17:11:50.344 DBG Received LogEntry message. SenderId=2
+17:11:50.344 WRN Not overwriting log entry. sn=127
+17:11:50.467 DBG Receive msg from peer ... SenderId=0 Sn=126 height=0 type=ProtocolMessage_LogEntry
+17:11:50.468 DBG Received protocol message: Orderer. from=0
+17:11:50.468 DBG Globalorderer handling message. senderID=0 sn=126
+17:11:50.468 DBG Received LogEntry message. SenderId=0
+17:11:50.468 INF Committed entry. latency=0 nReq=136 sn=126
+17:11:50.469 DBG Receive msg from peer ... SenderId=2 Sn=126 height=0 type=ProtocolMessage_LogEntry
+17:11:50.469 DBG Received protocol message: Orderer. from=2
+17:11:50.469 DBG Globalorderer handling message. senderID=2 sn=126
+17:11:50.469 DBG Received LogEntry message. SenderId=2
+17:11:50.469 WRN Not overwriting log entry. sn=126
+17:11:50.469 DBG Receive msg from peer ... SenderId=3 Sn=126 height=0 type=ProtocolMessage_LogEntry
+17:11:50.469 DBG Received protocol message: Orderer. from=3
+17:11:50.469 DBG Globalorderer handling message. senderID=3 sn=126
+17:11:50.469 DBG Received LogEntry message. SenderId=3
+17:11:50.470 WRN Not overwriting log entry. sn=126
+17:11:50.471 DBG Receive msg from peer ... SenderId=4 Sn=126 height=0 type=ProtocolMessage_LogEntry
+17:11:50.472 DBG Received protocol message: Orderer. from=4
+17:11:50.472 DBG Globalorderer handling message. senderID=4 sn=126
+17:11:50.472 DBG Received LogEntry message. SenderId=4
+17:11:50.472 WRN Not overwriting log entry. sn=126
+17:11:50.523 DBG Receive msg from peer ... SenderId=2 Sn=125 height=0 type=ProtocolMessage_LogEntry
+17:11:50.523 DBG Received protocol message: Orderer. from=2
+17:11:50.524 DBG Globalorderer handling message. senderID=2 sn=125
+17:11:50.524 DBG Received LogEntry message. SenderId=2
+17:11:50.524 INF Committed entry. latency=0 nReq=120 sn=125
+17:11:50.525 DBG Receive msg from peer ... SenderId=4 Sn=125 height=0 type=ProtocolMessage_LogEntry
+17:11:50.525 DBG Received protocol message: Orderer. from=4
+17:11:50.526 DBG Globalorderer handling message. senderID=4 sn=125
+17:11:50.526 DBG Received LogEntry message. SenderId=4
+17:11:50.526 WRN Not overwriting log entry. sn=125
+17:11:50.528 DBG Receive msg from peer ... SenderId=3 Sn=125 height=0 type=ProtocolMessage_LogEntry
+17:11:50.528 DBG Received protocol message: Orderer. from=3
+17:11:50.528 DBG Globalorderer handling message. senderID=3 sn=125
+17:11:50.528 DBG Received LogEntry message. SenderId=3
+17:11:50.528 WRN Not overwriting log entry. sn=125
+17:11:50.529 DBG Receive msg from peer ... SenderId=0 Sn=125 height=0 type=ProtocolMessage_LogEntry
+17:11:50.529 DBG Received protocol message: Orderer. from=0
+17:11:50.529 DBG Globalorderer handling message. senderID=0 sn=125
+17:11:50.529 DBG Received LogEntry message. SenderId=0
+17:11:50.529 WRN Not overwriting log entry. sn=125
+17:11:50.575 DBG Receive msg from peer ... SenderId=2 Sn=124 height=0 type=ProtocolMessage_LogEntry
+17:11:50.575 DBG Received protocol message: Orderer. from=2
+17:11:50.575 DBG Globalorderer handling message. senderID=2 sn=124
+17:11:50.575 DBG Received LogEntry message. SenderId=2
+17:11:50.576 INF Committed entry. latency=0 nReq=109 sn=124
+17:11:50.576 INF Delivered batch. nReq=109 sn=124
+17:11:50.576 INF Delivered batch. nReq=120 sn=125
+17:11:50.576 INF Delivered batch. nReq=136 sn=126
+17:11:50.576 INF Delivered batch. nReq=164 sn=127
+17:11:50.574 DBG Receive msg from peer ... SenderId=3 Sn=124 height=0 type=ProtocolMessage_LogEntry
+17:11:50.581 DBG Received protocol message: Orderer. from=3
+17:11:50.581 DBG Globalorderer handling message. senderID=3 sn=124
+17:11:50.581 DBG Received LogEntry message. SenderId=3
+17:11:50.581 WRN Not overwriting log entry. sn=124
+17:11:50.593 DBG Receive msg from peer ... SenderId=0 Sn=124 height=0 type=ProtocolMessage_LogEntry
+17:11:50.593 DBG Received protocol message: Orderer. from=0
+17:11:50.593 DBG Globalorderer handling message. senderID=0 sn=124
+17:11:50.593 DBG Received LogEntry message. SenderId=0
+17:11:50.593 WRN Not overwriting log entry. sn=124
+17:11:50.594 DBG Receive msg from peer ... SenderId=4 Sn=124 height=0 type=ProtocolMessage_LogEntry
+17:11:50.594 DBG Received protocol message: Orderer. from=4
+17:11:50.594 DBG Globalorderer handling message. senderID=4 sn=124
+17:11:50.594 DBG Received LogEntry message. SenderId=4
+17:11:50.594 WRN Not overwriting log entry. sn=124
+17:11:51.239 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41328
+17:11:51.241 INF Finished sending bucket assignments to client. clId=0
+17:11:51.307 DBG Receive msg from peer ... SenderId=4 Sn=131 height=0 type=ProtocolMessage_LogEntry
+17:11:51.307 DBG Receive msg from peer ... SenderId=3 Sn=131 height=0 type=ProtocolMessage_LogEntry
+17:11:51.307 DBG Received protocol message: Orderer. from=4
+17:11:51.307 DBG Received protocol message: Orderer. from=3
+17:11:51.307 DBG Globalorderer handling message. senderID=4 sn=131
+17:11:51.307 DBG Receive msg from peer ... SenderId=0 Sn=131 height=0 type=ProtocolMessage_LogEntry
+17:11:51.308 DBG Globalorderer handling message. senderID=3 sn=131
+17:11:51.308 DBG Received LogEntry message. SenderId=4
+17:11:51.308 DBG Received protocol message: Orderer. from=0
+17:11:51.308 INF Committed entry. latency=0 nReq=0 sn=131
+17:11:51.308 DBG Globalorderer handling message. senderID=0 sn=131
+17:11:51.308 DBG Received LogEntry message. SenderId=3
+17:11:51.308 WRN Not overwriting log entry. sn=131
+17:11:51.308 DBG Received LogEntry message. SenderId=0
+17:11:51.308 WRN Not overwriting log entry. sn=131
+17:11:51.309 DBG Receive msg from peer ... SenderId=2 Sn=131 height=0 type=ProtocolMessage_LogEntry
+17:11:51.309 DBG Received protocol message: Orderer. from=2
+17:11:51.309 DBG Globalorderer handling message. senderID=2 sn=131
+17:11:51.309 DBG Received LogEntry message. SenderId=2
+17:11:51.309 WRN Not overwriting log entry. sn=131
+17:11:51.441 DBG Receive msg from peer ... SenderId=4 Sn=130 height=0 type=ProtocolMessage_LogEntry
+17:11:51.441 DBG Received protocol message: Orderer. from=4
+17:11:51.441 DBG Globalorderer handling message. senderID=4 sn=130
+17:11:51.441 DBG Received LogEntry message. SenderId=4
+17:11:51.441 INF Committed entry. latency=0 nReq=0 sn=130
+17:11:51.442 DBG Receive msg from peer ... SenderId=3 Sn=130 height=0 type=ProtocolMessage_LogEntry
+17:11:51.442 DBG Received protocol message: Orderer. from=3
+17:11:51.442 DBG Globalorderer handling message. senderID=3 sn=130
+17:11:51.442 DBG Received LogEntry message. SenderId=3
+17:11:51.442 DBG Receive msg from peer ... SenderId=0 Sn=130 height=0 type=ProtocolMessage_LogEntry
+17:11:51.442 WRN Not overwriting log entry. sn=130
+17:11:51.442 DBG Received protocol message: Orderer. from=0
+17:11:51.442 DBG Globalorderer handling message. senderID=0 sn=130
+17:11:51.442 DBG Received LogEntry message. SenderId=0
+17:11:51.442 DBG Receive msg from peer ... SenderId=2 Sn=130 height=0 type=ProtocolMessage_LogEntry
+17:11:51.442 WRN Not overwriting log entry. sn=130
+17:11:51.442 DBG Received protocol message: Orderer. from=2
+17:11:51.442 DBG Globalorderer handling message. senderID=2 sn=130
+17:11:51.443 DBG Received LogEntry message. SenderId=2
+17:11:51.443 WRN Not overwriting log entry. sn=130
+17:11:51.500 DBG Receive msg from peer ... SenderId=4 Sn=129 height=0 type=ProtocolMessage_LogEntry
+17:11:51.500 DBG Received protocol message: Orderer. from=4
+17:11:51.500 DBG Globalorderer handling message. senderID=4 sn=129
+17:11:51.500 DBG Received LogEntry message. SenderId=4
+17:11:51.500 INF Committed entry. latency=0 nReq=0 sn=129
+17:11:51.501 DBG Receive msg from peer ... SenderId=2 Sn=129 height=0 type=ProtocolMessage_LogEntry
+17:11:51.501 DBG Received protocol message: Orderer. from=2
+17:11:51.501 DBG Receive msg from peer ... SenderId=3 Sn=129 height=0 type=ProtocolMessage_LogEntry
+17:11:51.501 DBG Globalorderer handling message. senderID=2 sn=129
+17:11:51.501 DBG Received LogEntry message. SenderId=2
+17:11:51.501 DBG Received protocol message: Orderer. from=3
+17:11:51.501 WRN Not overwriting log entry. sn=129
+17:11:51.501 DBG Globalorderer handling message. senderID=3 sn=129
+17:11:51.501 DBG Received LogEntry message. SenderId=3
+17:11:51.501 WRN Not overwriting log entry. sn=129
+17:11:51.501 DBG Receive msg from peer ... SenderId=0 Sn=129 height=0 type=ProtocolMessage_LogEntry
+17:11:51.502 DBG Received protocol message: Orderer. from=0
+17:11:51.502 DBG Globalorderer handling message. senderID=0 sn=129
+17:11:51.502 DBG Received LogEntry message. SenderId=0
+17:11:51.502 WRN Not overwriting log entry. sn=129
+17:11:51.551 DBG Receive msg from peer ... SenderId=0 Sn=128 height=0 type=ProtocolMessage_LogEntry
+17:11:51.551 DBG Received protocol message: Orderer. from=0
+17:11:51.551 DBG Globalorderer handling message. senderID=0 sn=128
+17:11:51.551 DBG Receive msg from peer ... SenderId=2 Sn=128 height=0 type=ProtocolMessage_LogEntry
+17:11:51.552 DBG Received protocol message: Orderer. from=2
+17:11:51.551 DBG Received LogEntry message. SenderId=0
+17:11:51.552 DBG Globalorderer handling message. senderID=2 sn=128
+17:11:51.552 INF Committed entry. latency=0 nReq=0 sn=128
+17:11:51.552 DBG Receive msg from peer ... SenderId=4 Sn=128 height=0 type=ProtocolMessage_LogEntry
+17:11:51.552 DBG Received protocol message: Orderer. from=4
+17:11:51.552 INF Delivered batch. nReq=0 sn=128
+17:11:51.552 DBG Globalorderer handling message. senderID=4 sn=128
+17:11:51.552 INF Delivered batch. nReq=0 sn=129
+17:11:51.552 INF Delivered batch. nReq=0 sn=130
+17:11:51.552 INF Delivered batch. nReq=0 sn=131
+17:11:51.552 DBG Received LogEntry message. SenderId=2
+17:11:51.553 DBG Receive msg from peer ... SenderId=3 Sn=128 height=0 type=ProtocolMessage_LogEntry
+17:11:51.553 DBG Received protocol message: Orderer. from=3
+17:11:51.553 DBG Globalorderer handling message. senderID=3 sn=128
+17:11:51.552 WRN Not overwriting log entry. sn=128
+17:11:51.553 DBG Received LogEntry message. SenderId=4
+17:11:51.553 WRN Not overwriting log entry. sn=128
+17:11:51.553 DBG Received LogEntry message. SenderId=3
+17:11:51.553 WRN Not overwriting log entry. sn=128
+17:11:51.916 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41322
+17:11:51.916 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41256
+17:11:51.917 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41270
+17:11:51.917 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41106
+17:11:51.917 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41282
+17:11:51.917 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41318
+17:11:52.028 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41136
+17:11:52.028 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41176
+17:11:52.028 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41192
+17:11:52.029 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41200
+17:11:52.029 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41100
+17:11:52.029 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41206
+17:11:52.058 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41168
+17:11:52.058 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41152
+17:11:52.058 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41086
+17:11:52.058 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41130
+17:11:52.058 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41120
+17:11:52.059 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41128
+17:11:52.081 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41302
+17:11:52.081 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41292
+17:11:52.081 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41296
+17:11:52.081 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41066
+17:11:52.081 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41068
+17:11:52.081 INF Connection terminated. error="rpc error: code = Canceled desc = context canceled" address=127.0.0.1:41076
