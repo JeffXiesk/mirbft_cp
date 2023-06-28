@@ -51,8 +51,8 @@ type configuration struct {
 	Orderer           string `yaml:"Orderer"`
 	Manager           string `yaml:"Manager"`
 	Checkpointer      string `yaml:"Checkpointer"`
-	Failures          int    `yaml:"Failures"`
-	CrashTiming       string `yaml:"CrashTiming"`
+	Failures     	  int    `yaml:"Failures"`
+	CrashTiming  	  string `yaml:"CrashTiming"`
 	RandomSeed        int64  `yaml:"RandomSeed"`
 	NodeToLeaderRatio int    `yaml:"NodeToLeaderRatio"`
 

@@ -90,16 +90,21 @@ func (gi *globalInstance) fetchMissingMessages(nowGsn int32) {
 					msg := &pb.ProtocolMessage{
 						SenderId: membership.OwnID,
 						Sn:       gi.gsn2sn[i],
-						Msg: &pb.ProtocolMessage_GlobalPrepare{
-							GlobalPrepare: &pb.GlobalPrepare{
-								Sn:   gi.gsn2sn[i],
-								Gsn:  i,
-								View: gi.view,
+						Msg: &pb.ProtocolMessage_GlobalPreprepare{
+							GlobalPreprepare: &pb.GlobalPreprepare{
+								Sn:     gi.gsn2sn[i],
+								Gsn:    i,
+								View:   gi.view,
+								Digest: gi.sn2logentry[gi.gsn2sn[i]].Digest,
 							},
 						},
-						Type: "ProtocolMessage_GlobalPrepare",
+						Type: "ProtocolMessage_GlobalPreprepare",
 					}
-					messenger.EnqueueMsg(msg, nodeId)
+					for _, nodeID := range membership.AllNodeIDs() {
+						if nodeID != membership.OwnID {
+							messenger.EnqueueMsg(msg, nodeID)
+						}
+					}
 				}
 			}
 			break
