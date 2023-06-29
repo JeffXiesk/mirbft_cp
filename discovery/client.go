@@ -40,6 +40,7 @@ func RegisterPeer(serverAddrPort string, ownPublicIP string, ownPrivateIP string
 		PublicAddr:  ownPublicIP,
 		PrivateAddr: ownPrivateIP,
 	})
+	logger.Info().Str("ownPublicIP", ownPublicIP).Str("ownPrivateIP", ownPrivateIP).Msg("RegisterGlobalordererRequest content !")
 	if err != nil {
 		logger.Fatal().Msg("RegisterPeer request failed.")
 	}
@@ -107,8 +108,9 @@ func RegisterGlobalorderer(serverAddrPort string, ownPublicIP string, ownPrivate
 		PublicAddr:  ownPublicIP,
 		PrivateAddr: ownPrivateIP,
 	})
+	logger.Info().Str("ownPublicIP", ownPublicIP).Str("ownPrivateIP", ownPrivateIP).Msg("RegisterGlobalordererRequest content !")
 	if err != nil {
-		logger.Fatal().Msg("RegisterGlobalorderer request failed.")
+		logger.Fatal().Str("error", err.Error()).Msg("RegisterGlobalorderer request failed.")
 	}
 
 	// Return discovered values.

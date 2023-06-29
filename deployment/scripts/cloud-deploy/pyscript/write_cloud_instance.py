@@ -48,7 +48,7 @@ with open('scripts/cloud-deploy/cloud-instance-info','w') as f:
                     f.write('client '+public[j+i*eachRegionCnt]+' '+private[j+i*eachRegionCnt]+' '+extra_client_str+' us-west-2a\n')
                 clicnt+=1
                     
-        
+    
     peercnt=1
     for i in range(regionCnt):
         for j in range(eachRegionPeer):

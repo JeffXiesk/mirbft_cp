@@ -119,8 +119,7 @@ function skip() {
 # An expriment will be run for specified target throughput, for each configuration parameters combination
 # If left empty, no experiments will run
 throughputsAuthPbft=$()
-throughputsAuthPbft[3]="1024"
-throughputsAuthPbft[4]="1024"
+throughputsAuthPbft[4]="4096"
 throughputsAuthPbft[8]=""
 throughputsAuthPbft[16]=""
 throughputsAuthPbft[32]=""
@@ -613,6 +612,8 @@ for numPeers in $systemSizes; do
 
   deployMachines $((numPeers - deployedCorrect)) $peerTag $deployedCorrect "$machineLocations"
   deployedCorrect=$numPeers
+
+  deployMachines 1 globalorderer 0 "$machineLocations"
 
   if [ $numFailures -gt $deployedFaulty ] && ! $reuseFaulty; then
     deployMachines $((numFailures - deployedFaulty)) $faultyPeerTag $deployedFaulty "$faultyMachineLocations"

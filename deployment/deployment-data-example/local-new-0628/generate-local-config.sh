@@ -602,8 +602,14 @@ for numPeers in $systemSizes; do
   echo "#  Reuse: $reuseFaulty"
   echo "# ========================================"
 
+  
+
   deployMachines $((numPeers - deployedCorrect)) $peerTag $deployedCorrect "$machineLocations"
   deployedCorrect=$numPeers
+
+
+  deployMachines 1 globalorderer 0 "$machineLocations"
+
 
   if [ $numFailures -gt $deployedFaulty ] && ! $reuseFaulty; then
     deployMachines $((numFailures - deployedFaulty)) $faultyPeerTag $deployedFaulty "$faultyMachineLocations"

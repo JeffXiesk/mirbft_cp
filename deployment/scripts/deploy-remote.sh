@@ -49,6 +49,7 @@ echo -e "\n Reset machine state.\n"
 scripts/start-master.sh "$exp_data_dir" "$master_ip" &
 
 # Start slaves according to schedule
+echo "scripts/deploy-slaves-remote.sh $exp_data_dir $instance_info_file $master_ip $deploy_schedule"
 scripts/deploy-slaves-remote.sh "$exp_data_dir" "$instance_info_file" "$master_ip" $deploy_schedule &
 
 # Start result fetching in the background.

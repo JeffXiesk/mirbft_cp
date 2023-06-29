@@ -50,13 +50,23 @@ def createLocalLogDir(expID):
 
 
 def pushConfigFiles(expID, slaves):
-    output("# Push config files.")
-    output(
-            "exec-start globalorderer /dev/null cp {0}/{1} experiment-output/{2}/slave-__id__/{3}".format(local_config_dir, slaves['peers'], expID, SLAVE_CONFIG_FILE)
-        )
-    output("exec-wait globalorderer 2000")
- 
+
+    test=False
+
+    # output(
+    #     "exec-start peers scp-output-0000-config.log stubborn-scp.sh 10 44.192.110.55:experiment-config/config-0000.yml config/config.yml"
+    # )
+
     for s, configFile in slaves.items():
+        if not test:
+            output("# Push config files.")
+            output(
+                "exec-start globalorderer scp-output--1-config.log stubborn-scp.sh {3} $own_public_ip:{0}/{1} {2}"
+                "".format(MASTER_CONFIG_DIR, configFile, SLAVE_CONFIG_FILE, SCP_RETRY_COUNT)
+            )
+            output("exec-wait globalorderer 2000")
+            test=True      
+
         output(
             "exec-start {0} scp-output-{1}-config.log stubborn-scp.sh {5} $own_public_ip:{2}/{3} {4}"
             "".format(s, expID, MASTER_CONFIG_DIR, configFile, SLAVE_CONFIG_FILE, SCP_RETRY_COUNT)
@@ -124,7 +134,7 @@ def startPeers(expID, peers):
         numPeers += numSlaves[p]
 
     output("# Start peers.")
-    output("discover-reset {0}".format(numPeers))
+    output("discover-reset {0}".format(numPeers+1))
     for p in peers:
         output(
             "exec-start {0} experiment-output/{1}/slave-__id__/peer.log orderingpeer "

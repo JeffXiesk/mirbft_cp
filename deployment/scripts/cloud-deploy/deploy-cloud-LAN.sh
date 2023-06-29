@@ -50,8 +50,9 @@ if [ "$1" = "-i" ]; then
     echo ${public_ip_arr[@]}
     echo ${private_ip_arr[@]}
 
-    write_result=$(python3 scripts/cloud-deploy/pyscript/write_cloud_instance.py $client_num $peer_num ${public_ip_arr[@]} ${private_ip_arr[@]})
-    echo $write_result
+
+    # write_result=$(python3 scripts/cloud-deploy/pyscript/write_cloud_instance.py $client_num $peer_num ${public_ip_arr[@]} ${private_ip_arr[@]})
+    # echo $write_result
 
 
     if [ "$1" = "-k" ]; then
@@ -94,6 +95,15 @@ if [ "$1" = "-i" ]; then
         echo "End set ssh key..."
     fi
 
+    if [ "$1" = "-f" ]; then
+        shift
+        for i in "${public_ip_arr[@]}"
+        do
+            # kill previous
+            ssh $ssh_options_cloud root@$i "sudo fuser -k 10000/tcp;sudo fuser -k 10011/tcp;sudo fuser -k 10022/tcp;sudo fuser -k 10033/tcp;sudo fuser -k 10044/tcp;sudo fuser -k 10055/tcp;sudo fuser -k 10066/tcp;sudo fuser -k 10077/tcp;sudo fuser -k 10088/tcp;sudo fuser -k 10099/tcp;sudo fuser -k 10110/tcp;sudo fuser -k 10121/tcp;sudo fuser -k 10132/tcp;sudo fuser -k 10143/tcp;sudo fuser -k 10154/tcp;sudo fuser -k 10165/tcp;sudo fuser -k 10176/tcp;sudo fuser -k 10187/tcp;sudo fuser -k 10198/tcp;sudo fuser -k 10209/tcp;" &
+        done
+        wait        
+    fi
 else
     echo "Not init"
 fi
@@ -128,6 +138,7 @@ fi
 #     # Limiting the Egress Traffic
 # done
 # wait
+
 
 
 if [ "$1" = "-d" ]; then

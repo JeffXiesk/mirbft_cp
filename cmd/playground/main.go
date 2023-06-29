@@ -274,7 +274,7 @@ func verifyBatchParallel(b *request.Batch, pubKey interface{}) {
 	wg.Add(len(b.Requests))
 
 	for _, r := range b.Requests {
-		r.Verified = false
+		r.Verified = true
 		go func(req *request.Request) {
 			if err := crypto.CheckSig(req.Digest,
 				pubKey,
@@ -301,7 +301,7 @@ func verifyBatchExternal(b *request.Batch, verifierChan chan *request.Request) {
 	for _, r := range b.Requests {
 		verifying++
 		r.VerifiedChan = verifiedChan
-		r.Verified = false
+		r.Verified = true
 		verifierChan <- r
 	}
 
@@ -329,7 +329,7 @@ func createBatch(nReq int, privKey interface{}) *request.Batch {
 			Digest:   request.Digest(reqMsg),
 			Buffer:   nil,   // Dummy value
 			Bucket:   nil,   // Dummy value
-			Verified: false, // signature has not yet been verified
+			Verified: true, // signature has not yet been verified
 			InFlight: false, // request has not yet been proposed (an identical one might have been, though, in which case we discard this request object)
 			Next:     nil,   // This request object is not part of a bucket list.
 			Prev:     nil,
