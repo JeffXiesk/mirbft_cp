@@ -231,17 +231,18 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 		// If the segment is not proposed yet schedule a new batch
 		if !hi.segmentProposed {
 			go func() {
-				if int32(hi.segment.SegID())%int32(membership.NumNodes()) == 0 && config.Config.CrashTiming == "Straggler" {
+				// if int32(hi.segment.SegID())%int32(membership.NumNodes()) == 0 && config.Config.CrashTiming == "Straggler" {
+				if int32(hi.segment.SegID())%int32(membership.NumNodes()) < int32(config.Config.StragglerCnt) && config.Config.CrashTiming == "Straggler" {
 					logger.Debug().
 						Int("segment", hi.segment.SegID()).
 						Msg("Straggler. Start wait for requests.")
-					timeout := time.Duration(int(0.0666*float64(config.Config.ViewChangeTimeoutMs))) * time.Millisecond
+					timeout := time.Duration(int(0.16666667*float64(config.Config.ViewChangeTimeoutMs))) * time.Millisecond
 					hi.segment.Buckets().WaitForRequests(100000000000, timeout)
 					logger.Debug().
 						Int("segment", hi.segment.SegID()).
 						Msg("Straggler. Finish wait for requests.")
 				} else {
-					hi.segment.Buckets().WaitForRequests(config.Config.BatchSize, config.Config.BatchTimeout)
+					hi.segment.Buckets().WaitForRequests(100000000000, config.Config.BatchTimeout)
 				}
 				hi.newBatch <- hi.segment.Buckets().CutBatch(config.Config.BatchSize, 0)
 			}()
@@ -788,7 +789,8 @@ func (hi *hotStuffInstance) announce(node *hotStuffNode, sn int32, reqBatch *pb.
 				Int("segment", hi.segment.SegID()).
 				Int32("sn", sn2i).
 				Int32("rank", i).
-				Msg("Announcement nil block.")
+				Msg("Delivered nil batch.")
+				// Msg("Announcement nil block.")
 
 			logEntry1 := &log.Entry{
 				Sn:      sn2i,
