@@ -22,6 +22,7 @@ echo "Killing everything that is alive and pruning state on the remote machines 
 
 for ip in $(cat $instance_info_file | awk '{print $2}'); do
   # the grep -v \$\$ prevents the script from killing itself
+  echo "ssh $ssh_options root@$ip 'kill -9 \$(ps -ef | grep 'analyze-continuously' | grep -v \$\$ | awk '{print \$2}')'" 
   ssh $ssh_options root@$ip "kill -9 \$(ps -ef | grep 'analyze-continuously' | grep -v \$\$ | awk '{print \$2}')" &
   sleep 0.1 # Opening too many SSH connections at once makes some of them fail (keeping many open is OK, however).
 done

@@ -51,6 +51,11 @@ def createLocalLogDir(expID):
 
 def pushConfigFiles(expID, slaves):
     output("# Push config files.")
+    output(
+            "exec-start globalorderer /dev/null cp {0}/{1} experiment-output/{2}/slave-__id__/{3}".format(local_config_dir, slaves['peers'], expID, SLAVE_CONFIG_FILE)
+        )
+    output("exec-wait globalorderer 2000")
+ 
     for s, configFile in slaves.items():
         output(
             "exec-start {0} scp-output-{1}-config.log stubborn-scp.sh {5} $own_public_ip:{2}/{3} {4}"
@@ -126,6 +131,13 @@ def startPeers(expID, peers):
             "{2} $own_public_ip:$master_port __public_ip__ __private_ip__ "
             "experiment-output/{1}/slave-__id__/peer.trc experiment-output/{1}/slave-__id__/prof".format(
                 p, expID, SLAVE_CONFIG_FILE))
+    
+    output(
+        "exec-start globalorderer experiment-output/{0}/slave-__id__/peer.log globalorderpeer "
+        "{1} $own_public_ip:$master_port __public_ip__ __private_ip__ "
+        "experiment-output/{0}/slave-__id__/peer.trc experiment-output/{0}/slave-__id__/prof".format(
+            expID, SLAVE_CONFIG_FILE))    
+   
     output("discover-wait")
     output("")
 
