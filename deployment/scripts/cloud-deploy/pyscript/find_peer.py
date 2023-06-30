@@ -9,3 +9,8 @@ if __name__=='__main__':
             if find_peer is not None:
                 # print(line)
                 print(line.split(" ")[1],end=' ')
+            find_peer=re.search(r'g1',line)
+            # print(find_peer)
+            if find_peer is not None:
+                # print(line)
+                print(line.split(" ")[1],end=' ')

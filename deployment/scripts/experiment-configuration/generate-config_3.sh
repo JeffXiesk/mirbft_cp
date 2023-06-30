@@ -119,9 +119,9 @@ function skip() {
 # An expriment will be run for specified target throughput, for each configuration parameters combination
 # If left empty, no experiments will run
 throughputsAuthPbft=$()
-throughputsAuthPbft[4]="1024"
+throughputsAuthPbft[4]="2048"
 throughputsAuthPbft[8]=""
-throughputsAuthPbft[16]="30000"
+throughputsAuthPbft[16]="40000"
 throughputsAuthPbft[32]=""
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""

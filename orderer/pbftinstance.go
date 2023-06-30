@@ -205,7 +205,7 @@ func (pi *pbftInstance) lead() {
 	logger.Debug().Int("segID%len", pi.segment.SegID()%len(membership.AllNodeIDs())).Msg("Leading segment.")
 
 	if (pi.segment.SegID()%len(membership.AllNodeIDs()) < 1) && config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(0.0666667 * float64(config.Config.ViewChangeTimeoutMs))
+		config.Config.BatchTimeoutMs = int(0.1666667 * float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs).Msg("byzantine effect!")
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout

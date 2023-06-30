@@ -17,6 +17,7 @@ package orderer
 import (
 	"fmt"
 	"time"
+	"sync"
 
 	"github.com/hyperledger-labs/mirbft/announcer"
 	"github.com/hyperledger-labs/mirbft/log"
@@ -29,6 +30,7 @@ import (
 // const (
 // 	catchupDelay = 400 * time.Millisecond
 // )
+var mutex sync.Mutex
 
 // TODO: Consolidate the segment-internal and the global checkpoints.
 type globalInstance struct {
@@ -55,6 +57,7 @@ func (gi *globalInstance) init(orderer *GlobalOrderer) {
 
 	gi.gsn2commit = make(map[int32]map[int32]*pb.GlobalCommit)
 
+	gi.lastCommitGsn = 0
 	gi.view = 0
 	gi.gsn = -1
 	logger.Debug().Msgf("nodeIDs is: %v", membership.AllNodeIDs())
@@ -82,7 +85,8 @@ func (gi *globalInstance) processSerializedMessages() {
 
 func (gi *globalInstance) fetchMissingMessages(nowGsn int32) {
 	time.Sleep(500 * time.Millisecond)
-	for i := gi.lastCommitGsn; i <= nowGsn; i++ {
+	for i := log.FirstEmptySN; i <= nowGsn; i++ {
+		logger.Info().Int32("FirstEmptySN",log.FirstEmptySN).Int32("i",i).Msg("Delivered msg")
 		if !gi.checkCommits(i) {
 			for _, nodeId := range membership.AllNodeIDs() {
 				if gi.gsn2commit[i][nodeId] == nil {
@@ -108,6 +112,9 @@ func (gi *globalInstance) fetchMissingMessages(nowGsn int32) {
 				}
 			}
 			break
+		} else {
+			gi.lastCommitGsn += 1
+			
 		}
 	}
 }
@@ -156,7 +163,7 @@ func (gi *globalInstance) handleMessage(msg *pb.ProtocolMessage) {
 			// logger.Debug().Msgf("value is %v", value)
 			if value == nil {
 				gi.sn2logentry[logEntry.Sn] = logEntry
-				gi.sendPreprepare(logEntry.Sn)
+				go gi.sendPreprepare(logEntry.Sn)
 			}
 
 		}
@@ -172,14 +179,24 @@ func (gi *globalInstance) handleMessage(msg *pb.ProtocolMessage) {
 }
 
 func (gi *globalInstance) sendPreprepare(sn int32) {
+	
+	mutex.Lock()
 	logEntry := gi.sn2logentry[sn]
-
 	gi.gsn += 1
 	gi.gsn2sn[gi.gsn] = sn
 	gi.sn2gsn[sn] = gi.gsn
+	gsn:=gi.gsn
+	mutex.Unlock()
 
 	logger.Info().Int32("sn", sn).
-		Int32("gsn", gi.gsn).
+		Int32("gsn", gsn).
+		Int32("view", gi.view).
+		Msg("Delay 10s before sending Global-PREPREPARE.")
+
+	time.Sleep(5*time.Second)
+
+	logger.Info().Int32("sn", sn).
+		Int32("gsn", gsn).
 		Int32("view", gi.view).
 		Int32("senderID", membership.OwnID).
 		Int("nReq", len(logEntry.Batch.Requests)).
@@ -191,7 +208,7 @@ func (gi *globalInstance) sendPreprepare(sn int32) {
 		Msg: &pb.ProtocolMessage_GlobalPreprepare{
 			GlobalPreprepare: &pb.GlobalPreprepare{
 				Sn:     sn,
-				Gsn:    gi.gsn,
+				Gsn:    gsn,
 				View:   gi.view,
 				Digest: logEntry.Digest,
 			},

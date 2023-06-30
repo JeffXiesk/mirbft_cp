@@ -54,9 +54,9 @@ var (
 	// Sequence number of the first empty slot in the log.
 	// Advanced when publishing log entries.
 	// Guarded by entryPublishLock
-	firstEmptySN int32 = 0
+	FirstEmptySN int32 = 0
 
-	// Guards logSubscribers, logSubscribersOutOfOrder, entrySubscribers and firstEmptySN
+	// Guards logSubscribers, logSubscribersOutOfOrder, entrySubscribers and FirstEmptySN
 	entryPublishLock = sync.Mutex{}
 
 	// The most recent stable checkpoint.
@@ -118,7 +118,7 @@ func Missing(until int32) []int32 {
 	entryPublishLock.Lock()
 	defer entryPublishLock.Unlock()
 
-	for sn := firstEmptySN; sn <= until; sn++ {
+	for sn := FirstEmptySN; sn <= until; sn++ {
 		if _, ok := entries.Load(sn); !ok {
 			missing = append(missing, sn)
 		}
@@ -173,7 +173,7 @@ func WaitForEntry(sn int32) {
 	entryPublishLock.Lock()
 
 	// Entry already committed, return immediately. (Also works for the -1 special value of sn.)
-	if firstEmptySN > sn {
+	if FirstEmptySN > sn {
 		entryPublishLock.Unlock()
 		return
 	}
@@ -250,18 +250,18 @@ func Checkpoints() chan *pb.StableCheckpoint {
 // Pushes committed entries to the subscribers, if any.
 func publishEntries() {
 	// The lock is necessary for potential concurrent subscribers calling Entries, but mainly for concurrent threads
-	// entering publishEntries() from CommitEntry() and potentially reading the same firstEmptySN, making them push
+	// entering publishEntries() from CommitEntry() and potentially reading the same FirstEmptySN, making them push
 	// the same Entry to the subscribers more than once.
 	entryPublishLock.Lock()
 	defer entryPublishLock.Unlock()
 
-	// As long as firstEmptySN points to a non-empty slot,
+	// As long as FirstEmptySN points to a non-empty slot,
 	// push the corresponding Entry to the subscribers
-	// and increment firstEmptySN.
-	for entry, ok := entries.Load(firstEmptySN); ok; entry, ok = entries.Load(firstEmptySN) {
+	// and increment FirstEmptySN.
+	for entry, ok := entries.Load(FirstEmptySN); ok; entry, ok = entries.Load(FirstEmptySN) {
 
 		logger.Info().
-			Int32("sn", firstEmptySN).
+			Int32("sn", FirstEmptySN).
 			Int("nReq", len(entry.(*Entry).Batch.Requests)).
 			Msg("Delivered batch.")
 
@@ -271,14 +271,14 @@ func publishEntries() {
 		// Notify entry subscribers
 		// The Manager relies on an entry to be published (pushed to all log subscribers)
 		// before the entry subscribers are notified.
-		if entrySubscribers[firstEmptySN] != nil {
-			for _, ch := range entrySubscribers[firstEmptySN] {
+		if entrySubscribers[FirstEmptySN] != nil {
+			for _, ch := range entrySubscribers[FirstEmptySN] {
 				ch <- true
 			}
-			delete(entrySubscribers, firstEmptySN)
+			delete(entrySubscribers, FirstEmptySN)
 		}
 
-		firstEmptySN++
+		FirstEmptySN++
 	}
 }
 

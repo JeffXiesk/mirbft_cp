@@ -22,7 +22,9 @@ with open('scripts/cloud-deploy/cloud-instance-info','w') as f:
 
     public = sys.argv[4:num+3]
     private = sys.argv[num+4:num+num+3]
-    
+    public_glo = public[-1]
+    private_glo = private[-1]
+
     # print(client_num)
     # print(peer_num)
     # print(public)
@@ -55,6 +57,8 @@ with open('scripts/cloud-deploy/cloud-instance-info','w') as f:
             # print('p'+str(peercnt)+' '+public[j+eachRegionClient+i*eachRegionCnt]+' '+private[j+eachRegionClient+i*eachRegionCnt]+' peers us-west-2a\n')
             f.write('p'+str(peercnt)+' '+public[j+eachRegionClient+i*eachRegionCnt]+' '+private[j+eachRegionClient+i*eachRegionCnt]+' peers us-west-2a\n')
             peercnt+=1
+        
+    f.write('g1 '+public_glo+' '+private_glo+' globalorderer us-west-2a\n')
         
     print('Write \'cloud-instance-info\' successfully !')
     

@@ -76,6 +76,7 @@ def pushConfigFiles(expID, slaves):
                "exec-wait {0} 2000".format(s, expID))
     for s in slaves:
         output("sync {0}".format(s))
+    output("sync globalorderer")
     output("")
 
 

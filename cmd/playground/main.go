@@ -254,7 +254,7 @@ func verifyExternal(batches []*request.Batch, verifierChan chan *request.Request
 
 func verifyBatchSequential(b *request.Batch, pubKey interface{}) {
 	for _, req := range b.Requests {
-		req.Verified = false
+		req.Verified = true
 		if err := crypto.CheckSig(req.Digest,
 			pubKey,
 			req.Msg.Signature); err != nil {
@@ -309,12 +309,12 @@ func verifyBatchExternal(b *request.Batch, verifierChan chan *request.Request) {
 		verifying--
 		req := <-verifiedChan
 		req.VerifiedChan = nil
-		if !req.Verified {
-			logger.Warn().
-				Int32("clSn", req.Msg.RequestId.ClientSn).
-				Int32("clId", req.Msg.RequestId.ClientId).
-				Msg("Request signature verification failed.")
-		}
+		// if !req.Verified {
+		// 	logger.Warn().
+		// 		Int32("clSn", req.Msg.RequestId.ClientSn).
+		// 		Int32("clId", req.Msg.RequestId.ClientId).
+		// 		Msg("Request signature verification failed.")
+		// }
 	}
 }
 

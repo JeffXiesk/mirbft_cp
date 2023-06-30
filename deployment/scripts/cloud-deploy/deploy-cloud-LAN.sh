@@ -9,9 +9,11 @@ totalnum=${num_arr[2]}
 client_num=${num_arr[0]}
 peer_num=${num_arr[1]}
 
+totalnum=$(($totalnum+1))
+echo "totalnum = $totalnum"
 
-
-
+public_ip_arr=()
+private_ip_arr=()
 
 if [ "$1" = "-i" ]; then
     echo "Init"
@@ -51,8 +53,8 @@ if [ "$1" = "-i" ]; then
     echo ${private_ip_arr[@]}
 
 
-    # write_result=$(python3 scripts/cloud-deploy/pyscript/write_cloud_instance.py $client_num $peer_num ${public_ip_arr[@]} ${private_ip_arr[@]})
-    # echo $write_result
+    write_result=$(python3 scripts/cloud-deploy/pyscript/write_cloud_instance.py $client_num $peer_num ${public_ip_arr[@]} ${private_ip_arr[@]})
+    echo $write_result
 
 
     if [ "$1" = "-k" ]; then
@@ -143,9 +145,40 @@ fi
 
 if [ "$1" = "-d" ]; then
     shift
-    echo "Start deployment..."
+    
+    for i in "${public_ip_arr[@]}"
+    do
+        # kill previous
+        ssh $ssh_options_cloud root@$i "sudo fuser -k 10000/tcp;sudo fuser -k 10011/tcp;sudo fuser -k 10022/tcp;sudo fuser -k 10033/tcp;sudo fuser -k 10044/tcp;sudo fuser -k 10055/tcp;sudo fuser -k 10066/tcp;sudo fuser -k 10077/tcp;sudo fuser -k 10088/tcp;sudo fuser -k 10099/tcp;sudo fuser -k 10110/tcp;sudo fuser -k 10121/tcp;sudo fuser -k 10132/tcp;sudo fuser -k 10143/tcp;sudo fuser -k 10154/tcp;sudo fuser -k 10165/tcp;sudo fuser -k 10176/tcp;sudo fuser -k 10187/tcp;sudo fuser -k 10198/tcp;sudo fuser -k 10209/tcp;" &
+    done
+    wait   
+    cp scripts/experiment-configuration/generate-config_2.sh scripts/experiment-configuration/generate-config.sh
+    echo "Start deployment1..."
     ./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-config.sh
-    echo "End deployment..."
+    echo "End deployment1..."
+
+    for i in "${public_ip_arr[@]}"
+    do
+        # kill previous
+        ssh $ssh_options_cloud root@$i "sudo fuser -k 10000/tcp;sudo fuser -k 10011/tcp;sudo fuser -k 10022/tcp;sudo fuser -k 10033/tcp;sudo fuser -k 10044/tcp;sudo fuser -k 10055/tcp;sudo fuser -k 10066/tcp;sudo fuser -k 10077/tcp;sudo fuser -k 10088/tcp;sudo fuser -k 10099/tcp;sudo fuser -k 10110/tcp;sudo fuser -k 10121/tcp;sudo fuser -k 10132/tcp;sudo fuser -k 10143/tcp;sudo fuser -k 10154/tcp;sudo fuser -k 10165/tcp;sudo fuser -k 10176/tcp;sudo fuser -k 10187/tcp;sudo fuser -k 10198/tcp;sudo fuser -k 10209/tcp;" &
+    done
+    wait   
+    cp scripts/experiment-configuration/generate-config_3.sh scripts/experiment-configuration/generate-config.sh
+    echo "Start deployment2..."
+    ./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-config.sh
+    echo "End deployment2..."
+
+    for i in "${public_ip_arr[@]}"
+    do
+        # kill previous
+        ssh $ssh_options_cloud root@$i "sudo fuser -k 10000/tcp;sudo fuser -k 10011/tcp;sudo fuser -k 10022/tcp;sudo fuser -k 10033/tcp;sudo fuser -k 10044/tcp;sudo fuser -k 10055/tcp;sudo fuser -k 10066/tcp;sudo fuser -k 10077/tcp;sudo fuser -k 10088/tcp;sudo fuser -k 10099/tcp;sudo fuser -k 10110/tcp;sudo fuser -k 10121/tcp;sudo fuser -k 10132/tcp;sudo fuser -k 10143/tcp;sudo fuser -k 10154/tcp;sudo fuser -k 10165/tcp;sudo fuser -k 10176/tcp;sudo fuser -k 10187/tcp;sudo fuser -k 10198/tcp;sudo fuser -k 10209/tcp;" &
+    done
+    wait   
+    cp scripts/experiment-configuration/generate-config_4.sh scripts/experiment-configuration/generate-config.sh
+    echo "Start deployment3..."
+    ./deploy.sh remote scripts/cloud-deploy/cloud-instance-info new scripts/experiment-configuration/generate-config.sh
+    echo "End deployment3..."
+
 fi
 
 # for ((c=0;c<$peer_num;c++)) do
