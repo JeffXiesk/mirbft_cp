@@ -89,17 +89,21 @@ func (gi *globalInstance) fetchMissingMessages(nowGsn int32) {
 		logger.Info().Int32("FirstEmptySN",log.FirstEmptySN).Int32("i",i).Msg("Delivered msg")
 		if !gi.checkCommits(i) {
 			for _, nodeId := range membership.AllNodeIDs() {
+				
+				mutex.Lock()
 				if gi.gsn2commit[i][nodeId] == nil {
+					sn:=gi.gsn2sn[i]
+					mutex.Unlock()
 
 					msg := &pb.ProtocolMessage{
 						SenderId: membership.OwnID,
-						Sn:       gi.gsn2sn[i],
+						Sn: sn,
 						Msg: &pb.ProtocolMessage_GlobalPreprepare{
 							GlobalPreprepare: &pb.GlobalPreprepare{
-								Sn:     gi.gsn2sn[i],
+								Sn:     sn,
 								Gsn:    i,
 								View:   gi.view,
-								Digest: gi.sn2logentry[gi.gsn2sn[i]].Digest,
+								Digest: gi.sn2logentry[sn].Digest,
 							},
 						},
 						Type: "ProtocolMessage_GlobalPreprepare",
@@ -109,6 +113,8 @@ func (gi *globalInstance) fetchMissingMessages(nowGsn int32) {
 							messenger.EnqueueMsg(msg, nodeID)
 						}
 					}
+				} else {
+					mutex.Unlock()
 				}
 			}
 			break
