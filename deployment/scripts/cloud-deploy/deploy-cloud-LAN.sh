@@ -94,6 +94,13 @@ if [ "$1" = "-i" ]; then
         echo "End set ssh key..."
     fi
 
+    for i in "${public_ip_arr[@]}"
+    do
+        ssh $ssh_options_cloud root@$i 'sudo tc qdisc add dev ens5 root netem delay 50ms 20ms' &
+        echo 'End setting delay...'
+    done
+    wait
+
 else
     echo "Not init"
 fi
