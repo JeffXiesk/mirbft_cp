@@ -43,7 +43,7 @@ clients32="8"    # deploys 32 client machine which run the specified number of c
 systemSizes="16" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
-StragglerCnt=(0) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 
 reuseFaulty=true  # If true, both correct and faulty peers will have the same tag and will be launched together, with the same config file.
                   # The failure count is only expressed as a parameter in (every peer's) config file, and even the faulty peers will see
@@ -65,7 +65,7 @@ throughputCap=131072000     # The system will always be proposing requests at a 
                             # Used to prevent view changes when too many batches accumulate in a bucket.
 
 # System composition
-orderers="Pbft"             # Possible values: Pbft HotStuff Raft Dummy
+orderers="HotStuff"             # Possible values: Pbft HotStuff Raft Dummy
 checkpointers="Signing"
 
 # Parameters chosen for experiments
@@ -148,10 +148,10 @@ throughputsNoAuthSinglePbft[128]=""
 
 throughputsAuthHotStuff=$()
 throughputsAuthHotStuff[4]="128"
-throughputsAuthHotStuff[8]=""
-throughputsAuthHotStuff[16]=""
-throughputsAuthHotStuff[32]=""
-throughputsAuthHotStuff[64]=""
+throughputsAuthHotStuff[8]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
+throughputsAuthHotStuff[16]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
+throughputsAuthHotStuff[32]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
+throughputsAuthHotStuff[64]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
 throughputsAuthHotStuff[128]=""
 throughputsNoAuthHotStuff=$()
 throughputsNoAuthHotStuff[4]="128"
