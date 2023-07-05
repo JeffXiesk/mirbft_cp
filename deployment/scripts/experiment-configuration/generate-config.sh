@@ -81,7 +81,7 @@ fixedEpochLength=false
 auths="true"
 bucketsPerLeader="16"
 minBuckets="16"
-minEpochLength="64"       # [entries]
+minEpochLength="512"       # [entries]
 nodeConnections="1"
 minConnections="16"
 leaderPolicies="Simple"  # Possible values:
@@ -98,10 +98,10 @@ crashTimings="Straggler" # Possible values:
 singleLeaderEpoch=$minEpochLength
 
 # Parameters to tune:
-batchsizes="2048"           # [requests]
+batchsizes="4096"           # [requests]
 batchrates="32"             # [batches/s]
-minBatchTimeout="1000"      # [ms]
-maxBatchTimeout="4000"      # [ms]
+minBatchTimeout="2000"      # [ms]
+maxBatchTimeout="10000"      # [ms]
 segmentLengths="16"         # [entries]
 viewChangeTimeouts="60000"  # [ms]
 nodeToLeaderRatios="1"      # How many nodes are initally leaders, set to 1 to have initially all nodes in the leaderset
@@ -120,10 +120,10 @@ function skip() {
 throughputsAuthPbft=$()
 throughputsAuthPbft[4]="8192 16384 24576 32768"
 #throughputsAuthPbft[4]="128"
-throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
-throughputsAuthPbft[16]="60000 80000 100000"
-throughputsAuthPbft[32]=""
-throughputsAuthPbft[64]=""
+throughputsAuthPbft[8]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
+throughputsAuthPbft[16]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
+throughputsAuthPbft[32]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
+throughputsAuthPbft[64]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
 throughputsAuthPbft[128]=""
 throughputsNoAuthPbft=$()
 throughputsNoAuthPbft[4]="256"
