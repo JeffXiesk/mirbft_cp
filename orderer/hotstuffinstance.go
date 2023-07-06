@@ -236,7 +236,7 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 					logger.Debug().
 						Int("segment", hi.segment.SegID()).
 						Msg("Straggler. Start wait for requests.")
-					timeout := time.Duration(int(5*float64(config.Config.ViewChangeTimeoutMs))) * time.Millisecond
+					timeout := time.Duration(int(5*float64(config.Config.BatchTimeoutMs))) * time.Millisecond
 					hi.segment.Buckets().WaitForRequests(100000000000, timeout)
 					logger.Debug().
 						Int("segment", hi.segment.SegID()).
