@@ -1,15 +1,16 @@
 package main
 
 import (
+	"database/sql"
 	"math/rand"
 	"os"
 	"sync"
 
-	"github.com/rs/zerolog"
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/membership"
 	"github.com/hyperledger-labs/mirbft/profiling"
+	"github.com/rs/zerolog"
+	logger "github.com/rs/zerolog/log"
 )
 
 var (
@@ -83,6 +84,7 @@ func main() {
 	logger.Info().
 		Int("numClients", numClients).
 		Int("numRequests", numRequests).
+		Int("totalClients", config.Config.TotalClients).
 		Msg("Starting clients.")
 
 	// Create wait group for initializing and running clients
@@ -91,9 +93,17 @@ func main() {
 	// Create all clients first (and have them pre-compute all requests)
 	logger.Info().Msg("Initilizing clients.")
 	clients := make([]*client, numClients)
+
+	// Create database connection
+	connStr := "user=" + config.Config.User + " dbname=" + config.Config.DbName + " password=" + config.Config.Password + " host=" + config.Config.Host + " sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		logger.Fatal().Str("error", err.Error()).Msg("Connect to database fail !")
+	}
+
 	wg.Add(numClients)
 	for i := 0; i < numClients; i++ {
-		go func(j int) { clients[j] = newClient(dServAddr, numRequests); wg.Done() }(i)
+		go func(j int) { clients[j] = newClient(dServAddr, numRequests, db); wg.Done() }(i)
 	}
 
 	// Wait until all clients are initialized.

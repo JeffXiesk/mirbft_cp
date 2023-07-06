@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"sort"
@@ -8,6 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/crypto"
 	"github.com/hyperledger-labs/mirbft/discovery"
@@ -17,6 +19,7 @@ import (
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
 	"github.com/hyperledger-labs/mirbft/request"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	logger "github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
@@ -109,10 +112,13 @@ type client struct {
 	// Same as with logging, each client has a separate trace that is output in a separate file,
 	// even if multiple clients are running in the same process.
 	trace tracing.Trace
+
+	// Data source of the btc transaction
+	db *sql.DB
 }
 
 // Allocates and returns a pointer to a new client.
-func newClient(dServAddr string, numRequests int) *client {
+func newClient(dServAddr string, numRequests int, db *sql.DB) *client {
 	cl := &client{
 		ownClientID:            -1,
 		numRequests:            numRequests,
@@ -139,6 +145,7 @@ func newClient(dServAddr string, numRequests int) *client {
 		// The reqClients field is not initialized, as it is directly assigned a map
 		// that the messenger allocates when connecting to the orderers.
 		// reqSinks is initialized at the same time.
+		db: db,
 	}
 
 	// Obtain identities of all peers.
@@ -203,20 +210,37 @@ func (c *client) discoverPeers(dServAddr string) {
 
 func (c *client) createRequest(seqNr int32) *pb.ClientRequest {
 
+	var err error = nil
+
+	tx := &pb.Transaction{}
+	id := seqNr*int32(config.Config.TotalClients) + c.ownClientID + 1
+	c.log.Debug().Int32("id", id).Msg("id is.")
+	var blockTime time.Time
+	err = c.db.QueryRow("SELECT * FROM transactions WHERE id=$1", id).Scan(&tx.Id, &tx.BlockHeight, &tx.BlockHash, &blockTime, &tx.CreatedAt, &tx.Confirmations, &tx.Fee, &tx.Hash, &tx.InputsCount, &tx.InputsValue, &tx.IsCoinbase, &tx.IsDoubleSpend, &tx.IsSwTx, &tx.LockTime, &tx.OutputsCount, &tx.OutputsValue, &tx.Sigops, &tx.Size, &tx.Version, &tx.Vsize, &tx.Weight, &tx.WitnessHash, &tx.Inputs, &tx.Outputs)
+	tx.BlockTime = blockTime.Unix()
+	if err != nil {
+		c.log.Fatal().Msgf("Fetching fail: %v", err)
+	}
+	data, err := proto.Marshal(tx)
+	if err != nil {
+		c.log.Fatal().Msgf("Marshaling error: %v", err)
+	}
+
+	c.log.Debug().Int("length", len(data)).Int32("id", tx.Id).Str("hash", tx.Hash).Str("Inputs", tx.Inputs).Str("Outputs", tx.Outputs).Msg("Fetch from data source.")
+
 	// Create request message.
 	req := &pb.ClientRequest{
 		RequestId: &pb.RequestID{
 			ClientId: c.ownClientID,
 			ClientSn: seqNr,
 		},
-		Payload:   randomRequestPayload,
+		Payload:   data,
 		Signature: nil,
 	}
 
 	c.log.Debug().Int32("clSeqNr", req.RequestId.ClientSn).Msg("Created request.")
 
 	// Sign request message.
-	var err error = nil
 	if config.Config.SignRequests {
 		req.Signature, err = crypto.Sign(request.Digest(req), c.privKey)
 		if err != nil {
@@ -348,6 +372,7 @@ func (c *client) Run(wg *sync.WaitGroup) {
 
 	// Close log file.
 	c.logFile.Close()
+	c.db.Close()
 }
 
 // Starts all request-sending threads and saves their corresponding input channels in c.reqSinks.

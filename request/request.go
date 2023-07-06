@@ -18,11 +18,11 @@ import (
 	"encoding/binary"
 	"sync"
 
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/crypto"
 	"github.com/hyperledger-labs/mirbft/membership"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
+	logger "github.com/rs/zerolog/log"
 )
 
 var (
@@ -175,7 +175,7 @@ func AddReqMsg(reqMsg *pb.ClientRequest) *Request {
 		Digest:   Digest(reqMsg),
 		Buffer:   getBuffer(reqMsg.RequestId.ClientId),
 		Bucket:   getBucket(reqMsg),
-		Verified: true, // signature has not yet been verified
+		Verified: true,  // signature has not yet been verified
 		InFlight: false, // request has not yet been proposed (an identical one might have been, though, in which case we discard this request object)
 		Next:     nil,   // This request object is not part of a bucket list.
 		Prev:     nil,
@@ -211,7 +211,7 @@ func Add(req *Request) *Request {
 			req.Verified = true
 		} else {
 			// logger.Warn().
-				// Err(err).
+			// Err(err).
 			// 	Int32("clSn", req.Msg.RequestId.ClientSn).
 			// 	Int32("clId", req.Msg.RequestId.ClientId).
 			// 	Msg("Invalid request signature.")
@@ -303,6 +303,7 @@ func AdvanceWatermarks(entries []interface{}) { //expected type is []*log.Entry
 
 // Returns a bucket to which the request message belongs.
 func getBucket(req *pb.ClientRequest) *Bucket {
+	// return GetBucketByHashing(req)
 	return Buckets[GetBucketNr(req.RequestId.ClientId, req.RequestId.ClientSn)]
 }
 

@@ -51,3 +51,30 @@ message BucketAssignment {
 message ListOfInt32 {
     repeated int32 vals = 1;
 }
+
+message Transaction {
+  int32 id = 1;
+  int32 block_height = 2;
+  string block_hash = 3;
+  int64 block_time = 4; // Assuming timestamp as unix time in seconds
+  int32 created_at = 5;
+  int32 confirmations = 6;
+  int32 fee = 7;
+  string hash = 8;
+  int32 inputs_count = 9;
+  int64 inputs_value = 10;
+  bool is_coinbase = 11;
+  bool is_double_spend = 12;
+  bool is_sw_tx = 13;
+  int32 lock_time = 14;
+  int32 outputs_count = 15;
+  int64 outputs_value = 16;
+  int32 sigops = 17;
+  int32 size = 18;
+  int32 version = 19;
+  int32 vsize = 20;
+  int32 weight = 21;
+  string witness_hash = 22;
+  string inputs = 23;
+  string outputs = 24;
+}
