@@ -70,8 +70,8 @@ exit $exit_status
 ' > "$work_dir/bin/stubborn-scp.sh"
 chmod u+x "$work_dir/bin/stubborn-scp.sh"
 
-This is a template file.
-The variables prefixed with "ic_" need to be substituted by envsubst.
+# This is a template file.
+# The variables prefixed with "ic_" need to be substituted by envsubst.
 master_port=$ic_master_port #e.g.: 9999
 
 echo "INSTALLING" > $status_file
@@ -82,7 +82,7 @@ chmod 0600 $ssh_key_file
 
 echo "Disabling SSH's strict host key checking to enable non-interactive git clones over ssh."
 mkdir -p ~/.ssh
-echo '
+echo ' 
 Host *
     StrictHostKeyChecking no
 ' >> ~/.ssh/config
