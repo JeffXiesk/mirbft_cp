@@ -17,9 +17,9 @@ if [ "$1" = "-i" ]; then
     declare -i client=0
     if [ "$1" = "-n" ]; then
         shift
-        server=$1
-        shift
         client=$1
+        shift
+        server=$1
         shift
 
     fi
@@ -149,13 +149,13 @@ if [ "$1" = "--wan" ]; then
     for i in "${public_ip_arr[@]}"
     do
         ssh $ssh_options root@$i 'sudo tc qdisc del dev ens5 root netem' &
-        echo "$i sent ssh key done..."
+        echo "$i del  done..."
     done
     wait
 
     for i in "${public_ip_arr[@]}"
     do
-        ssh $ssh_options root@$i 'sudo tc qdisc add dev ens5 root netem delay 50ms' &
+        ssh $ssh_options root@$i 'sudo tc qdisc add dev ens5 root netem delay 50ms 20ms' &
         echo "$i sent ssh key done..."
     done
     wait
