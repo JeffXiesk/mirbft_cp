@@ -126,8 +126,8 @@ func (s *SBFT) processRequestAdditionNotification(bucket uint64, reqSize uint64)
 func (s *SBFT) startBatchTimer() {
 	var duration uint64
 	lastDelivered := s.lastDelivered.Load().(*batchInfo)
+	config.Config.BatchSizeBytes = 100000000000
 	if lastDelivered.subject.Seq.Seq >= uint64(config.Config.ByzantineAfter) && lastDelivered.subject.Seq.Seq < uint64(config.Config.ByzantineUntil) {
-		config.Config.BatchSizeBytes = 10000000000
 		config.Config.BatchDurationNsec = config.Config.ByzantineDelay
 	}
 	log.Debugf("Timeout duration is : %d", config.Config.BatchDurationNsec)

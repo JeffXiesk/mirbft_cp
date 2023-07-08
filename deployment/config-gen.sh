@@ -30,7 +30,8 @@ if [ "$1" = "--local" ] || [ "$1" = "-l" ]; then
   shift
 
   N=$1
-  F=$(((N-1)/3))
+#   F=$(((N-1)/3))
+  F=0
   shift
 
   C=$1
@@ -50,8 +51,8 @@ else
   servers=$(grep server cloud-instance.info | awk '{ print $1}')
   clients=$(grep client cloud-instance.info | awk '{ print $1}')
   N=$(grep -c server cloud-instance.info)
-  F=$(((N-1)/3))
-#   F=0
+#   F=$(((N-1)/3))
+  F=0
   C=$(grep -c client cloud-instance.info)
 fi
 
@@ -80,14 +81,35 @@ else
   for p in $servers $clients; do
       pub=$(getIP $p)
       if [ "$config_only" = "false" ]; then
-        ssh $ssh_user@$pub $ssh_options "rm -rf /opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/*"
+        ssh $ssh_user@$pub $ssh_options "rm -rf /opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/*" &
       fi
-      ssh $ssh_user@$pub $ssh_options "rm -rf /opt/gopath/src/github.com/IBM/mirbft/deployment/config/serverconfig/*"
-      ssh $ssh_user@$pub $ssh_options "rm -rf /opt/gopath/src/github.com/IBM/mirbft/deployment/config/clientconfig/*"
-      ssh $ssh_user@$pub $ssh_options "mkdir -p /opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/"
-      ssh $ssh_user@$pub $ssh_options "mkdir -p /opt/gopath/src/github.com/IBM/mirbft/deployment/config/serverconfig/"
-      ssh $ssh_user@$pub $ssh_options "mkdir -p /opt/gopath/src/github.com/IBM/mirbft/deployment/config/clientconfig/"
+      ssh $ssh_user@$pub $ssh_options "rm -rf /opt/gopath/src/github.com/IBM/mirbft/deployment/config/serverconfig/*" &
   done
+  wait
+  for p in $servers $clients; do
+    pub=$(getIP $p)
+    if [ "$config_only" = "false" ]; then
+      ssh $ssh_user@$pub $ssh_options "rm -rf /opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/*" &
+    fi
+    ssh $ssh_user@$pub $ssh_options "rm -rf /opt/gopath/src/github.com/IBM/mirbft/deployment/config/clientconfig/*" &
+  done
+  wait
+
+  for p in $servers $clients; do
+    pub=$(getIP $p)
+    if [ "$config_only" = "false" ]; then
+      ssh $ssh_user@$pub $ssh_options "rm -rf /opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/*" &
+    fi
+  done
+  wait
+
+  for p in $servers $clients; do
+    pub=$(getIP $p)
+    ssh $ssh_user@$pub $ssh_options "mkdir -p /opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/" &
+    ssh $ssh_user@$pub $ssh_options "mkdir -p /opt/gopath/src/github.com/IBM/mirbft/deployment/config/serverconfig/" &
+    ssh $ssh_user@$pub $ssh_options "mkdir -p /opt/gopath/src/github.com/IBM/mirbft/deployment/config/clientconfig/" &
+  done
+  wait
 fi
 
 if [ "$config_only" = "false" ]; then
@@ -111,16 +133,19 @@ if [ "$config_only" = "false" ]; then
     else
         for p in $servers $clients; do
             pub=$(getIP $p)
-            scp $ssh_options temp/*.pem $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/
+            scp $ssh_options temp/*.pem $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/ &
         done
+        wait
         for p in $servers; do
             pub=$(getIP $p)
-            scp $ssh_options temp/$p.key $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/
+            scp $ssh_options temp/$p.key $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/ &
         done
+        wait
         for p in $clients; do
             pub=$(getIP $p)
-            scp $ssh_options temp/ca.key $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/
+            scp $ssh_options temp/ca.key $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/deployment/config/certs/ecdsa/ &
         done
+        wait
     fi
 fi
 
@@ -130,13 +155,11 @@ id=0
 thres=16
 if [ $N -ge $thres ]; then
     watermark=$(( N*2 ))
-    # epoch=$(( N*16 ))
-    epoch=512
-    # timeout=$(( N*32*1000000 ))
-    timeout=1000000000
+    epoch=$(( N*16 ))
+    timeout=$(( N*32*10000000 ))
 else
     watermark=32
-    epoch=512
+    epoch=256
     timeout=1000000000
 fi
 
@@ -203,7 +226,7 @@ done
 echo "Copying configuration files"
 if [ "$local" = "true" ]; then
     for p in $servers; do
-       cp temp/config_$p.yml /opt/gopath/src/github.com/IBM/mirbft/deployment/config/serverconfig/
+       cp temp/config_$p.yml /opt/gopath/src/github.com/IBM/mirbft/deployment/config/serverconfig/ 
     done
     for p in $clients; do
        cp temp/config_$p.yml /opt/gopath/src/github.com/IBM/mirbft/deployment/config/clientconfig/

@@ -3,15 +3,15 @@
 export user=$(id -un)
 export group=$(id -gn)
 
-# sudo apt-get update
-# sudo apt-get install -y curl git
-# sudo apt-get install -y python2
-# sudo apt-get install -y python-numpy
-# sudo apt-get install -y build-essential
-# sudo apt-get install -y protobuf-compiler
-# sudo apt-get install -y protobuf-compiler-grpc
+sudo apt-get update
+sudo apt-get install -y curl git
+sudo apt-get install -y python2
+sudo apt-get install -y python-numpy
+sudo apt-get install -y build-essential
+sudo apt-get install -y protobuf-compiler
+sudo apt-get install -y protobuf-compiler-grpc
 
-# cd ~
+cd ~
 
 wget https://storage.googleapis.com/golang/go1.20.1.linux-amd64.tar.gz
 tar xpzf go1.20.1.linux-amd64.tar.gz

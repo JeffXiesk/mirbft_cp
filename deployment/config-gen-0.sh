@@ -160,7 +160,7 @@ if [ $N -ge $thres ]; then
 else
     watermark=32
     epoch=256
-    timeout=15000000000
+    timeout=1000000000
 fi
 
 declare -i Fcnt=0
@@ -170,7 +170,7 @@ for p in $servers; do
     byzantineAfter=0
     byzantineUntil=0
     if [ "$Fcnt" -lt "$F" ]; then
-        byzantineDelay=2000000000
+        byzantineDelay=5000000000
         byzantineAfter=0
         byzantineUntil=10000000
     fi

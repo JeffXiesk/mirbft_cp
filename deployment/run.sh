@@ -11,62 +11,62 @@ S=$(grep -c server cloud-instance.info)
 
 . vars.sh
 
-# if [ "$1" = "--copy-only" ] || [ "$1" = "-c" ]; then
-#   copy_only=true
-#   shift
-# else
-#   copy_only=false
-# fi
+if [ "$1" = "--copy-only" ] || [ "$1" = "-c" ]; then
+  copy_only=true
+  shift
+else
+  copy_only=false
+fi
 
-# if [ "$copy_only" = "false" ]; then
-#     for p in $clients; do
-#         pub=$(getIP $p)
-#         scp $ssh_options run-client.sh $ssh_user@$pub: &
-#     done
-#     wait
+if [ "$copy_only" = "false" ]; then
+    for p in $clients; do
+        pub=$(getIP $p)
+        scp $ssh_options run-client.sh $ssh_user@$pub: &
+    done
+    wait
 
-#     for p in $clients; do
-#         pub=$(getIP $p)
-#         ssh $ssh_user@$pub $ssh_options "source run-client.sh" &
-#     done
-#     # wait
+    for p in $clients; do
+        pub=$(getIP $p)
+        ssh $ssh_user@$pub $ssh_options "source run-client.sh" &
+    done
+    # wait
 
-#     for p in $servers; do
-#         pub=$(getIP $p)
-#         scp $ssh_options run-server.sh $ssh_user@$pub: &
-#         scp $ssh_options stop.sh $ssh_user@$pub: &
-#     done
-#     wait
+    for p in $servers; do
+        pub=$(getIP $p)
+        scp $ssh_options run-server.sh $ssh_user@$pub: &
+        scp $ssh_options stop.sh $ssh_user@$pub: &
+    done
+    wait
 
-#     for p in $servers; do
-#         pub=$(getIP $p)
-#         ssh $ssh_user@$pub $ssh_options "source run-server.sh  > /dev/null 2>&1 & " &
-#     done
+    for p in $servers; do
+        pub=$(getIP $p)
+        ssh $ssh_user@$pub $ssh_options "source run-server.sh  > /dev/null 2>&1 & " &
+    done
 
-#     echo "new status ..."
+    echo "new status ..."
 
-#     ready="0"
-#     while [ $ready -lt $C ]; do
-#         for p in $clients; do
-#             pub=$(getIP $p)
-#             scp $ssh_options $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/client/STATUS.sh .
-#             . STATUS.sh
-#             echo $p $status
-#             if [ "$status" = "FINISHED" ]; then
-#                 ready=$[$ready+1]
-#             fi
-#         done
-#         if [ $ready -lt $C ]; then
-#             ready="0"
-#         fi
-#         echo "Experiment still running"
-#         sleep 3
-#     done
+    ready="0"
+    while [ $ready -lt $C ]; do
+        for p in $clients; do
+            pub=$(getIP $p)
+            scp $ssh_options $ssh_user@$pub:/opt/gopath/src/github.com/IBM/mirbft/client/STATUS.sh .
+            . STATUS.sh
+            echo $p $status
+            if [ "$status" = "FINISHED" ]; then
+                ready=$[$ready+1]
+            fi
+        done
+        if [ $ready -lt $C ]; then
+            ready="0"
+        fi
+        echo "Experiment still running"
+        sleep 3
+    done
 
-#     rm STATUS.sh
+    rm STATUS.sh
 
-#     echo "All clients finished"
-# fi
+    echo "All clients finished"
+fi
 
 mkdir -p experiment-output
 
