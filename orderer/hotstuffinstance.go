@@ -208,11 +208,11 @@ func (hi *hotStuffInstance) proposeSN(sn int32) {
 		// If the segment is not proposed yet schedule a new batch
 		if !hi.segmentProposed {
 			go func() {
-				if int32(hi.segment.SegID())%int32(membership.NumNodes()) == 0 && config.Config.CrashTiming == "Straggler" {
+				if int32(hi.segment.SegID())%int32(membership.NumNodes()) < int32(config.Config.StragglerCnt) && config.Config.CrashTiming == "Straggler" {
 					logger.Debug().
 						Int("segment", hi.segment.SegID()).
 						Msg("Straggler. Start wait for requests.")
-					timeout := time.Duration(int(0.16666667*float64(config.Config.ViewChangeTimeoutMs))) * time.Millisecond
+					timeout := time.Duration(int(5*float64(config.Config.BatchTimeoutMs)))* time.Millisecond
 					hi.segment.Buckets().WaitForRequests(100000000000, timeout)
 					logger.Debug().
 						Int("segment", hi.segment.SegID()).

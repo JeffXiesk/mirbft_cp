@@ -40,10 +40,10 @@ faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 da
 clients1=""    # deploys 1 client machine which run the specified number of client instances
 clients16=""    # deploys 16 client machine which run the specified number of client instances
 clients32="8"    # deploys 32 client machine which run the specified number of client instances
-systemSizes="16" # Must be sorted in ascending order!
+systemSizes="64" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
-StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+StragglerCnt=(0) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 
 reuseFaulty=true  # If true, both correct and faulty peers will have the same tag and will be launched together, with the same config file.
                   # The failure count is only expressed as a parameter in (every peer's) config file, and even the faulty peers will see
@@ -76,7 +76,7 @@ fixedEpochLength=false
 auths="true"
 bucketsPerLeader="16"
 minBuckets="16"
-minEpochLength="256"       # [entries]
+minEpochLength="512"       # [entries]
 nodeConnections="1"
 minConnections="16"
 leaderPolicies="Simple"  # Possible values:
@@ -95,7 +95,7 @@ singleLeaderEpoch=$minEpochLength
 # Parameters to tune:
 batchsizes="4096"           # [requests]
 batchrates="32"             # [batches/s]
-minBatchTimeout="2000"      # [ms]
+minBatchTimeout="8000"      # [ms]
 maxBatchTimeout="10000"      # [ms]
 segmentLengths="16"         # [entries]
 viewChangeTimeouts="60000"  # [ms]
@@ -147,11 +147,11 @@ throughputsNoAuthSinglePbft[64]=""
 throughputsNoAuthSinglePbft[128]=""
 
 throughputsAuthHotStuff=$()
-throughputsAuthHotStuff[4]="5000 10000 15000 20000 25000 30000 35000 40000"
-throughputsAuthHotStuff[8]=""
-throughputsAuthHotStuff[16]="45000 50000 55000 60000"
-throughputsAuthHotStuff[32]=""
-throughputsAuthHotStuff[64]=""
+throughputsAuthHotStuff[4]="30000 35000 40000"
+throughputsAuthHotStuff[8]="20000 30000"
+throughputsAuthHotStuff[16]="30000 35000 40000"
+throughputsAuthHotStuff[32]="20000 30000"
+throughputsAuthHotStuff[64]="30000 35000 40000"
 throughputsAuthHotStuff[128]=""
 throughputsNoAuthHotStuff=$()
 throughputsNoAuthHotStuff[4]="128"
