@@ -130,12 +130,14 @@ id=0
 thres=16
 if [ $N -ge $thres ]; then
     watermark=$(( N*2 ))
-    epoch=$(( N*16 ))
-    timeout=$(( N*32*1000000 ))
+    # epoch=$(( N*16 ))
+    epoch=512
+    # timeout=$(( N*32*1000000 ))
+    timeout=1000000000
 else
     watermark=32
-    epoch=256
-    timeout=500000000
+    epoch=512
+    timeout=1000000000
 fi
 
 declare -i Fcnt=0

@@ -31,7 +31,7 @@ if [ "$1" = "--local" ] || [ "$1" = "-l" ]; then
 
   N=$1
 #   F=$(((N-1)/3))
-  F=1
+  F=0
   shift
 
   C=$1
@@ -52,7 +52,7 @@ else
   clients=$(grep client cloud-instance.info | awk '{ print $1}')
   N=$(grep -c server cloud-instance.info)
 #   F=$(((N-1)/3))
-  F=1
+  F=0
   C=$(grep -c client cloud-instance.info)
 fi
 
