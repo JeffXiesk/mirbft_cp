@@ -113,7 +113,6 @@ type pbftBatch struct {
 	committed       bool        // Is true if 2f+1 unique commit messages and a matching proposal received
 	viewChangeTimer *time.Timer // Timer to start a view change
 	hnsn            map[int32]int32
-	goodblock       bool
 }
 
 type viewChangeInfo struct {
@@ -207,6 +206,9 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	pi.checkpointMsgs = make(map[int32]*pb.PbftCheckpoint)
 	pi.checkpointDigests = make(map[string][]int32)
 
+	/// 1024///1116///1201
+	//htnmember[pi.segment.SegID()] = 0
+
 	copy(fakeQc, fakeQc_[:])
 	copy(fakesig, fakesig_[:])
 	logger.Debug().Int("size", int(unsafe.Sizeof(fakeQc))).Msg("size of fakeQc")
@@ -285,7 +287,7 @@ func (pi *pbftInstance) lead() {
 	//if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 	if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" {
 		//if config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(5 * float64(config.Config.BatchTimeoutMs))
+		config.Config.BatchTimeoutMs = int(0.2 * float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs).Msg("byzantine effected !")
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
@@ -299,9 +301,6 @@ func (pi *pbftInstance) lead() {
 
 	// Send a proposal for each sequence number in the Segment.
 	// for _, sn := range pi.segment.SNs() {
-	count := int32(0)
-	tnoflastblock := int32(-1)
-	snoflastgoodblock := int32(-1)
 	for i := 0; i < len(pi.segment.SNs()); i++ { ///2023待修改。需要在epoch结束的时候停止propose
 		cursn := pi.segment.SNs()[i]
 		//pi.sendproposal(sn, batchSize)
@@ -324,9 +323,7 @@ func (pi *pbftInstance) lead() {
 		// lock.Unlock()
 		// snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())
 		// pi.mutex.RLock()
-		a, _ := pi.vhtnsn.Get(strconv.Itoa(int(cursn)))
-		b, _ := pi.vhtnsn.Get(strconv.Itoa(int(snoflastgoodblock + int32(membership.NumNodes()))))
-		currentvhtnsn := a || b
+		currentvhtnsn, _ := pi.vhtnsn.Get(strconv.Itoa(int(cursn)))
 		if currentvhtnsn == true { ///收集了足够的tn才能propose
 			// pi.mutex.RUnlock()
 			logger.Info().Int32("cursn", cursn).Msg("enter big block")
@@ -339,12 +336,6 @@ func (pi *pbftInstance) lead() {
 			} else {
 				htnlogItem, _ := htnlog.Get(strconv.Itoa(pi.segment.SegID()))
 				selfhtn = htnlogItem.Htn
-			}
-			if selfhtn < tnoflastblock {
-				selfhtn = tnoflastblock
-			}
-			if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" {
-				selfhtn = tnoflastblock
 			}
 			// lock.Unlock()
 			htnmsg00 := &pb.HtnMessage{
@@ -360,12 +351,8 @@ func (pi *pbftInstance) lead() {
 
 			if config.Config.UseSig {
 				// pi.mutex.RLock()
-				if currentssn, ok := pi.htnssn.Get(strconv.Itoa(int(cursn))); ok {
-					//currentssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
-					htnmsg00.Tn = currentssn[0].Tn
-				} else {
-					htnmsg00.Tn = selfhtn
-				}
+				currentssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
+				htnmsg00.Tn = currentssn[0].Tn
 				// pi.mutex.RUnlock()
 				htnmsg00.K = membership.OwnID*int32(config.Config.PrivKeyCnt) + selfhtn - htnmsg00.Tn
 				message := &pb.QcMessage{
@@ -380,13 +367,7 @@ func (pi *pbftInstance) lead() {
 				htnmsg00.Htn = selfhtn
 			}
 			// pi.mutex.Lock()
-			var oldssn []*pb.HtnMessage
-			if a == true {
-				oldssn, _ = pi.htnssn.Get(strconv.Itoa(int(cursn)))
-			} else {
-				oldssn, _ = pi.htnssn.Get(strconv.Itoa(int(snoflastgoodblock + int32(membership.NumNodes()))))
-			}
-
+			oldssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
 			pi.htnssn.Set(strconv.Itoa(int(cursn)), append(oldssn, htnmsg00))
 
 			oldkssn, _ := pi.kssn.Get(strconv.Itoa(int(cursn)))
@@ -401,15 +382,9 @@ func (pi *pbftInstance) lead() {
 			//curhtn := pi.GetMaxHtn(nowTn, pi.kssn[cursn])
 			curhtn := int32(0)
 			var htnqc []byte
-			var hset []*pb.HtnMessage
 			// pi.mutex.Lock()
-			//currentssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
-			if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" && count != 0 {
-				hset = append(hset, htnmsg00)
-			} else {
-				hset = oldssn
-			}
-
+			currentssn, _ := pi.htnssn.Get(strconv.Itoa(int(cursn)))
+			hset := currentssn
 			// pi.mutex.Unlock()
 			if config.Config.UseSig {
 				// pi.mutex.RLock()
@@ -428,7 +403,7 @@ func (pi *pbftInstance) lead() {
 			snfromhtntopropose := int32(membership.NumNodes())*(int32(htntopropose-1)) + int32(pi.segment.SegID())%int32(membership.NumNodes())
 
 			if cursn == snfromhtntopropose {
-				logger.Info().
+				logger.Debug().
 					Int32("cursn", cursn).
 					Int("SegID", pi.segment.SegID()).
 					Msg("cursn==snfromhtntopropose")
@@ -447,12 +422,7 @@ func (pi *pbftInstance) lead() {
 						HsetQc:    nil, //sig
 						Ks:        nil, //sig
 						Fakesig:   fakesig,
-						Goodblock: false,
 					},
-				}
-				if count == 0 {
-					newseqno.Newseqno.Goodblock = true
-					snoflastgoodblock = snfromhtntopropose
 				}
 				if config.Config.UseSig {
 					// pi.mutex.RLock()
@@ -478,15 +448,6 @@ func (pi *pbftInstance) lead() {
 
 				pi.serializer.serialize(msg)
 				<-pi.cutBatch
-				tnoflastblock = htntopropose
-				count++
-				if count < 3 && msg.Sn != pi.segment.LastSN() {
-					pi.vhtnsn.Set(strconv.Itoa(int(msg.Sn+int32(membership.NumNodes()))), true)
-					logger.Info().Int32("count", count).Int32("sn", msg.Sn+int32(membership.NumNodes())).Msg("set true directly")
-					continue
-				} else {
-					count = 0
-				}
 			}
 			if cursn < snfromhtntopropose && snfromhtntopropose <= pi.segment.LastSN() {
 				logger.Info().Int32("cursn", cursn).Int32("snfromhtntopropose", snfromhtntopropose).Msg("enter block2")
@@ -502,12 +463,7 @@ func (pi *pbftInstance) lead() {
 						HsetQc:    nil,
 						Ks:        nil,
 						Fakesig:   fakesig,
-						Goodblock: false,
 					},
-				}
-				if count == 0 {
-					newseqno.Newseqno.Goodblock = true
-					snoflastgoodblock = snfromhtntopropose
 				}
 				if config.Config.UseSig {
 					// pi.mutex.RLock()
@@ -539,15 +495,6 @@ func (pi *pbftInstance) lead() {
 				pi.serializer.serialize(msg)
 				<-pi.cutBatch
 				i += int((snfromhtntopropose - cursn) / int32(membership.NumNodes()))
-				tnoflastblock = htntopropose
-				count++
-				if count < 3 && msg.Sn != pi.segment.LastSN() {
-					pi.vhtnsn.Set(strconv.Itoa(int(msg.Sn+int32(membership.NumNodes()))), true)
-					logger.Info().Int32("count", count).Int32("sn", msg.Sn+int32(membership.NumNodes())).Msg("set true directly")
-					continue
-				} else {
-					count = 0
-				}
 			}
 
 			///202303epoch结束的时候直接propose最后一个sn
@@ -565,12 +512,7 @@ func (pi *pbftInstance) lead() {
 						HsetQc:    nil,
 						Ks:        nil,
 						Fakesig:   fakesig,
-						Goodblock: false,
 					},
-				}
-				if count == 0 {
-					newseqno.Newseqno.Goodblock = true
-					//snoflastgoodblock =
 				}
 				if config.Config.UseSig {
 					// pi.mutex.RLock()
@@ -605,6 +547,7 @@ func (pi *pbftInstance) lead() {
 			}
 
 		} else {
+			time.Sleep(100 * time.Millisecond)
 			i--
 		}
 
@@ -646,10 +589,6 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 		// we cut an empty batch to maximize damage
 		batchSize = 4096
 	}
-	//if config.Config.CrashTiming == "Straggler" {
-	// everybody straggler, everybody not straggler
-	//		batchSize = 4096
-	//}
 
 	// Create the actual request batch. The timeout is 0, since the we already waited for the batch in pi.lead().
 	batch := pi.segment.Buckets().CutBatch(batchSize, 0)
@@ -816,7 +755,6 @@ func (pi *pbftInstance) handlePreprepare(preprepare *pb.PbftPreprepare, msg *pb.
 	batch.preprepareMsg = preprepare
 	batch.preprepared = true
 	batch.hnsn[sn] = preprepare.Skip
-	batch.goodblock = preprepare.Goodblock
 	// logger.Debug().Int32("sn",sn).Msgf("pi.batched[pi.view] is %v",pi.batches[pi.view])
 
 	pi.sendPrepare(batch)
@@ -1232,7 +1170,7 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 		// pi.mutex.Lock()
 		pi.vhtnsn.Set(strconv.Itoa(int(sn+int32(membership.NumNodes()))), true)
 		// pi.mutex.Unlock()
-		logger.Info().Int32("sn", sn+int32(membership.NumNodes())).
+		logger.Debug().Int32("sn", sn+int32(membership.NumNodes())).
 			//[]Int32("validHtnMsgs", batch.validHtnMsgs.Htn).
 			Msg("Set TRUE.")
 		for _, x := range batch.validHtnMsgs {
@@ -1339,6 +1277,7 @@ func (pi *pbftInstance) handleMissingEntry(msg *pb.MissingEntry) {
 		// as the prepare messages and the preprepare message might still be absent.
 		sn := msg.Sn
 		tn := (msg.Sn-int32(pi.segment.SegID())%int32(membership.NumNodes()))/int32(membership.NumNodes()) + 1 ///1101
+		batch.hnsn[sn] = sn
 		pi.announce(batch, sn, tn, msg.Batch, msg.Aborted, pi.startTs, time.Now().UnixNano())
 	}
 }
@@ -1378,9 +1317,11 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 
 	if batch.hnsn[sn] != sn { //&& batch.hnsn[sn]%int32(membership.NumNodes())==int32((pi.segment.SegID()%membership.NumNodes()))
 		for i := batch.hnsn[sn]; i < sn; i = i + int32(membership.NumNodes()) {
+			emptyEntry := &request.Batch{Requests: make([]*request.Request, 0, 0)}
 			logEntry1 := &log.Entry{
-				Sn:    i,   ///1103
-				Batch: nil, ///1205
+				Sn:    i, ///1103
+				Batch: emptyEntry.Message(),
+				// Batch: nil, ///1205
 				//Batch:     reqBatch,//2023
 				ProposeTs: proposeTs,
 				CommitTs:  commitTs,
@@ -1460,13 +1401,15 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 		Int("SegID", pi.segment.SegID()).
 		Msg("Get logEntry.Sn from tn.")
 	announcer.Announce(logEntry)
-	if len(reqBatch.Requests) > 0 {
-		req_id := make([]int32, len(reqBatch.Requests))
-		for i := 0; i < len(reqBatch.Requests); i++ {
-			req_id[i] = (reqBatch.Requests[i].RequestId.ClientSn)
-		}
-		logger.Info().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
-	}
+
+	// if len(reqBatch.Requests) > 0 {
+	// 	req_id := make([]int32, len(reqBatch.Requests))
+	// 	for i := 0; i < len(reqBatch.Requests); i++ {
+	// 		req_id[i] = (reqBatch.Requests[i].RequestId.ClientSn)
+	// 	}
+	// 	logger.Info().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
+	// }
+
 	// Start new view change timeout
 	// for the fist uncommitted sequence number in the segment
 	finished := true // Will be set to false if any SN is still uncommitted
