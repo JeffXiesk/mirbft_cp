@@ -23,8 +23,8 @@ if [ "$1" = "-i" ]; then
             --launch-template LaunchTemplateId=lt-0854465890b2cf8e9 \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value="test"}]')
         # echo $new_instance_info
-        echo "sleep 30 seconds"
-        sleep 30
+        echo "sleep 60 seconds"
+        sleep 60
     else
         sleep 0.1
     fi
@@ -99,25 +99,33 @@ if [ "$1" = "-i" ]; then
     else 
         sleep 0.1
     fi
+
+    for i in "${public_ip_arr[@]}"
+    do
+        ssh $ssh_options_cloud root@$i 'sudo tc qdisc add dev ens5 root netem delay 50ms 20ms' &
+        echo 'End setting delay...'
+    done
+    wait
+
 else
     echo "Not init"
 fi
 
 
-bandwidth_cnt=0
-bandwidth=1000mbit
-if [ "$1" = "-b" ]; then
-    shift
-    # echo 'in -b'
-    bandwidth_cnt=$1
-    shift
-    bandwidth=5mbit
-fi
-echo $bandwidth_cnt  
-echo $bandwidth 
+# bandwidth_cnt=0
+# bandwidth=1000mbit
+# if [ "$1" = "-b" ]; then
+#     shift
+#     # echo 'in -b'
+#     bandwidth_cnt=$1
+#     shift
+#     bandwidth=5mbit
+# fi
+# echo $bandwidth_cnt  
+# echo $bandwidth 
 
-echo 'setting bandwidth'
-echo $public_ip_arr
+# echo 'setting bandwidth'
+# echo $public_ip_arr
 # for ((c=0;c<$totalnum;c++))
 # do
 #     # 为每个数据包添加 100ms 的延迟和 30ms 的抖动
@@ -125,13 +133,13 @@ echo $public_ip_arr
 #     echo ${public_ip_arr[c]} '1000mbit'
 # done
 
-for i in "${public_ip_arr[@]}"
-do
-    ssh $ssh_options_cloud root@$i "tc qdisc del dev ens5 root ; tc qdisc add dev ens5 root netem delay 150ms 50ms" &
-    echo "$i $bandwidth"
-    # Limiting the Egress Traffic
-done
-wait
+# for i in "${public_ip_arr[@]}"
+# do
+#     ssh $ssh_options_cloud root@$i "tc qdisc del dev ens5 root ; tc qdisc add dev ens5 root netem delay 150ms 50ms" &
+#     echo "$i $bandwidth"
+#     # Limiting the Egress Traffic
+# done
+# wait
 
 
 if [ "$1" = "-d" ]; then

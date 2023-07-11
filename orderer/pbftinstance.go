@@ -287,7 +287,7 @@ func (pi *pbftInstance) lead() {
 	//if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
 	if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" {
 		//if config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(0.2 * float64(config.Config.ViewChangeTimeoutMs))
+		config.Config.BatchTimeoutMs = int(5 * float64(config.Config.BatchTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs).Msg("byzantine effected !")
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
@@ -1170,14 +1170,14 @@ func (pi *pbftInstance) handleHtnmsg(htnmsg *pb.HtnMessage, msg *pb.ProtocolMess
 		// pi.mutex.Lock()
 		pi.vhtnsn.Set(strconv.Itoa(int(sn+int32(membership.NumNodes()))), true)
 		// pi.mutex.Unlock()
-		logger.Debug().Int32("sn", sn+int32(membership.NumNodes())).
-			//[]Int32("validHtnMsgs", batch.validHtnMsgs.Htn).
+		logger.Info().Int32("sn", sn+int32(membership.NumNodes())).
+			Int32("preSn",sn).
 			Msg("Set TRUE.")
-		for _, x := range batch.validHtnMsgs {
-			logger.Debug().Int32("validHtnMsgs", x.Htn).
-				Msg("validHtnMsgs sets.")
+		// for _, x := range batch.validHtnMsgs {
+			// logger.Debug().Int32("validHtnMsgs", x.Htn).
+				// Msg("validHtnMsgs sets.")
 			//pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())] = append(pi.htnssn[htnmsg.Sn+int32(membership.NumNodes())], x)
-		}
+		// }
 
 	} else {
 		// pi.mutex.RUnlock()
@@ -1331,6 +1331,9 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, tn int32, reqBatch 
 			announcer.Announce(logEntry1)
 
 			// logger.Debug().Int32("sn",logEntry1.Sn).Int("SegID",pi.segment.SegID()).Int32("a",sn%int32(membership.NumNodes())).Int32("b",int32(pi.segment.SegID())).Msgf("In announce : pi.batched[pi.view] is %v",pi.batches[pi.view])
+			if pi.batches[pi.view][logEntry1.Sn] == nil {
+				pi.batches[pi.view][logEntry1.Sn] = &pbftBatch{committed: false}
+			}	
 			pi.batches[pi.view][logEntry1.Sn].committed = true
 			if pi.batches[pi.view][logEntry1.Sn].viewChangeTimer != nil {
 				notFired := pi.batches[pi.view][logEntry1.Sn].viewChangeTimer.Stop()
