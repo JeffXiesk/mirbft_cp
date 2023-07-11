@@ -278,9 +278,14 @@ if __name__=='__main__':
   
         sn_info={}
         for i in sn_propose:
-            if i in sn_propose and i in sn_commit_quorum and i in sn_deliver_mean and i in sn_enoughHtn:
+            if i in sn_propose and i in sn_commit_quorum and i in sn_deliver_mean:
                 start = sn_propose[i]
-                sn_info[i] = {'batchNo':i,'propose':start,'commit':sn_commit_quorum[i]-start,'deliver':sn_deliver_mean[i]-start,'sn_enoughHtn':sn_enoughHtn[i]-start}
+                enoughHtnTime = 0
+                if len(sn_enoughHtn) != 0 and i not in sn_enoughHtn:
+                    continue
+                elif len(sn_enoughHtn) != 0:
+                    enoughHtnTime = sn_enoughHtn[i]-start
+                sn_info[i] = {'batchNo':i,'propose':start,'commit':sn_commit_quorum[i]-start,'deliver':sn_deliver_mean[i]-start,'sn_enoughHtn':enoughHtnTime}
 
         N=0
         n=len(sn_propose)
@@ -303,8 +308,13 @@ if __name__=='__main__':
             sn_propose2commit.append(sn_info[i]['commit'])
             sn_propose2deliver.append(sn_info[i]['deliver'])
             sn_commit2deliver.append(sn_info[i]['deliver']-sn_info[i]['commit'])
-            sn_propose2enoughHtn.append(sn_info[i]['sn_enoughHtn'])
+            if len(sn_enoughHtn) != 0:
+                sn_propose2enoughHtn.append(sn_info[i]['sn_enoughHtn'])
             
+        # print(sn_propose2commit)
+        # print(sn_propose2deliver)
+        # print(sn_commit2deliver)
+        # print(sn_propose2enoughHtn)
   
         print('============================')
         print('Propose-2f+1Commit: '+str(np.array(sn_propose2commit).mean()))
