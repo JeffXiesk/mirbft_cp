@@ -156,7 +156,8 @@ thres=16
 if [ $N -ge $thres ]; then
     watermark=$(( N*2 ))
     epoch=$(( N*16 ))
-    timeout=$(( N*32*10000000 ))
+    # timeout=$(( N*32*10000000 ))
+    timeout=1000000000
 else
     watermark=32
     epoch=256

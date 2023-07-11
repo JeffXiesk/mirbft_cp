@@ -114,16 +114,16 @@ func (instance *BFTInstance) sendPreprepare(batch []*pb.Request, seq pb.SeqView)
 				continue
 			}
 			if s.getsPayload(i, batchHash) {
-				log.Infof("replica %d: PREPREPARE %d to %d", s.id, seq.Seq, i)
+				log.Criticalf("replica %d: PREPREPARE %d to %d", s.id, seq.Seq, i)
 				instance.backend.Send(s.chainId, &pb.Msg{Type: &pb.Msg_Preprepare{m}}, i)
 			} else {
-				log.Infof("replica %d: LIGHT PREPREPARE %d to %d", s.id, seq.Seq, i)
+				log.Criticalf("replica %d: LIGHT PREPREPARE %d to %d", s.id, seq.Seq, i)
 				instance.backend.Send(s.chainId, &pb.Msg{Type: &pb.Msg_Preprepare{mLight}}, i)
 			}
 		}
 	} else {
 		s.broadcastToRest(&pb.Msg{Type: &pb.Msg_Preprepare{m}}, instance.backend)
-		log.Infof("replica %d: PREPREPARE %d", s.id, seq.Seq)
+		log.Criticalf("replica %d: PREPREPARE %d", s.id, seq.Seq)
 	}
 	instance.handleCheckedPreprepare(m, batchHeader, reqHashes)
 }
