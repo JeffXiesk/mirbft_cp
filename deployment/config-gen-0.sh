@@ -31,7 +31,7 @@ if [ "$1" = "--local" ] || [ "$1" = "-l" ]; then
 
   N=$1
 #   F=$(((N-1)/3))
-  F=0
+  F=1
   shift
 
   C=$1
@@ -52,7 +52,7 @@ else
   clients=$(grep client cloud-instance.info | awk '{ print $1}')
   N=$(grep -c server cloud-instance.info)
 #   F=$(((N-1)/3))
-  F=0
+  F=1
   C=$(grep -c client cloud-instance.info)
 fi
 
@@ -157,11 +157,11 @@ if [ $N -ge $thres ]; then
     watermark=$(( N*2 ))
     epoch=$(( N*16 ))
     # timeout=$(( N*32*10000000 ))
-    timeout=1000000000
+    timeout=2000000000
 else
     watermark=32
     epoch=256
-    timeout=1000000000
+    timeout=2000000000
 fi
 
 declare -i Fcnt=0
@@ -171,7 +171,7 @@ for p in $servers; do
     byzantineAfter=0
     byzantineUntil=0
     if [ "$Fcnt" -lt "$F" ]; then
-        byzantineDelay=5000000000
+        byzantineDelay=8000000000
         byzantineAfter=0
         byzantineUntil=10000000
     fi
