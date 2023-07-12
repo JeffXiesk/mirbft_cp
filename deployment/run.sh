@@ -40,6 +40,11 @@ if [ "$copy_only" = "false" ]; then
 
     for p in $servers; do
         pub=$(getIP $p)
+        ssh $ssh_user@$pub $ssh_options "source stop.sh  > /dev/null 2>&1 & " &
+    done
+
+    for p in $servers; do
+        pub=$(getIP $p)
         ssh $ssh_user@$pub $ssh_options "source run-server.sh  > /dev/null 2>&1 & " &
     done
 
@@ -60,7 +65,7 @@ if [ "$copy_only" = "false" ]; then
             ready="0"
         fi
         echo "Experiment still running"
-        sleep 3
+        sleep 1
     done
 
     rm STATUS.sh
@@ -103,5 +108,6 @@ wait
 
 echo "All clients stopped, client trace and log files are copied in deployment/experiment-output/"
 
-echo "python /opt/gopath/src/github.com/IBM/mirbft/tools/perf-eval.py 16 32 /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/experiment-output-delay2s-1/server*.out /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/experiment-output-delay2s-1/client*.trc"
 python /opt/gopath/src/github.com/IBM/mirbft/tools/perf-eval.py $S $C /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/server*.out /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/client*.trc
+# python /opt/gopath/src/github.com/IBM/mirbft/tools/perf-eval.py 4 1 /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/server*.out /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/client*.trc
+echo "python /opt/gopath/src/github.com/IBM/mirbft/tools/perf-eval.py $S $C /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/server*.out /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/client*.trc"

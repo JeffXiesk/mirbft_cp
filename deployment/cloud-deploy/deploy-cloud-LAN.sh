@@ -149,14 +149,14 @@ if [ "$1" = "--wan" ]; then
     for i in "${public_ip_arr[@]}"
     do
         ssh $ssh_options root@$i 'sudo tc qdisc del dev ens5 root netem' &
-        echo "$i del  done..."
+        echo "$i del netem done..."
     done
     wait
 
     for i in "${public_ip_arr[@]}"
     do
         ssh $ssh_options root@$i 'sudo tc qdisc add dev ens5 root netem delay 50ms 20ms' &
-        echo "$i sent ssh key done..."
+        echo "$i add netem done..."
     done
     wait
 fi

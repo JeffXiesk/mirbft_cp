@@ -11,6 +11,11 @@ public_ip_arr=(`echo $public_ip | tr ',' ' '`)
 
 declare -i cnt=1
 
+if [ -d "experiment-output" ]; then
+  rm -rf mirbft
+fi
+mkdir -p experiment-output/log
+
 for i in $servers
 do
     echo $i $cnt
