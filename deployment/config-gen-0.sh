@@ -155,12 +155,13 @@ id=0
 thres=16
 if [ $N -ge $thres ]; then
     watermark=$(( N*2 ))
-    epoch=$(( N*16 ))
+    # epoch=$(( N*16 ))
     # timeout=$(( N*32*10000000 ))
+    epoch=1024
     timeout=2000000000
 else
     watermark=32
-    epoch=256
+    epoch=1024
     timeout=2000000000
 fi
 
@@ -171,7 +172,7 @@ for p in $servers; do
     byzantineAfter=0
     byzantineUntil=0
     if [ "$Fcnt" -lt "$F" ]; then
-        byzantineDelay=8000000000
+        byzantineDelay=10000000000
         byzantineAfter=0
         byzantineUntil=10000000
     fi

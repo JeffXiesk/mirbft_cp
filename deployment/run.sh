@@ -42,11 +42,13 @@ if [ "$copy_only" = "false" ]; then
         pub=$(getIP $p)
         ssh $ssh_user@$pub $ssh_options "source stop.sh  > /dev/null 2>&1 & " &
     done
+    wait
 
     for p in $servers; do
         pub=$(getIP $p)
         ssh $ssh_user@$pub $ssh_options "source run-server.sh  > /dev/null 2>&1 & " &
     done
+    wait
 
     echo "new status ..."
 
@@ -109,5 +111,5 @@ wait
 echo "All clients stopped, client trace and log files are copied in deployment/experiment-output/"
 
 python /opt/gopath/src/github.com/IBM/mirbft/tools/perf-eval.py $S $C /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/server*.out /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/client*.trc
-# python /opt/gopath/src/github.com/IBM/mirbft/tools/perf-eval.py 4 1 /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/server*.out /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/client*.trc
+# python /opt/gopath/src/github.com/IBM/mirbft/tools/perf-eval.py 16 8 /opt/gopath/src/github.com/IBM/mirbft/deployment/cloud-deploy/experiment-output16peer-1straggler-delay4s/server*.out /opt/gopath/src/github.com/IBM/mirbft/deployment/cloud-deploy/experiment-output16peer-1straggler-delay4s/client*.trc
 echo "python /opt/gopath/src/github.com/IBM/mirbft/tools/perf-eval.py $S $C /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/server*.out /opt/gopath/src/github.com/IBM/mirbft/deployment/experiment-output/client*.trc"

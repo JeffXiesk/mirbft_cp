@@ -12,7 +12,7 @@ public_ip_arr=(`echo $public_ip | tr ',' ' '`)
 declare -i cnt=1
 
 if [ -d "experiment-output" ]; then
-  rm -rf mirbft
+  rm -rf experiment-output
 fi
 mkdir -p experiment-output/log
 
@@ -24,11 +24,11 @@ do
 done
 wait
 
-# cnt=1
-# for i in $clients
-# do
-#     echo $i $cnt
-#     scp $ssh_options root@$i:/opt/gopath/src/github.com/IBM/mirbft/client/client.log ./experiment-output/log/client-$cnt.log &
-#     cnt+=1
-# done
-# wait
+cnt=1
+for i in $clients
+do
+    echo $i $cnt
+    scp $ssh_options root@$i:/opt/gopath/src/github.com/IBM/mirbft/client/client.log ./experiment-output/log/client-$cnt.log &
+    cnt+=1
+done
+wait
