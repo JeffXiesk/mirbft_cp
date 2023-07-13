@@ -108,7 +108,7 @@ def main(argv):
                         tx = Transaction()
                         tx.id = txId
                         transactions[txId] = tx
-                    tx.sent = sent
+                    transactions[txId].sent = sent
 
                 if 'REQ_DELIVERED' in line:
                     seq = int(line.split(",")[2].split(":")[1])
@@ -119,7 +119,7 @@ def main(argv):
                         tx = Transaction()
                         tx.id = txId
                         transactions[txId] = tx
-                    tx.delivered = delivered
+                    transactions[txId].delivered = delivered
             duration = (end-start).total_seconds()
             reqs = reqs * sampleValue
             if duration != 0 :
