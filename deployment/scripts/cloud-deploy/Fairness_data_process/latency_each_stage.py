@@ -47,7 +47,7 @@ def merge(lst1, lst2):
 
 
 if __name__=='__main__':
-    sys.stdout = open('scripts/cloud-deploy/Fairness_data_process/output.log','a')
+    sys.stdout = open('scripts/cloud-deploy/Fairness_data_process/output.log','w')
  
     experiment_names=[]
     for dirPath, dirNames, fileNames in os.walk(sys.argv[1]):
