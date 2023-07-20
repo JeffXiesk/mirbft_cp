@@ -215,9 +215,8 @@ func (c *client) createRequest(seqNr int32) *pb.ClientRequest {
 	tx := &pb.Transaction{}
 	id := seqNr*int32(config.Config.TotalClients) + c.ownClientID + 1
 	c.log.Debug().Int32("id", id).Msg("id is.")
-	var blockTime time.Time
-	err = c.db.QueryRow("SELECT * FROM transactions WHERE id=$1", id).Scan(&tx.Id, &tx.BlockHeight, &tx.BlockHash, &blockTime, &tx.CreatedAt, &tx.Confirmations, &tx.Fee, &tx.Hash, &tx.InputsCount, &tx.InputsValue, &tx.IsCoinbase, &tx.IsDoubleSpend, &tx.IsSwTx, &tx.LockTime, &tx.OutputsCount, &tx.OutputsValue, &tx.Sigops, &tx.Size, &tx.Version, &tx.Vsize, &tx.Weight, &tx.WitnessHash, &tx.Inputs, &tx.Outputs)
-	tx.BlockTime = blockTime.Unix()
+	err = c.db.QueryRow("SELECT * FROM eth_data WHERE id=$1", id).Scan(&tx.TxHash, &tx.BlockHeight, &tx.SenderHash, &tx.ReceiverHash, &tx.Amount, &tx.CreatedTs, &tx.TimeInSec, &tx.Fee, &tx.Status, &tx.Error, &tx.TotalTipFee, &tx.TotalMaxFeeLimit, &tx.SenderType, &tx.ReceiverType, &tx.Id)
+
 	if err != nil {
 		c.log.Fatal().Msgf("Fetching fail: %v", err)
 	}
@@ -226,7 +225,7 @@ func (c *client) createRequest(seqNr int32) *pb.ClientRequest {
 		c.log.Fatal().Msgf("Marshaling error: %v", err)
 	}
 
-	c.log.Debug().Int("length", len(data)).Int32("id", tx.Id).Str("hash", tx.Hash).Str("Inputs", tx.Inputs).Str("Outputs", tx.Outputs).Msg("Fetch from data source.")
+	c.log.Debug().Int("length", len(data)).Int32("id", tx.Id).Str("hash", tx.TxHash).Str("SenderHash", tx.SenderHash).Str("ReceiverHash", tx.ReceiverHash).Msg("Fetch from data source.")
 
 	// Create request message.
 	req := &pb.ClientRequest{

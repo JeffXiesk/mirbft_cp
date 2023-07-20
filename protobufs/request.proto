@@ -53,28 +53,20 @@ message ListOfInt32 {
 }
 
 message Transaction {
-  int32 id = 1;
+  string tx_hash = 1;
   int32 block_height = 2;
-  string block_hash = 3;
-  int64 block_time = 4; // Assuming timestamp as unix time in seconds
-  int32 created_at = 5;
-  int32 confirmations = 6;
-  int32 fee = 7;
-  string hash = 8;
-  int32 inputs_count = 9;
-  int64 inputs_value = 10;
-  bool is_coinbase = 11;
-  bool is_double_spend = 12;
-  bool is_sw_tx = 13;
-  int32 lock_time = 14;
-  int32 outputs_count = 15;
-  int64 outputs_value = 16;
-  int32 sigops = 17;
-  int32 size = 18;
-  int32 version = 19;
-  int32 vsize = 20;
-  int32 weight = 21;
-  string witness_hash = 22;
-  string inputs = 23;
-  string outputs = 24;
+  string sender_hash = 3;
+  string receiver_hash = 4;
+  double amount = 5;
+  int32 created_ts = 6;
+  int32 time_in_sec = 7;
+  double fee = 8;
+  string status = 9;
+  string error = 10;
+  double total_tip_fee = 11;
+  double total_max_fee_limit = 12;
+  int32 sender_type = 13;
+  int32 receiver_type = 14;
+  int32 id = 15;
 }
+

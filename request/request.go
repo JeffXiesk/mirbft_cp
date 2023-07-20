@@ -303,8 +303,8 @@ func AdvanceWatermarks(entries []interface{}) { //expected type is []*log.Entry
 
 // Returns a bucket to which the request message belongs.
 func getBucket(req *pb.ClientRequest) *Bucket {
-	// return GetBucketByHashing(req)
-	return Buckets[GetBucketNr(req.RequestId.ClientId, req.RequestId.ClientSn)]
+	return GetBucketByHashing(req)
+	// return Buckets[GetBucketNr(req.RequestId.ClientId, req.RequestId.ClientSn)]
 }
 
 // This is the hash function that computes the bucket number of a request.

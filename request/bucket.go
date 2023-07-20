@@ -19,10 +19,10 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/rs/zerolog"
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	"github.com/rs/zerolog"
+	logger "github.com/rs/zerolog/log"
 )
 
 // Represents a single bucket of client requests.
@@ -348,10 +348,12 @@ func (b *Bucket) Remove(reqs []*Request) {
 
 // Removes a request from the bucket without acquiring the bucket lock.
 // ATTENTION: Does not (and must not) remove the request from the index.
-//            The index can be cleaned up only after the client watermarks have been updated,
-//            to prevent the situation where, in the same epoch, a request is received from a leader,
-//            added to the bucket, committed and removed from the bucket, and then added again after a late reception
-//            from the client.
+//
+//	The index can be cleaned up only after the client watermarks have been updated,
+//	to prevent the situation where, in the same epoch, a request is received from a leader,
+//	added to the bucket, committed and removed from the bucket, and then added again after a late reception
+//	from the client.
+//
 // ATTENTION: Bucket must be LOCKED when calling this method.
 func (b *Bucket) removeNoLock(req *Request) {
 

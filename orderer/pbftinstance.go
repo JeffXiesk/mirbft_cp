@@ -153,6 +153,10 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 
 	// Attach segment to the instance
 	pi.segment = seg
+	logger.Debug().Msgf("BucketIDs is %v", pi.segment.Buckets().GetBucketIDs())
+	for _, b := range pi.segment.Buckets().GetBucket() {
+		logger.Debug().Int("id", b.GetId()).Msgf("BucketGroup is %v", b.Group)
+	}
 
 	// Attach orderer to the instance
 	pi.orderer = orderer
@@ -198,7 +202,7 @@ func (pi *pbftInstance) lead() {
 
 	// Simulate a straggler.
 	if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(0.166667  * float64(config.Config.ViewChangeTimeoutMs))
+		config.Config.BatchTimeoutMs = int(0.166667 * float64(config.Config.ViewChangeTimeoutMs))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs).Msg("byzantine effect !")
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
@@ -674,12 +678,12 @@ func (pi *pbftInstance) announce(batch *pbftBatch, sn int32, reqBatch *pb.Batch,
 	announcer.Announce(logEntry)
 
 	// print request id.
-	// if (len(reqBatch.Requests)>0) {
-	// 	req_id:=make([]int32, len(reqBatch.Requests))
-	// 	for i:=0;i<len(reqBatch.Requests);i++ {
-	// 		req_id[i]=(reqBatch.Requests[i].RequestId.ClientSn)
+	// if len(reqBatch.Requests) > 0 {
+	// 	req_id := make([]int32, len(reqBatch.Requests))
+	// 	for i := 0; i < len(reqBatch.Requests); i++ {
+	// 		req_id[i] = (reqBatch.Requests[i].RequestId.ClientSn)
 	// 	}
-	// 	logger.Debug().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v",req_id)
+	// 	logger.Debug().Int32("logEntry.Sn", logEntry.Sn).Msgf("req_id is: %v", req_id)
 	// }
 
 	// Start new view change timeout

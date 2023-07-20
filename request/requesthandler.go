@@ -15,12 +15,15 @@
 package request
 
 import (
+	// "crypto/sha256"
+
 	"log"
 	"math/big"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger-labs/mirbft/config"
-	"github.com/hyperledger-labs/mirbft/crypto"
+
+	// "github.com/hyperledger-labs/mirbft/crypto"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
 	"github.com/hyperledger-labs/mirbft/tracing"
 )
@@ -58,19 +61,27 @@ func HandleRequest(req *pb.ClientRequest) {
 
 func GetBucketByHashing(req *pb.ClientRequest) *Bucket {
 	H := new(big.Int)
-	H.SetString(crypto.Hspace, 10)
+	// SHA-1 space
+	H.SetString("ffffffffffffffffffffffffffffffffffffffff", 16)
 
 	// TODO keep this value somewhere else, its inefficient to calculate it all the time
 	bucketSize := new(big.Int).Div(H, big.NewInt(int64(config.Config.NumBuckets)))
 
-	reqKey := new(big.Int)
-	// reqKey.SetBytes(crypto.Hash(RequestIDToBytes(req)))
 	newTx := &pb.Transaction{}
 	err := proto.Unmarshal(req.Payload, newTx)
 	if err != nil {
 		log.Fatal("Unmarshaling error: ", err)
 	}
-	reqKey.SetString(newTx.Hash, 16)
+
+	reqKey := new(big.Int)
+	// sha256bytes := sha256.Sum256(req.Payload)
+	reqKey.SetString(newTx.SenderHash[2:], 16)
+
+	// fmt.Printf("req.Payload is %s\n", req.Payload)
+	// fmt.Printf("reqKey is %x\n", reqKey)
+	// fmt.Printf("newTx.SenderHash is %s\n", newTx.SenderHash)
+	// fmt.Printf("newTx.SenderHash[2:] is %s\n", newTx.SenderHash[2:])
+	// fmt.Printf("bucketSize is %s\n", bucketSize)
 
 	// Calculating bucket id
 	I := new(big.Int).Div(reqKey, bucketSize)
@@ -81,6 +92,7 @@ func GetBucketByHashing(req *pb.ClientRequest) *Bucket {
 		panic("Request beyond bucket limits")
 	}
 
+	// fmt.Printf("bucket index i is %d\n", i)
 	b := Buckets[i]
 
 	return b

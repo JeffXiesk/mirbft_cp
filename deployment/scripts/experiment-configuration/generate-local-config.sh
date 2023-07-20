@@ -43,8 +43,8 @@ clients32=""    # deploys 32 client machine which run the specified number of cl
 totalClients="16"    # uses for loading transactions from database data source
 
 # database setting
-user="btcdata"
-dbname="transaction"
+user="ethdata"
+dbname="ethtransaction"
 password="123456"
 host="10.16.78.180"
 
