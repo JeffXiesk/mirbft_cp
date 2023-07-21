@@ -5,8 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog"
-	logger "github.com/rs/zerolog/log"
+	"github.com/hyperledger-labs/mirbft/account"
 	"github.com/hyperledger-labs/mirbft/checkpoint"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/crypto"
@@ -19,6 +18,8 @@ import (
 	"github.com/hyperledger-labs/mirbft/request"
 	"github.com/hyperledger-labs/mirbft/statetransfer"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	"github.com/rs/zerolog"
+	logger "github.com/rs/zerolog/log"
 )
 
 // Flag indicating whether profiling is enabled.
@@ -35,6 +36,7 @@ func main() {
 	ownPrivateIP := os.Args[4]
 
 	config.LoadFile(configFileName)
+	account.LoadData()
 
 	// Configure logger
 	zerolog.SetGlobalLevel(config.Config.LoggingLevel)

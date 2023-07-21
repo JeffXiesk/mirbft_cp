@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/hyperledger-labs/mirbft/account"
 	"github.com/hyperledger-labs/mirbft/announcer"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/crypto"
@@ -154,9 +155,6 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	// Attach segment to the instance
 	pi.segment = seg
 	logger.Debug().Msgf("BucketIDs is %v", pi.segment.Buckets().GetBucketIDs())
-	for _, b := range pi.segment.Buckets().GetBucket() {
-		logger.Debug().Int("id", b.GetId()).Msgf("BucketGroup is %v", b.Group)
-	}
 
 	// Attach orderer to the instance
 	pi.orderer = orderer
@@ -193,6 +191,10 @@ func (pi *pbftInstance) init(seg manager.Segment, orderer *PbftOrderer) {
 	// To fill a fakeSig
 	var fakeSig_ [24]byte
 	copy(fakeSig, fakeSig_[:])
+
+	// Deal with balance
+	balance := account.GetBalance("0x28c6c06298d514db089934071355e5743bf21d60")
+	logger.Debug().Int("a", account.A).Float64("balance", balance).Msg("Test account success !")
 }
 
 func (pi *pbftInstance) lead() {

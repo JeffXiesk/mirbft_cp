@@ -321,6 +321,7 @@ func (b *Bucket) PrependMultiple(reqs []*Request) {
 // Returns the resulting slice obtained by appending the Requests to dest.
 // ATTENTION: Bucket must be LOCKED when calling this method.
 func (b *Bucket) RemoveFirst(n int, dest []*Request) []*Request {
+	pendingRequests := make([]*Request, 0, 0)
 
 	// While there are still Requests in the bucket and the limit has not been reached.
 	for ; b.numRequests > 0 && n > 0; n-- {
@@ -328,9 +329,20 @@ func (b *Bucket) RemoveFirst(n int, dest []*Request) []*Request {
 		if b.FirstRequest == nil {
 			logger.Error().Int("numRequests", b.numRequests).Int("bktId", b.id).Msg("FirstRequest nil!")
 		}
-		// Move the first request from the bucket into the destination slice.
-		dest = append(dest, b.FirstRequest)
+		// TODO: Add dependency analyze here
+		if true {
+			// Move the first request from the bucket into the destination slice.
+			dest = append(dest, b.FirstRequest)
+		} else {
+			pendingRequests = append(pendingRequests, b.FirstRequest)
+			n++
+		}
+
 		b.removeNoLock(b.FirstRequest)
+	}
+
+	if len(pendingRequests) > 0 {
+		b.AddRequests(pendingRequests)
 	}
 
 	return dest

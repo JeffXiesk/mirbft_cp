@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/hyperledger-labs/mirbft/account"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/membership"
 	"github.com/hyperledger-labs/mirbft/profiling"
@@ -100,6 +101,7 @@ func main() {
 	if err != nil {
 		logger.Fatal().Str("error", err.Error()).Msg("Connect to database fail !")
 	}
+	account.LoadData()
 
 	wg.Add(numClients)
 	for i := 0; i < numClients; i++ {
