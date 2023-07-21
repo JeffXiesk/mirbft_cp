@@ -15,6 +15,7 @@
 package announcer
 
 import (
+	"github.com/hyperledger-labs/mirbft/account"
 	"github.com/hyperledger-labs/mirbft/log"
 )
 
@@ -23,5 +24,6 @@ import (
 // However, in general, those nodes that are not followers in a Segment should learn about new log Entries from that
 // Segment through the Announce mechanism (e.g. by using gossip).
 func Announce(entry *log.Entry) {
+	account.CommitEntry(entry.Batch.GetRequests())
 	log.CommitEntry(entry)
 }

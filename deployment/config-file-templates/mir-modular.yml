@@ -108,8 +108,8 @@ VerifyRequestsEarly: VERIFYEARLY   # If true, incoming requests are verified bef
                                     # SignRequests must be set to true for this field to be considered.
 ClientPrivKeyFile: "tls-data/client-ecdsa-256.key" # Key for client request Signing.
 ClientPubKeyFile:  "tls-data/client-ecdsa-256.pem" # Key for client request verification.
-PrecomputeRequests: false # Pre-compute (and sign, if applicable) all requests at a client before starting to submit.
-                          # RequestsPerClient must not be zero if PrecomputeRequests is true.
+PrecomputeRequests: PRECOMPUTE # Pre-compute (and sign, if applicable) all requests at a client before starting to submit.
+                               # RequestsPerClient must not be zero if PrecomputeRequests is true.
 
 # System parameters
 RequestHandlerThreads: REQUESTHANDLERTHREADS # Number of threads that write incoming requests to request Buffers.

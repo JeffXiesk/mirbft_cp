@@ -115,6 +115,8 @@ type client struct {
 
 	// Data source of the btc transaction
 	db *sql.DB
+
+	dbTxNum int32
 }
 
 // Allocates and returns a pointer to a new client.
@@ -145,7 +147,8 @@ func newClient(dServAddr string, numRequests int, db *sql.DB) *client {
 		// The reqClients field is not initialized, as it is directly assigned a map
 		// that the messenger allocates when connecting to the orderers.
 		// reqSinks is initialized at the same time.
-		db: db,
+		db:      db,
+		dbTxNum: -1,
 	}
 
 	// Obtain identities of all peers.
@@ -169,6 +172,15 @@ func newClient(dServAddr string, numRequests int, db *sql.DB) *client {
 	if config.Config.SignRequests {
 		cl.loadPrivKey(config.Config.ClientPrivKeyFile)
 	}
+
+	db.Query("select count(*) from eth_filtered_data_new_repeated;")
+	err = db.QueryRow("select count(*) from eth_filtered_data_new_repeated;").Scan(&cl.dbTxNum)
+	if err != nil {
+		logger.Fatal().
+			Err(err).
+			Msg("Could not fetch number of Txs in database.")
+	}
+	logger.Debug().Int32("cl.dbTxNum", cl.dbTxNum).Msg("number of Txs in database.")
 
 	// Generate all request messages if configured to do so
 	if config.Config.PrecomputeRequests {
@@ -213,9 +225,9 @@ func (c *client) createRequest(seqNr int32) *pb.ClientRequest {
 	var err error = nil
 
 	tx := &pb.Transaction{}
-	id := seqNr*int32(config.Config.TotalClients) + c.ownClientID + 1
+	id := (seqNr*int32(config.Config.TotalClients)+c.ownClientID)%c.dbTxNum + 1
 	c.log.Debug().Int32("id", id).Msg("id is.")
-	err = c.db.QueryRow("SELECT * FROM eth_data WHERE id=$1", id).Scan(&tx.TxHash, &tx.BlockHeight, &tx.SenderHash, &tx.ReceiverHash, &tx.Amount, &tx.CreatedTs, &tx.TimeInSec, &tx.Fee, &tx.Status, &tx.Error, &tx.TotalTipFee, &tx.TotalMaxFeeLimit, &tx.SenderType, &tx.ReceiverType, &tx.Id)
+	err = c.db.QueryRow("SELECT * FROM eth_filtered_data_new_repeated WHERE id=$1", id).Scan(&tx.Id, &tx.SenderHash, &tx.ReceiverHash, &tx.Amount, &tx.Fee)
 
 	if err != nil {
 		c.log.Fatal().Msgf("Fetching fail: %v", err)
@@ -225,7 +237,7 @@ func (c *client) createRequest(seqNr int32) *pb.ClientRequest {
 		c.log.Fatal().Msgf("Marshaling error: %v", err)
 	}
 
-	c.log.Debug().Int("length", len(data)).Int32("id", tx.Id).Str("hash", tx.TxHash).Str("SenderHash", tx.SenderHash).Str("ReceiverHash", tx.ReceiverHash).Msg("Fetch from data source.")
+	c.log.Debug().Int("length", len(data)).Int32("id", tx.Id).Str("SenderHash", tx.SenderHash).Str("ReceiverHash", tx.ReceiverHash).Msg("Fetch from data source.")
 
 	// Create request message.
 	req := &pb.ClientRequest{

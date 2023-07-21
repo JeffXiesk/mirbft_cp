@@ -18,11 +18,13 @@ import (
 	"database/sql"
 	"sync"
 
+	"github.com/golang/protobuf/proto"
 	_ "github.com/lib/pq"
 
 	cmap "github.com/orcaman/concurrent-map"
 	// pb "github.com/hyperledger-labs/mirbft/protobufs"
 	"github.com/hyperledger-labs/mirbft/config"
+	pb "github.com/hyperledger-labs/mirbft/protobufs"
 	logger "github.com/rs/zerolog/log"
 )
 
@@ -96,4 +98,25 @@ func GetBalance(accountHash string) float64 {
 	} else {
 		return -1.0
 	}
+}
+
+func transfer(sender string, receiver string, amount float64) {
+	senderBalance, ok := balance.Get(sender)
+	if ok {
+		UpdateBalance(sender, senderBalance-amount)
+	}
+	receiveralance, ok2 := balance.Get(receiver)
+	if ok2 {
+		UpdateBalance(receiver, receiveralance+amount)
+	}
+}
+
+func CommitEntry(requests []*pb.ClientRequest) {
+	logger.Debug().Int("requestsLen", len(requests)).Msg("account CommitEntry")
+	for _, request := range requests {
+		tx := &pb.Transaction{}
+		proto.Unmarshal(request.Payload, tx)
+		transfer(tx.SenderHash, tx.ReceiverHash, tx.Amount+tx.Fee)
+	}
+	logger.Debug().Float64("Amount", GetBalance("0xa845b9758cfe9de0d0099b9c2f58517d03c4df31")).Msg("Account: 0xa845b9758cfe9de0d0099b9c2f58517d03c4df31")
 }
