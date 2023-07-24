@@ -22,7 +22,6 @@ import (
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
 	"github.com/hyperledger-labs/mirbft/request"
 	"github.com/hyperledger-labs/mirbft/tracing"
-	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	logger "github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
@@ -218,7 +217,7 @@ func (c *client) fetchFromFile(numRequests int) {
 
 	cnt := 0
 
-	file, err := os.Open("/home/niu/ethtx.csv")
+	file, err := os.Open("/root/ethtx.csv")
 	if err != nil {
 		panic(err)
 	}

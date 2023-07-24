@@ -23,7 +23,6 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/proto"
-	_ "github.com/lib/pq"
 
 	cmap "github.com/orcaman/concurrent-map"
 	// pb "github.com/hyperledger-labs/mirbft/protobufs"
@@ -52,7 +51,7 @@ func init() {
 func LoadData() {
 	cnt := 0
 
-	file, err := os.Open("/home/niu/balance.csv")
+	file, err := os.Open("/root/balance.csv")
 	if err != nil {
 		panic(err)
 	}

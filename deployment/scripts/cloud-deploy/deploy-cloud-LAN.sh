@@ -11,39 +11,19 @@ peer_num=${num_arr[1]}
 
 
 
-LaunchTemplateId_list=("lt-05f49ba1063d5ec9f" "lt-003c1f1b2c37949dd" "lt-0b7b107441d1c200f" "lt-0f3679d1b3bd5dd29")
-region_cnt=${#LaunchTemplateId_list[@]}
-region_need_add_one=$(($totalnum%$region_cnt))
-
-echo "$region_need_add_one"
-
 if [ "$1" = "-i" ]; then
     echo "Init"
     shift
     if [ "$1" = "-r" ]; then
         shift
         aws configure set region us-east-1
-        for ((i=0;i<$region_cnt;i++))    
-        do
-            count=$(($totalnum/$region_cnt))
-            if [ $region_need_add_one -gt $i ]; then
-                # echo "region_need_add_one is $region_need_add_one, i is $i"
-                # echo "add one"
-                count=$(($count+1))
-            fi
-            # echo "Region is ${region_list[$i]}, count is $count"
-            
-            # aws configure set region ${region_list[$i]}
-            new_instance_info=$(aws ec2 run-instances \
-             --launch-template LaunchTemplateId=${LaunchTemplateId_list[$i]} \
-             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value="Parallel-bft-instance"}]' \
-             --count $count)
-        done
+        new_instance_info=$(aws ec2 run-instances \
+         --launch-template LaunchTemplateId=lt-0854465890b2cf8e9 \
+         --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value="Parallel-bft-instance"}]' \
+         --count $totalnum)
 
-        echo "sleep 40 seconds"
-        sleep 40
-    else
-        sleep 0.1
+        echo "sleep 60 seconds"
+        sleep 60
     fi
 
     public_ip=$(
@@ -110,44 +90,58 @@ if [ "$1" = "-i" ]; then
         wait
 
         echo "End set ssh key..."
-    else 
-        sleep 0.1
+
+        for i in "${public_ip_arr[@]}"
+        do
+            scp $ssh_options_cloud 'scripts/cloud-deploy/TxFile/balance.csv' root@$i:/root/ &
+            scp $ssh_options_cloud 'scripts/cloud-deploy/TxFile/ethtx.csv' root@$i:/root/ &
+            echo "$i sent Tx File done..."
+        done
+        wait
+        echo "End copying Tx File..."
     fi
+
+    for i in "${public_ip_arr[@]}"
+    do
+        ssh $ssh_options_cloud root@$i 'sudo tc qdisc add dev ens5 root netem delay 50ms 20ms' &
+        echo 'End setting delay...'
+    done
+    wait
 
 else
     echo "Not init"
 fi
 
-peer_list=($(python3 scripts/cloud-deploy/pyscript/find_peer.py))
-bandwidth_cnt=0
-bandwidth=1000mbit
-bandwidth_low=1000mbit
-if [ "$1" = "-b" ]; then
-    shift
-    # echo 'in -b'
-    bandwidth_cnt=$1
-    shift
-    bandwidth_low=$1mbit
-    shift
-fi
-echo $bandwidth_cnt  
-echo $bandwidth_low 
+# peer_list=($(python3 scripts/cloud-deploy/pyscript/find_peer.py))
+# bandwidth_cnt=0
+# bandwidth=1000mbit
+# bandwidth_low=1000mbit
+# if [ "$1" = "-b" ]; then
+#     shift
+#     # echo 'in -b'
+#     bandwidth_cnt=$1
+#     shift
+#     bandwidth_low=$1mbit
+#     shift
+# fi
+# echo $bandwidth_cnt  
+# echo $bandwidth_low 
 
-echo 'setting bandwidth'
-for peer in "${peer_list[@]}"
-do
-    ssh $ssh_options_cloud root@$peer "tc qdisc del dev ens5 root; tc qdisc add dev ens5 root tbf rate $bandwidth burst 320kbit latency 100ms" &
-    echo "$peer $bandwidth"
-done
-wait
+# echo 'setting bandwidth'
+# for peer in "${peer_list[@]}"
+# do
+#     ssh $ssh_options_cloud root@$peer "tc qdisc del dev ens5 root; tc qdisc add dev ens5 root tbf rate $bandwidth burst 320kbit latency 100ms" &
+#     echo "$peer $bandwidth"
+# done
+# wait
 
-for ((c=0;c<$bandwidth_cnt;c++))
-do
-    ssh $ssh_options_cloud root@${peer_list[c]} "tc qdisc del dev ens5 root; tc qdisc add dev ens5 root tbf rate $bandwidth_low burst 320kbit latency 100ms" &
-    echo "${peer_list[c]} $bandwidth_low"
-    # Limiting the Egress Traffic
-done
-wait
+# for ((c=0;c<$bandwidth_cnt;c++))
+# do
+#     ssh $ssh_options_cloud root@${peer_list[c]} "tc qdisc del dev ens5 root; tc qdisc add dev ens5 root tbf rate $bandwidth_low burst 320kbit latency 100ms" &
+#     echo "${peer_list[c]} $bandwidth_low"
+#     # Limiting the Egress Traffic
+# done
+# wait
 
 
 if [ "$1" = "-d" ]; then
