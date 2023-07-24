@@ -15,7 +15,11 @@
 package account
 
 import (
-	"database/sql"
+	"bufio"
+	"io"
+	"os"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/golang/protobuf/proto"
@@ -23,7 +27,7 @@ import (
 
 	cmap "github.com/orcaman/concurrent-map"
 	// pb "github.com/hyperledger-labs/mirbft/protobufs"
-	"github.com/hyperledger-labs/mirbft/config"
+
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
 	logger "github.com/rs/zerolog/log"
 )
@@ -46,27 +50,27 @@ func init() {
 }
 
 func LoadData() {
-	connStr := "user=" + config.Config.User + " dbname=" + config.Config.DbName + " password=" + config.Config.Password + " host=" + config.Config.Host + " sslmode=disable"
-	logger.Debug().Str("connStr", connStr).Msg("dialing postgresql !")
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		logger.Fatal().Str("error", err.Error()).Msg("Connect to database fail !")
-	}
-	rows, err := db.Query("select * from balance_new")
+	cnt := 0
+
+	file, err := os.Open("/home/niu/balance.csv")
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 
-	cnt := 0
-	for rows.Next() {
-		var accountHash string
-		var balance float64
-		err = rows.Scan(&accountHash, &balance)
-		if err != nil {
-			panic(err)
-		}
-		UpdateBalance(accountHash, balance)
+	br := bufio.NewReader(file)
+	for {
 		cnt++
+		a, _, c := br.ReadLine()
+		if c == io.EOF {
+			break
+		}
+		res := strings.Split(string(a), ",")
+		balance, err := strconv.ParseFloat(res[1], 64)
+		if err != nil {
+			logger.Fatal().Msg(err.Error())
+		}
+		UpdateBalance(res[0], balance)
 	}
 
 	logger.Debug().Int("AccountCnt", cnt).Msg("Loaded balance !")
@@ -100,6 +104,20 @@ func GetBalance(accountHash string) float64 {
 	}
 }
 
+func RequestIsValid(request *pb.ClientRequest) bool {
+	tx := &pb.Transaction{}
+	proto.Unmarshal(request.Payload, tx)
+	senderBalance, ok := balance.Get(tx.SenderHash)
+	if ok {
+		if senderBalance >= tx.Amount+tx.Fee {
+			return true
+		}
+		return false
+	} else {
+		return true
+	}
+}
+
 func transfer(sender string, receiver string, amount float64) {
 	senderBalance, ok := balance.Get(sender)
 	if ok {
@@ -118,5 +136,5 @@ func CommitEntry(requests []*pb.ClientRequest) {
 		proto.Unmarshal(request.Payload, tx)
 		transfer(tx.SenderHash, tx.ReceiverHash, tx.Amount+tx.Fee)
 	}
-	logger.Debug().Float64("Amount", GetBalance("0xa845b9758cfe9de0d0099b9c2f58517d03c4df31")).Msg("Account: 0xa845b9758cfe9de0d0099b9c2f58517d03c4df31")
+	logger.Debug().Float64("Amount", GetBalance("7293")).Msg("Account: 7293")
 }
