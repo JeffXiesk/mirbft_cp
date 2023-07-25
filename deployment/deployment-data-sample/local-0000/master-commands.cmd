@@ -23,7 +23,7 @@ sync 1client
 
 # Start peers.
 discover-reset 4
-exec-start peers experiment-output/0000/slave-__id__/peer.log orderingpeer experiment-output/0000/slave-__id__/config/config.yml 127.0.0.1:9999 127.0.0.1 127.0.0.1 experiment-output/0000/slave-__id__/peer.trc experiment-output/0000/slave-__id__/prof
+exec-start peers experiment-output/0000/slave-__id__/peer.log orderingpeer experiment-output/0000/slave-__id__/config/config.yml 127.0.0.1:9999 127.0.0.1 127.0.0.1 experiment-output/0000/slave-__id__/peer.trc experiment-output/0000/slave-__id__/peerT2.trc  experiment-output/0000/slave-__id__/prof
 discover-wait
 
 wait for 2s

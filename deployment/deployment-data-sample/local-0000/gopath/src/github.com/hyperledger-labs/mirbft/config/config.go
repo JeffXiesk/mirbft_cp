@@ -54,10 +54,6 @@ type configuration struct {
 	Failures     int    `yaml:"Failures"`
 	StragglerCnt int    `yaml:"StragglerCnt"`
 	TotalClients int    `yaml:"TotalClients"`
-	User         string `yaml:"User"`
-	DbName       string `yaml:"DbName"`
-	Password     string `yaml:"Password"`
-	Host         string `yaml:"Host"`
 
 	CrashTiming       string `yaml:"CrashTiming"`
 	RandomSeed        int64  `yaml:"RandomSeed"`

@@ -22,6 +22,7 @@ import "github.com/hyperledger-labs/mirbft/config"
 // without having to keep around a reference and dereference it.
 var (
 	MainTrace Trace
+	Trace2    Trace
 )
 
 // Initializes the main trace.
@@ -32,6 +33,14 @@ func Init() {
 		BufferCapacity: config.Config.EventBufferSize,
 		//ProtocolEventCapacity: config.Config.EventBufferSize,
 		//RequestEventCapacity:  config.Config.EventBufferSize,
+		EthereumEventCapacity: 1024,
+	}
+
+	Trace2 = &BufferedTrace{
+		Sampling:              config.Config.ClientTraceSampling,
+		BufferCapacity:        config.Config.EventBufferSize,
+		ProtocolEventCapacity: config.Config.EventBufferSize,
+		RequestEventCapacity:  config.Config.EventBufferSize,
 		EthereumEventCapacity: 1024,
 	}
 }

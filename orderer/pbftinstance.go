@@ -329,7 +329,7 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	if len(batch.Requests) > 0 {
 		go func() {
 			for i := 0; i < len(batch.Requests); i++ {
-				tracing.MainTrace.Event(tracing.REQSN_PEERSN, int64(sn), int64(batch.Requests[i].Msg.RequestId.ClientSn))
+				tracing.Trace2.Event(tracing.REQ_PROPOSE, int64(batch.Requests[i].Msg.RequestId.ClientSn), int64(sn))
 			}
 		}()
 	}

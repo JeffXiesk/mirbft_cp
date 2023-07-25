@@ -89,15 +89,15 @@ func main() {
 	// Start profiler if necessary
 	// ATTENTION! We first look for argument 6, and only then check argument 5
 	//            (as the presence of profiling influences setting up of tracing).
-	if len(os.Args) > 6 {
+	if len(os.Args) > 7 {
 		profilingEnabled = true // UGLY DIRTY CODE!
 		logger.Info().Msg("Profiling enabled.")
-		setUpProfiling(os.Args[6])
+		setUpProfiling(os.Args[7])
 	}
 
 	// Set up tracing if necessary
-	if len(os.Args) > 5 {
-		setUpTracing(os.Args[5], ownID)
+	if len(os.Args) > 6 {
+		setUpTracing(os.Args[5], os.Args[6], ownID)
 	}
 
 	// Declare variables for component modules.
@@ -188,10 +188,11 @@ func setUpProfiling(outFilePrefix string) {
 }
 
 // Sets up tracing of events.
-func setUpTracing(outFileName string, ownID int32) {
+func setUpTracing(outFileName string, outFileName2 string, ownID int32) {
 
 	// Initialize tracing with output file name given at command line
 	tracing.MainTrace.Start(outFileName, ownID)
+	tracing.Trace2.Start(outFileName2, ownID)
 
 	// TODO: Move the CPU tracing to a more appropriate place
 	//       For now, it is here, as it depends on tracing being enabled.
@@ -204,6 +205,7 @@ func setUpTracing(outFileName string, ownID int32) {
 	// TODO: ATTENTION! Implement some synchronization here, otherwise the profiler might exit the process before
 	//                  the tracer is done flushing its buffers.
 	tracing.MainTrace.StopOnSignal(os.Interrupt, !profilingEnabled)
+	tracing.Trace2.StopOnSignal(os.Interrupt, !profilingEnabled)
 
 	logger.Info().Str("traceFile", outFileName).Msg("Started tracing.")
 }

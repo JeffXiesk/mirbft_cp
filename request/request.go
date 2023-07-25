@@ -22,7 +22,6 @@ import (
 	"github.com/hyperledger-labs/mirbft/crypto"
 	"github.com/hyperledger-labs/mirbft/membership"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
-	"github.com/hyperledger-labs/mirbft/tracing"
 	logger "github.com/rs/zerolog/log"
 )
 
@@ -171,7 +170,6 @@ type Request struct {
 
 // Allocates a new Request object from a client request message and adds it by calling Add().
 func AddReqMsg(reqMsg *pb.ClientRequest) *Request {
-	tracing.MainTrace.Event(tracing.REQ_RECEIVE, int64(reqMsg.RequestId.ClientId), int64(reqMsg.RequestId.ClientSn))
 
 	return Add(&Request{
 		Msg:      reqMsg,

@@ -62,7 +62,7 @@ func (r *Responder) Start(wg *sync.WaitGroup) {
 				Msg("Sending response to client.")
 
 			// Respond to the corresponding client.
-			tracing.MainTrace.Event(tracing.RESP_SEND, int64(req.RequestId.ClientId), int64(req.RequestId.ClientSn))
+			tracing.Trace2.EventForClientInPeer(tracing.RESP_SEND, int64(req.RequestId.ClientSn), req.RequestId.ClientId)
 
 			messenger.RespondToClient(req.RequestId.ClientId, &pb.ClientResponse{
 				OrderSn:  e.Sn,

@@ -21,7 +21,6 @@ import (
 
 	"math/rand"
 
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/announcer"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/log"
@@ -32,6 +31,7 @@ import (
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
 	"github.com/hyperledger-labs/mirbft/request"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	logger "github.com/rs/zerolog/log"
 )
 
 const candidate string = "candidate"
@@ -156,7 +156,7 @@ func (ri *raftInstance) init(seg manager.Segment, orderer *RaftOrderer) {
 	ri.minElectionTimeout = config.Config.ViewChangeTimeout
 
 	ri.sn2index = make(map[int32]int32)
-	ri.announced =  make(map[int32]bool)
+	ri.announced = make(map[int32]bool)
 
 	// Initalize channel
 	ri.serializer = newOrdererChannel(channelSize)
@@ -657,7 +657,7 @@ func (ri *raftInstance) HandleAppendEntryRequest(req *pb.RaftAppendEntryRequest,
 
 	if req.Batch != nil {
 		// If there exists no previous entry for this index
-		if _, ok := ri.log[req.Index]; !ok  {
+		if _, ok := ri.log[req.Index]; !ok {
 			// Sanity checks - we don't need to check for Byzantine behavior with Raft.
 			// Check that proposal requests are valid
 			batch := request.NewBatch(req.Batch)
@@ -857,6 +857,7 @@ func (ri *raftInstance) newTerm() {
 	if config.Config.DisabledViewChange {
 		profiling.StopProfiler()
 		tracing.MainTrace.Stop()
+		tracing.Trace2.Stop()
 		logger.Fatal().Int("segID", ri.segment.SegID()).Msg("VIEWCHANGE disabled, peer exits.")
 	}
 	tracing.MainTrace.Event(tracing.VIEW_CHANGE, int64(ri.segment.SegID()), int64(ri.term))

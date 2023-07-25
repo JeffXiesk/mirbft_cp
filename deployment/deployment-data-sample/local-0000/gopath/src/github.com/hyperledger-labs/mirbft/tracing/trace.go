@@ -30,6 +30,8 @@ type Trace interface {
 	// However, sampledVal is also used for sampling
 	Event(e EventType, sampledVal int64, val0 int64)
 
+	EventForClientInPeer(e EventType, sampledVal int64, val0 int32)
+
 	//// Create a new protocol trace event.
 	//Protocol(e EventType, seqNr int32)
 	//

@@ -17,9 +17,9 @@ package log
 import (
 	"sync"
 
-	logger "github.com/rs/zerolog/log"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	logger "github.com/rs/zerolog/log"
 )
 
 const (
@@ -86,7 +86,7 @@ func CommitEntry(entry *Entry) {
 	}
 
 	tracing.MainTrace.Event(tracing.COMMIT, int64(entry.Sn), 0)
-	if entry.Batch != nil { 
+	if entry.Batch != nil {
 		logger.Info().
 			Int32("sn", entry.Sn).
 			Int("nReq", len(entry.Batch.Requests)).
@@ -94,6 +94,13 @@ func CommitEntry(entry *Entry) {
 			//Time("committed", time.Unix(0, entry.CommitTs)).
 			Int64("latency", (entry.CommitTs-entry.CommitTs)/1000000).
 			Msg("Committed entry.")
+		if len(entry.Batch.Requests) > 0 {
+			go func() {
+				for i := 0; i < len(entry.Batch.Requests); i++ {
+					tracing.Trace2.Event(tracing.REQ_COMMIT, int64(entry.Batch.Requests[i].RequestId.ClientSn), int64(entry.Sn))
+				}
+			}()
+		}
 	}
 	entryPublishLock.Lock()
 	publishEntry(entry, logSubscribersOutOfOrder)
@@ -163,11 +170,12 @@ func EntriesOutOfOrder() chan *Entry {
 
 // Blocks until entry with sequence number sn and all previous entries are committed.
 // TODO: Do we really want to wait until all previous entries are committed too?
-//       This can unnecessarily delay a segment just because there is a hole somewhere in the past.
-//       (Move the notification to CommitEntry instead of PublishEntries?, If yes, watch out for the lock!)
-//       Added after changes to the SimpleCheckpointer:
-//         SimpleCheckpointer relies on the absence of holes guaranteed by WaitForEntry.
-//         The Manager relies on the absence of holes for consistent watermark advancement.
+//
+//	This can unnecessarily delay a segment just because there is a hole somewhere in the past.
+//	(Move the notification to CommitEntry instead of PublishEntries?, If yes, watch out for the lock!)
+//	Added after changes to the SimpleCheckpointer:
+//	  SimpleCheckpointer relies on the absence of holes guaranteed by WaitForEntry.
+//	  The Manager relies on the absence of holes for consistent watermark advancement.
 func WaitForEntry(sn int32) {
 
 	// Need this lock to protect from concurrent publishers.
@@ -260,7 +268,8 @@ func publishEntries() {
 	// push the corresponding Entry to the subscribers
 	// and increment firstEmptySN.
 	for entry, ok := entries.Load(firstEmptySN); ok; entry, ok = entries.Load(firstEmptySN) {
-		if (entry.(*Entry).Batch != nil){
+		if entry.(*Entry).Batch != nil {
+			tracing.MainTrace.Event(tracing.DELIVER, int64(entry.(*Entry).Sn), 0)
 			logger.Info().
 				Int32("sn", firstEmptySN).
 				Int("nReq", len(entry.(*Entry).Batch.Requests)).

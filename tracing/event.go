@@ -18,9 +18,10 @@ type EventType int
 
 const (
 	PROPOSE EventType = iota
-	REQSN_PEERSN
+	REQ_PROPOSE
 	PREPREPARE
 	COMMIT
+	REQ_COMMIT
 	DELIVER
 	CLIENT_SLACK
 	REQ_SEND
@@ -43,9 +44,10 @@ const (
 func (et EventType) String() string {
 	return [...]string{
 		"PROPOSE",
-		"REQSN_PEERSN",
+		"REQ_PROPOSE",
 		"PREPREPARE",
 		"COMMIT",
+		"REQ_COMMIT",
 		"DELIVER",
 		"CLIENT_SLACK",
 		"REQ_SEND",

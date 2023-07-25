@@ -22,10 +22,10 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger-labs/mirbft/config"
+	"github.com/hyperledger-labs/mirbft/tracing"
 
 	// "github.com/hyperledger-labs/mirbft/crypto"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
-	"github.com/hyperledger-labs/mirbft/tracing"
 )
 
 // TODO: It's inefficient to hash a request every time it is needed to get the request ID
@@ -46,7 +46,7 @@ import (
 //	and at the same time avoid verifying the signature again, in case the request is already present.)
 func HandleRequest(req *pb.ClientRequest) {
 
-	tracing.MainTrace.Event(tracing.REQ_RECEIVE, int64(req.RequestId.ClientId), int64(req.RequestId.ClientSn))
+	tracing.Trace2.EventForClientInPeer(tracing.REQ_RECEIVE, int64(req.RequestId.ClientSn), req.RequestId.ClientId)
 
 	if config.Config.RequestHandlerThreads > 0 {
 		// Write request to the corresponding input channel for further processing by a request handler thread.

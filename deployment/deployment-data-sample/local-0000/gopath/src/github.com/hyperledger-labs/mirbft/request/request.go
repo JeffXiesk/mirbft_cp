@@ -170,6 +170,7 @@ type Request struct {
 
 // Allocates a new Request object from a client request message and adds it by calling Add().
 func AddReqMsg(reqMsg *pb.ClientRequest) *Request {
+
 	return Add(&Request{
 		Msg:      reqMsg,
 		Digest:   Digest(reqMsg),

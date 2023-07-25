@@ -144,7 +144,7 @@ def startLocalPeers(expID, peers):
         output(
             "exec-start {0} experiment-output/{1}/slave-__id__/peer.log orderingpeer "
             "experiment-output/{1}/slave-__id__/{2} {3}:{4} {3} {3} "
-            "experiment-output/{1}/slave-__id__/peer.trc experiment-output/{1}/slave-__id__/prof".format(
+            "experiment-output/{1}/slave-__id__/peer.trc experiment-output/{1}/slave-__id__/peerT2.trc  experiment-output/{1}/slave-__id__/prof".format(
                 p, expID, SLAVE_CONFIG_FILE, LOCAL_IP_ADDRESS, LOCAL_MASTER_PORT))
     output("discover-wait")
     output("")

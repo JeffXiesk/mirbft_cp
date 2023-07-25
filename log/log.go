@@ -94,6 +94,13 @@ func CommitEntry(entry *Entry) {
 			//Time("committed", time.Unix(0, entry.CommitTs)).
 			Int64("latency", (entry.CommitTs-entry.CommitTs)/1000000).
 			Msg("Committed entry.")
+		if len(entry.Batch.Requests) > 0 {
+			go func() {
+				for i := 0; i < len(entry.Batch.Requests); i++ {
+					tracing.Trace2.Event(tracing.REQ_COMMIT, int64(entry.Batch.Requests[i].RequestId.ClientSn), int64(entry.Sn))
+				}
+			}()
+		}
 	}
 	entryPublishLock.Lock()
 	publishEntry(entry, logSubscribersOutOfOrder)

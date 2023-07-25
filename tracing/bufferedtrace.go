@@ -111,6 +111,45 @@ func (bt *BufferedTrace) Event(e EventType, sampledVal int64, val0 int64) {
 	}
 }
 
+func (bt *BufferedTrace) EventForClientInPeer(e EventType, sampledVal int64, clientID int32) {
+
+	// TODO: Clean up this ad-hock removal of REQ_SEND and RESP_RECEIVE events.
+	// if e == REQ_RECEIVE || e == RESP_RECEIVE || e == RESP_SEND {
+	// 	return
+	// }
+
+	// Discard event if it is not in the sampling set.
+	if sampledVal%int64(bt.Sampling) != 0 {
+		return
+	}
+
+	// Assign trace index to the event. Atomic increment is necessary, as many threads use the trace concurrently
+	// The offset variable points to the next free slot, but needs to be incremented before data is written. (thus -1)
+	index := atomic.AddInt32(&bt.offset, 1) - 1
+
+	// Check bounds.
+	// TODO: Try removing the bound check (while making sure the buffer is big enough)
+	//       and see impact on performance.
+	if int(index) >= bt.BufferCapacity {
+		logger.Error().
+			Int32("index", index).
+			Int("capacity", config.Config.EventBufferSize).
+			Msg("Trace event index exceeds capacity.")
+	}
+
+	// Add event to trace.
+	// Tried to test whether assigning each value separately to the array (at the specified index) is faster than
+	// assigning a whole struct. It is not, unless the definition (not necessarily the assigned instance) of the struct
+	// contains string or pointer types. Anyway, the biggest time consumer is querying the time.
+	bt.events[index] = GenericEvent{
+		EventType:  e,
+		Timestamp:  time.Now().UnixNano() / 1000,
+		NodeId:     clientID,
+		SampledVal: sampledVal,
+		Val0:       0,
+	}
+}
+
 //// Create a new protocol trace event.
 //func (bt *BufferedTrace) Protocol(e EventType, seqNr int32) {
 //
