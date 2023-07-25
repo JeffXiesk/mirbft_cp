@@ -20,9 +20,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/rs/zerolog"
 	logger "github.com/rs/zerolog/log"
-	"github.com/hyperledger-labs/mirbft/config"
 )
 
 type BufferedTrace struct {
@@ -75,9 +75,9 @@ func (bt *BufferedTrace) Start(outFileName string, nodeID int32) {
 func (bt *BufferedTrace) Event(e EventType, sampledVal int64, val0 int64) {
 
 	// TODO: Clean up this ad-hock removal of REQ_SEND and RESP_RECEIVE events.
-	if e == REQ_RECEIVE || e == RESP_RECEIVE || e == RESP_SEND {
-		return
-	}
+	// if e == REQ_RECEIVE || e == RESP_RECEIVE || e == RESP_SEND {
+	// 	return
+	// }
 
 	// Discard event if it is not in the sampling set.
 	if sampledVal%int64(bt.Sampling) != 0 {

@@ -51,7 +51,7 @@ func init() {
 func LoadData() {
 	cnt := 0
 
-	file, err := os.Open("/root/balance.csv")
+	file, err := os.Open("/home/niu/balance.csv")
 	if err != nil {
 		panic(err)
 	}

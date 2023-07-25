@@ -217,7 +217,7 @@ func (c *client) fetchFromFile(numRequests int) {
 
 	cnt := 0
 
-	file, err := os.Open("/root/ethtx.csv")
+	file, err := os.Open("/home/niu/ethtx.csv")
 	if err != nil {
 		panic(err)
 	}
@@ -398,16 +398,16 @@ func (c *client) Run(wg *sync.WaitGroup) {
 		preLen := 0
 		for len(c.submittedTo) > 0 {
 			c.log.Info().Int("len(c.submittedTo)", len(c.submittedTo)).Msg("In Loop for len(c.submittedTo) > 0 ")
-			
+
 			// for key1, innerMap := range c.submittedTo {
 			// 	fmt.Printf("Key1: %v\n", key1)
 			// 	for key2, value := range innerMap {
 			// 		fmt.Printf("\tKey2: %v, Value: %v\n", key2, value)
 			// 	}
 			// }
-			
+
 			c.Unlock()
-			time.Sleep(10*time.Second)
+			time.Sleep(10 * time.Second)
 			c.Lock()
 			if preLen == len(c.submittedTo) {
 				c.Unlock()
@@ -620,7 +620,7 @@ func (c *client) registerResponse(clientSN int32, peerID int32) {
 			delete(c.submittedTo, clientSN)
 			lock.Lock()
 			c.requests[clientSN] = nil
-			lock.Unlock()  
+			lock.Unlock()
 			c.log.Info().Int32("clSeqNr", clientSN).Msg("Request finished (out of order).")
 
 			select {

@@ -325,6 +325,14 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	}
 
 	tracing.MainTrace.Event(tracing.PROPOSE, int64(sn), int64(len(batch.Requests)))
+	// trace request id.
+	if len(batch.Requests) > 0 {
+		go func() {
+			for i := 0; i < len(batch.Requests); i++ {
+				tracing.MainTrace.Event(tracing.REQSN_PEERSN, int64(sn), int64(batch.Requests[i].Msg.RequestId.ClientSn))
+			}
+		}()
+	}
 
 	// Enqueue the message for all followers
 	for _, nodeID := range pi.segment.Followers() {

@@ -18,6 +18,7 @@ type EventType int
 
 const (
 	PROPOSE EventType = iota
+	REQSN_PEERSN
 	PREPREPARE
 	COMMIT
 	DELIVER
@@ -42,6 +43,7 @@ const (
 func (et EventType) String() string {
 	return [...]string{
 		"PROPOSE",
+		"REQSN_PEERSN",
 		"PREPREPARE",
 		"COMMIT",
 		"DELIVER",
@@ -64,29 +66,28 @@ func (et EventType) String() string {
 	}[et]
 }
 
-//type ProtocolEvent struct {
-//	EventType EventType
-//	Timestamp int64
-//	PeerId    int32
-//	SeqNr     int32
-//}
+//	type ProtocolEvent struct {
+//		EventType EventType
+//		Timestamp int64
+//		PeerId    int32
+//		SeqNr     int32
+//	}
 //
-//type RequestEvent struct {
-//	EventType EventType
-//	Timestamp int64
-//	ClId      int32
-//	ClSn      int32
-//	PeerId    int32
-//}
+//	type RequestEvent struct {
+//		EventType EventType
+//		Timestamp int64
+//		ClId      int32
+//		ClSn      int32
+//		PeerId    int32
+//	}
 //
-//type EthereumEvent struct {
-//	EventType EventType
-//	Timestamp int64
-//	PeerId    int32
-//	ConfigNr  int64
-//	GasCost   int64
-//}
-//
+//	type EthereumEvent struct {
+//		EventType EventType
+//		Timestamp int64
+//		PeerId    int32
+//		ConfigNr  int64
+//		GasCost   int64
+//	}
 type GenericEvent struct {
 	EventType  EventType
 	Timestamp  int64
