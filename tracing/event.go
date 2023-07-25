@@ -20,6 +20,7 @@ const (
 	PROPOSE EventType = iota
 	PREPREPARE
 	COMMIT
+	DELIVER
 	CLIENT_SLACK
 	REQ_SEND
 	REQ_RECEIVE
@@ -43,6 +44,7 @@ func (et EventType) String() string {
 		"PROPOSE",
 		"PREPREPARE",
 		"COMMIT",
+		"DELIVER",
 		"CLIENT_SLACK",
 		"REQ_SEND",
 		"REQ_RECEIVE",

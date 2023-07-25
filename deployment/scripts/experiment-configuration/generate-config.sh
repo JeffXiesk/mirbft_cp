@@ -37,10 +37,10 @@ machineLocations="fra05"
 faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 dal10 fra05 mil01 mex01 tor01 tor04 seo01"
 
 # number of client instances per node for 1/16/32 client machines
-clients1="4"    # deploys 1 client machine which run the specified number of client instances
+clients1=""    # deploys 1 client machine which run the specified number of client instances
 clients16=""    # deploys 16 client machine which run the specified number of client instances
-clients32=""    # deploys 32 client machine which run the specified number of client instances
-totalClients="4"    # uses for loading transactions from database data source
+clients32="8"    # deploys 32 client machine which run the specified number of client instances
+totalClients="256"    # uses for loading transactions from database data source
 
 # database setting
 user="ethdata"
@@ -110,7 +110,7 @@ crashTimings="EpochStart" # Possible values:
 singleLeaderEpoch=$minEpochLength
 
 # Parameters to tune:
-batchsizes="2048"           # [requests]
+batchsizes="4096"           # [requests]
 batchrates="32"             # [batches/s]
 minBatchTimeout="1000"      # [ms]
 maxBatchTimeout="4000"      # [ms]
@@ -131,7 +131,7 @@ function skip() {
 
 throughputsAuthPbft=$()
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288"
-throughputsAuthPbft[4]="2048 4096"
+throughputsAuthPbft[4]="16384 32768 50000"
 throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
 throughputsAuthPbft[16]="128 256 512 1024 2048 4096"
 throughputsAuthPbft[32]=""

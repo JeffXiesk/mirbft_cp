@@ -261,6 +261,7 @@ func publishEntries() {
 	// and increment firstEmptySN.
 	for entry, ok := entries.Load(firstEmptySN); ok; entry, ok = entries.Load(firstEmptySN) {
 		if (entry.(*Entry).Batch != nil){
+			tracing.MainTrace.Event(tracing.COMMIT, int64(entry.Sn), 0)
 			logger.Info().
 				Int32("sn", firstEmptySN).
 				Int("nReq", len(entry.(*Entry).Batch.Requests)).
