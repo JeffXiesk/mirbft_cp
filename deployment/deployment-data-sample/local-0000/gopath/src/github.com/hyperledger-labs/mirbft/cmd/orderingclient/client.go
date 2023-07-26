@@ -353,8 +353,8 @@ func (c *client) Run(wg *sync.WaitGroup) {
 
 		c.log.Info().Int("numRequests", c.numRequests).Msg("Starting to submit requests.")
 
-		timeBetweenRequests := int64(1000000 / config.Config.RequestRate)
-		nextSubmitTime := time.Now().UnixNano() / 1000 // Submit first request immediately
+		// timeBetweenRequests := int64(1000000 / config.Config.RequestRate)
+		// nextSubmitTime := time.Now().UnixNano() / 1000 // Submit first request immediately
 
 		// Submit requests
 		var i int32
