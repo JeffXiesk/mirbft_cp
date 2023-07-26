@@ -68,8 +68,7 @@ while [ -n "$1" ]; do
     forceClientBinary=$1
   # Delete raw data when done (even if failed, use with care!!!)
   elif [ "$1" = "-d" ]; then
-    # deleteRawData=true
-    deleteRawData=false
+    deleteRawData=true
   # SQL query file
   elif [ "$1" = "-q" ]; then
     shift

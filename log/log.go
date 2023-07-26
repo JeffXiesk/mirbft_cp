@@ -97,7 +97,7 @@ func CommitEntry(entry *Entry) {
 		if len(entry.Batch.Requests) > 0 {
 			go func() {
 				for i := 0; i < len(entry.Batch.Requests); i++ {
-					tracing.Trace2.Event(tracing.REQ_COMMIT, int64(entry.Batch.Requests[i].RequestId.ClientSn), int64(entry.Sn))
+					tracing.Trace2.EventForClientInPeer(tracing.REQ_COMMIT, int64(entry.Batch.Requests[i].RequestId.ClientSn), entry.Batch.Requests[i].RequestId.ClientId)
 				}
 			}()
 		}

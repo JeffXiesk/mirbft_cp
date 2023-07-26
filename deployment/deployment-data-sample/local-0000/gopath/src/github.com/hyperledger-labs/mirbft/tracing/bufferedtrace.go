@@ -144,7 +144,7 @@ func (bt *BufferedTrace) EventForClientInPeer(e EventType, sampledVal int64, cli
 	bt.events[index] = GenericEvent{
 		EventType:  e,
 		Timestamp:  time.Now().UnixNano() / 1000,
-		NodeId:     clientID,
+		NodeId:     -1 * clientID,
 		SampledVal: sampledVal,
 		Val0:       0,
 	}
@@ -276,7 +276,7 @@ func (bt *BufferedTrace) Stop() {
 		event := bt.events[i]
 		traceLogger.Log().
 			Int64("time", event.Timestamp).
-			Int32("nodeId", bt.nodeID).
+			Int32("nodeId", event.NodeId).
 			Int64("sampledVal", event.SampledVal).
 			Int64("val0", event.Val0).
 			Msg(event.EventType.String())
