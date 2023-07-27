@@ -400,7 +400,7 @@ func (c *client) Run(wg *sync.WaitGroup) {
 			c.log.Info().Int("len(c.submittedTo)", len(c.submittedTo)).Msg("In Loop for len(c.submittedTo) > 0 ")
 
 			c.Unlock()
-			time.Sleep(time.Second)
+			time.Sleep(5*time.Second)
 			c.Lock()
 			if len(c.submittedTo)<100 && preLen == len(c.submittedTo) {
 				break

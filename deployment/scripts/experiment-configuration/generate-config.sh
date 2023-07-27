@@ -38,9 +38,9 @@ faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 da
 
 # number of client instances per node for 1/16/32 client machines
 clients1=""    # deploys 1 client machine which run the specified number of client instances
-clients16=""    # deploys 16 client machine which run the specified number of client instances
-clients32="8"    # deploys 32 client machine which run the specified number of client instances
-totalClients="128"    # uses for loading transactions from database data source
+clients16="2"    # deploys 16 client machine which run the specified number of client instances
+clients32=""    # deploys 32 client machine which run the specified number of client instances
+totalClients="32"    # uses for loading transactions from database data source
 
 # Pre-compute (and sign, if applicable) all requests at a client before starting to submit.
 # RequestsPerClient must not be zero if PrecomputeRequests is true.
@@ -127,7 +127,7 @@ throughputsAuthPbft=$()
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288"
 throughputsAuthPbft[4]="16384 32768 50000"
 throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
-throughputsAuthPbft[16]="40000"
+throughputsAuthPbft[16]="20000"
 throughputsAuthPbft[32]=""
 throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""
