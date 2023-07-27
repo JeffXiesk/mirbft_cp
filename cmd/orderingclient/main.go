@@ -78,7 +78,7 @@ func main() {
 	numRequests := config.Config.RequestsPerClient
 
 	// Generate random request payload
-	randomRequestPayload = make([]byte, config.Config.RequestPayloadSize)
+	randomRequestPayload = make([]byte, config.Config.RequestPayloadSize-50)
 	rand.Read(randomRequestPayload)
 
 	logger.Info().

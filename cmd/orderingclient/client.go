@@ -263,15 +263,18 @@ func (c *client) fetchFromFile(numRequests int) {
 		if err != nil {
 			panic(err)
 		}
-		c.requests[seqNr] = &pb.ClientRequest{
+		newRequest := &pb.ClientRequest{
 			RequestId: &pb.RequestID{
 				ClientId: c.ownClientID,
 				ClientSn: seqNr,
 				SenderId: int32(senderId),
 			},
-			Payload:   payload,
-			Signature: nil,
+			Payload:       payload,
+			PayloadRandom: randomRequestPayload,
+			Signature:     nil,
 		}
+		c.requests[seqNr] = newRequest
+
 		// Sign request message.
 		if config.Config.SignRequests {
 			c.requests[seqNr].Signature, err = crypto.Sign(request.Digest(c.requests[seqNr]), c.privKey)
