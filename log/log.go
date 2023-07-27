@@ -275,11 +275,9 @@ func publishEntries() {
 				Int("nReq", len(entry.(*Entry).Batch.Requests)).
 				Msg("Delivered batch.")
 			if len(entry.(*Entry).Batch.Requests) > 0 {
-				go func() {
-					for i := 0; i < len(entry.(*Entry).Batch.Requests); i++ {
-						tracing.Trace2.EventForClientInPeer(tracing.REQ_DELIVERED, int64(entry.(*Entry).Batch.Requests[i].RequestId.ClientSn), entry.(*Entry).Batch.Requests[i].RequestId.ClientId)
-					}
-				}()
+				for i := 0; i < len(entry.(*Entry).Batch.Requests); i++ {
+					tracing.Trace2.EventForClientInPeer(tracing.REQ_DELIVERED, int64(entry.(*Entry).Batch.Requests[i].RequestId.ClientSn), entry.(*Entry).Batch.Requests[i].RequestId.ClientId)
+				}
 			}
 			// On each iteration, push new log Entry to all in-order subscriber channels.
 			publishEntry(entry.(*Entry), logSubscribers)

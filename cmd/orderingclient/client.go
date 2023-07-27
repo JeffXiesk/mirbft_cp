@@ -353,8 +353,8 @@ func (c *client) Run(wg *sync.WaitGroup) {
 
 		c.log.Info().Int("numRequests", c.numRequests).Msg("Starting to submit requests.")
 
-		// timeBetweenRequests := int64(1000000 / config.Config.RequestRate)
-		// nextSubmitTime := time.Now().UnixNano() / 1000 // Submit first request immediately
+		timeBetweenRequests := int64(1000000 / config.Config.RequestRate)
+		nextSubmitTime := time.Now().UnixNano() / 1000 // Submit first request immediately
 
 		// Submit requests
 		var i int32
@@ -364,26 +364,26 @@ func (c *client) Run(wg *sync.WaitGroup) {
 			// We only wait the necessary duration and always compute the nextSubmitTime based on the time the current
 			// request is actually submitted (not on when it should have been submitted).
 			// (Times always in microseconds.)
-			// if config.Config.RequestRate != -1 {
-			// 	now := time.Now().UnixNano() / 1000
+			if config.Config.RequestRate != -1 {
+				now := time.Now().UnixNano() / 1000
 
-			// 	// Log client slack. Watch out, units are microseconds!
-			// 	c.trace.Event(tracing.CLIENT_SLACK, int64(i), (nextSubmitTime - now))
+				// Log client slack. Watch out, units are microseconds!
+				c.trace.Event(tracing.CLIENT_SLACK, int64(i), (nextSubmitTime - now))
 
-			// 	// Wait for next submit time if necessary.
-			// 	if now < nextSubmitTime {
-			// 		time.Sleep(time.Duration(nextSubmitTime-now) * time.Microsecond)
-			// 		nextSubmitTime += timeBetweenRequests
-			// 	} else {
-			// 		if config.Config.HardRequestRateLimit {
-			// 			// Client never exceeds the predefined rate.
-			// 			nextSubmitTime = now + timeBetweenRequests
-			// 		} else {
-			// 			// Client tries to catch up with the predefined rate.
-			// 			nextSubmitTime += timeBetweenRequests
-			// 		}
-			// 	}
-			// }
+				// Wait for next submit time if necessary.
+				if now < nextSubmitTime {
+					time.Sleep(time.Duration(nextSubmitTime-now) * time.Microsecond)
+					nextSubmitTime += timeBetweenRequests
+				} else {
+					if config.Config.HardRequestRateLimit {
+						// Client never exceeds the predefined rate.
+						nextSubmitTime = now + timeBetweenRequests
+					} else {
+						// Client tries to catch up with the predefined rate.
+						nextSubmitTime += timeBetweenRequests
+					}
+				}
+			}
 
 			// blocks while watermark window is full
 			c.submitRequest(i)
@@ -400,12 +400,9 @@ func (c *client) Run(wg *sync.WaitGroup) {
 			c.log.Info().Int("len(c.submittedTo)", len(c.submittedTo)).Msg("In Loop for len(c.submittedTo) > 0 ")
 
 			c.Unlock()
-			time.Sleep(10 * time.Second)
+			time.Sleep(time.Second)
 			c.Lock()
-			if preLen == len(c.submittedTo) {
-				c.Unlock()
-				time.Sleep(time.Second)
-				c.Lock()
+			if len(c.submittedTo)<100 && preLen == len(c.submittedTo) {
 				break
 			}
 			preLen = len(c.submittedTo)

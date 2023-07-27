@@ -25,6 +25,7 @@ for num in experiment_num:
     row = cursor.fetchone()
     quorum=int(row[0]/3)
     print(quorum)
+    # quorum=5
 
 
     cursor.execute('SELECT * FROM request;')
@@ -130,9 +131,9 @@ for num in experiment_num:
                 resp_receive[key1][key2] = resp_receive_raw[key1][key2][quorum]
             # resp_receive[key1][key2] = np.mean(np.array(resp_receive_raw[key1][key2]))
 
-    # print(req_send)
-    # print(req_propose)
-    # print(req_finished)
+    # print('req_send is ',req_send)
+    # print('req_propose is ',req_propose)
+    # print('req_finished is ',req_finished)
     # print(req_receive)
     # print(req_commit)
     # print(resp_send)
