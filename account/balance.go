@@ -111,6 +111,7 @@ func RequestIsValid(request *pb.ClientRequest) bool {
 		if senderBalance >= tx.Amount+tx.Fee {
 			return true
 		}
+		logger.Debug().Msg("Request not succeed because not enough balance !")
 		return false
 	} else {
 		return true

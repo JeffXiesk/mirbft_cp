@@ -253,15 +253,21 @@ func (c *client) fetchFromFile(numRequests int) {
 
 	for seqNr := int32(0); seqNr < int32(numRequests); seqNr++ {
 		// c.log.Debug().Int32("id", (seqNr*int32(config.Config.TotalClients)+c.ownClientID)%int32(len(allReqs))).Msg("Fetch tx !")
-		payload, err := proto.Marshal(allReqs[(seqNr*int32(config.Config.TotalClients)+c.ownClientID)%int32(len(allReqs))])
+		index := (seqNr*int32(config.Config.TotalClients) + c.ownClientID) % int32(len(allReqs))
+		payload, err := proto.Marshal(allReqs[index])
 		if err != nil {
 			logger.Fatal().Msg("Marshal fail !")
+			panic(err)
+		}
+		senderId, err := strconv.Atoi(allReqs[index].SenderHash)
+		if err != nil {
 			panic(err)
 		}
 		c.requests[seqNr] = &pb.ClientRequest{
 			RequestId: &pb.RequestID{
 				ClientId: c.ownClientID,
 				ClientSn: seqNr,
+				SenderId: int32(senderId),
 			},
 			Payload:   payload,
 			Signature: nil,
@@ -400,9 +406,9 @@ func (c *client) Run(wg *sync.WaitGroup) {
 			c.log.Info().Int("len(c.submittedTo)", len(c.submittedTo)).Msg("In Loop for len(c.submittedTo) > 0 ")
 
 			c.Unlock()
-			time.Sleep(5*time.Second)
+			time.Sleep(5 * time.Second)
 			c.Lock()
-			if len(c.submittedTo)<100 && preLen == len(c.submittedTo) {
+			if len(c.submittedTo) < 100 && preLen == len(c.submittedTo) {
 				break
 			}
 			preLen = len(c.submittedTo)
@@ -770,7 +776,7 @@ func (c *client) newBucketsReady(epoch int32) *pb.BucketAssignment {
 func (c *client) guessTargetOrderers(req *pb.ClientRequest) []int32 {
 
 	guess := make([]int32, reqFanout, reqFanout)
-	b := request.GetBucketNr(req.RequestId.ClientId, req.RequestId.ClientSn)
+	b := request.GetBucketNr(req.RequestId.ClientId, req.RequestId.ClientSn, req.RequestId.SenderId)
 
 	for i := 0; i < reqFanout; i++ {
 		guess[i] = c.currentBucketAssignment[b]

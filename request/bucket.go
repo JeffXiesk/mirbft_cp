@@ -441,9 +441,12 @@ func (b *Bucket) PruneIndex(watermarks *sync.Map) { // expected map type of wate
 	// All request SNs between the old (including) and the new (excluding) watermark can safely be pruned.
 	watermarks.Range(func(clID interface{}, wmRange interface{}) bool {
 		for clSN := wmRange.(watermarkRange).oldWM; clSN < wmRange.(watermarkRange).newWM; clSN++ {
-			if GetBucketNr(clID.(int32), clSN) == b.id {
+			reqID := int64(clID.(int32))<<32 + int64(clSN)
+			if b.reqIndex[reqID] == nil {
+				continue
+			}
+			if GetBucketNr(clID.(int32), clSN, b.reqIndex[reqID].Msg.RequestId.SenderId) == b.id {
 
-				reqID := int64(clID.(int32))<<32 + int64(clSN)
 				delete(b.reqIndex, reqID)
 			}
 		}

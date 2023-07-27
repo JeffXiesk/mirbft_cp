@@ -40,11 +40,13 @@ for num in experiment_num:
     req_finished={}
     req_receive={}
     req_commit={}
+    req_delivered={}
     resp_send={}
     resp_receive={}
 
     req_receive_raw={}
     req_commit_raw={}
+    req_delivered_raw={}
     resp_send_raw={}
     resp_receive_raw={}
 
@@ -77,6 +79,14 @@ for num in experiment_num:
             else:
                 req_commit_raw[row[2]][row[3]].append(row[0])  
 
+        if row[1]=='REQ_DELIVERED':
+            if row[2] not in req_delivered_raw:
+                req_delivered_raw[row[2]] = {}        
+            if row[3] not in req_delivered_raw[row[2]]:
+                req_delivered_raw[row[2]][row[3]] = [row[0]]
+            else:
+                req_delivered_raw[row[2]][row[3]].append(row[0])  
+
         if row[1]=='RESP_SEND':
             if row[2] not in resp_send_raw:
                 resp_send_raw[row[2]] = {}
@@ -106,6 +116,13 @@ for num in experiment_num:
         for key2 in req_receive_raw[key1]:
             req_receive[key1][key2] = np.median(np.array(req_receive_raw[key1][key2]))
             # req_receive[key1][key2] = np.mean(np.array(req_receive_raw[key1][key2]))
+
+    for key1 in req_delivered_raw:
+        if key1 not in req_delivered:
+            req_delivered[key1] = {}
+        for key2 in req_delivered_raw[key1]:
+            req_delivered[key1][key2] = np.median(np.array(req_delivered_raw[key1][key2]))
+            # req_delivered[key1][key2] = np.mean(np.array(req_delivered_raw[key1][key2]))
 
     for key1 in req_commit_raw:
         if key1 not in req_commit:
@@ -150,6 +167,7 @@ for num in experiment_num:
                                        'REQ_RECEIVE':req_receive[key1][key2]-req_send[key1][key2], 
                                        'REQ_PROPOSE':req_propose[key1][key2]-req_receive[key1][key2], 
                                        'REQ_COMMIT':req_commit[key1][key2]-req_propose[key1][key2], 
+                                       'REQ_DELIVERED':req_delivered[key1][key2]-req_commit[key1][key2], 
                                        'RESP_SEND':resp_send[key1][key2]-req_commit[key1][key2], 
                                        'RESP_RECEIVE':resp_receive[key1][key2]-resp_send[key1][key2], 
                                        'REQ_FINISHED':req_finished[key1][key2]-resp_receive[key1][key2]}
@@ -161,6 +179,7 @@ for num in experiment_num:
     req_receive_list=[]
     req_propose_list=[]
     req_commit_list=[]
+    req_delivered_list=[]
     resp_send_list=[]
     resp_receive_list=[]
     req_finished_list=[]
@@ -171,6 +190,7 @@ for num in experiment_num:
         req_propose_list.append(req_info_raw[i]['REQ_PROPOSE'])
         req_receive_list.append(req_info_raw[i]['REQ_RECEIVE'])
         req_commit_list.append(req_info_raw[i]['REQ_COMMIT'])
+        req_delivered_list.append(req_info_raw[i]['REQ_DELIVERED'])
         resp_send_list.append(req_info_raw[i]['RESP_SEND'])
         resp_receive_list.append(req_info_raw[i]['RESP_RECEIVE'])
         req_finished_list.append(req_info_raw[i]['REQ_FINISHED'])
@@ -179,6 +199,7 @@ for num in experiment_num:
               'REQ_RECEIVE':np.array(req_receive_list).mean(), 
               'REQ_PROPOSE':np.array(req_propose_list).mean(), 
               'REQ_COMMIT':np.array(req_commit_list).mean(), 
+              'REQ_DELIVERED':np.array(req_delivered_list).mean(), 
               'RESP_SEND':np.array(resp_send_list).mean(), 
               'RESP_RECEIVE':np.array(resp_receive_list).mean(), 
               'REQ_FINISHED':np.array(req_finished_list).mean()}
