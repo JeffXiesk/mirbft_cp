@@ -38,19 +38,19 @@ faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 da
 
 # number of client instances per node for 1/16/32 client machines
 clients1=""    # deploys 1 client machine which run the specified number of client instances
-clients16="2"    # deploys 16 client machine which run the specified number of client instances
+clients16="4"    # deploys 16 client machine which run the specified number of client instances
 clients32=""    # deploys 32 client machine which run the specified number of client instances
-totalClients="32"    # uses for loading transactions from database data source
+totalClients="64"    # uses for loading transactions from database data source
 
 # Pre-compute (and sign, if applicable) all requests at a client before starting to submit.
 # RequestsPerClient must not be zero if PrecomputeRequests is true.
 PrecomputeRequests=true
 
-systemSizes="16" # Must be sorted in ascending order!
+systemSizes="64" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
 
-StragglerCnt=(0) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 privKeyNumEachPeer=(5) # Using as buffer for lagged instance
 UseSig=(false)
 
@@ -106,8 +106,8 @@ singleLeaderEpoch=$minEpochLength
 # Parameters to tune:
 batchsizes="4096"           # [requests]
 batchrates="32"             # [batches/s]
-minBatchTimeout="2000"      # [ms]
-maxBatchTimeout="4000"      # [ms]
+minBatchTimeout="8000"      # [ms]
+maxBatchTimeout="10000"      # [ms]
 segmentLengths="16"         # [entries]
 viewChangeTimeouts="60000"  # [ms]
 nodeToLeaderRatios="1"      # How many nodes are initally leaders, set to 1 to have initially all nodes in the leaderset
@@ -126,10 +126,10 @@ function skip() {
 throughputsAuthPbft=$()
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288"
 throughputsAuthPbft[4]="16384 32768 50000"
-throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
-throughputsAuthPbft[16]="20000"
-throughputsAuthPbft[32]=""
-throughputsAuthPbft[64]=""
+throughputsAuthPbft[8]="30000"
+throughputsAuthPbft[16]="35000 40000"
+throughputsAuthPbft[32]="35000 40000"
+throughputsAuthPbft[64]="35000 40000 45000"
 throughputsAuthPbft[128]=""
 throughputsNoAuthPbft=$()
 throughputsNoAuthPbft[4]="512"
