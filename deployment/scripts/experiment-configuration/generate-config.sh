@@ -46,7 +46,7 @@ totalClients="64"    # uses for loading transactions from database data source
 # RequestsPerClient must not be zero if PrecomputeRequests is true.
 PrecomputeRequests=true
 
-systemSizes="64" # Must be sorted in ascending order!
+systemSizes="8" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
 
@@ -106,7 +106,7 @@ singleLeaderEpoch=$minEpochLength
 # Parameters to tune:
 batchsizes="4096"           # [requests]
 batchrates="32"             # [batches/s]
-minBatchTimeout="8000"      # [ms]
+minBatchTimeout="1000"      # [ms]
 maxBatchTimeout="10000"      # [ms]
 segmentLengths="16"         # [entries]
 viewChangeTimeouts="60000"  # [ms]
@@ -126,10 +126,10 @@ function skip() {
 throughputsAuthPbft=$()
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288"
 throughputsAuthPbft[4]="16384 32768 50000"
-throughputsAuthPbft[8]="40000 45000"
-throughputsAuthPbft[16]="35000 40000"
-throughputsAuthPbft[32]="35000 40000"
-throughputsAuthPbft[64]="40000 45000"
+throughputsAuthPbft[8]="30000 35000 40000 45000"
+throughputsAuthPbft[16]="30000 35000 40000 45000"
+throughputsAuthPbft[32]="30000 35000 40000 45000"
+throughputsAuthPbft[64]="30000 35000 40000 45000"
 throughputsAuthPbft[128]=""
 throughputsNoAuthPbft=$()
 throughputsNoAuthPbft[4]="512"

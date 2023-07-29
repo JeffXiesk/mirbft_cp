@@ -94,7 +94,7 @@ while [ -n "$1" ]; do
     analyze "$1"
 
     if $deleteRawData; then
-      rm -r ${dir:?}/slave-*/ 
+      rm -r ${dir:?}/slave-*/ ${dir:?}/$dbfile
     fi
   fi
 

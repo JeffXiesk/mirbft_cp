@@ -46,7 +46,7 @@ totalClients="64"    # uses for loading transactions from database data source
 # RequestsPerClient must not be zero if PrecomputeRequests is true.
 PrecomputeRequests=true
 
-systemSizes="16" # Must be sorted in ascending order!
+systemSizes="64" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 
 
@@ -106,7 +106,7 @@ singleLeaderEpoch=$minEpochLength
 # Parameters to tune:
 batchsizes="4096"           # [requests]
 batchrates="32"             # [batches/s]
-minBatchTimeout="2000"      # [ms]
+minBatchTimeout="8000"      # [ms]
 maxBatchTimeout="10000"      # [ms]
 segmentLengths="16"         # [entries]
 viewChangeTimeouts="60000"  # [ms]
