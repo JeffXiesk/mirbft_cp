@@ -15,20 +15,28 @@
 package profiling
 
 import (
+	"bufio"
 	"math"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	linuxproc "github.com/c9s/goprocinfo/linux"
-	logger "github.com/rs/zerolog/log"
+	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	logger "github.com/rs/zerolog/log"
 )
 
 func StartCPUTracing(trace tracing.Trace, interval time.Duration) {
 	// TODO: Implement a graceful shutdown
 	go func() {
 		for {
-			usage := GetCPUUsage([]string{"Load", "System"}, interval)
-			trace.Event(tracing.CPU_USAGE, int64(math.Round(float64(usage[0]*100))), int64(math.Round(float64(usage[1])*100)))
+			// usage := GetCPUUsage([]string{"Load", "System"}, interval)
+			// trace.Event(tracing.CPU_USAGE, int64(math.Round(float64(usage[0]*100))), int64(math.Round(float64(usage[1])*100)))
+			CPUUsage, bandwidthUsage := GetTotalCPUAndBandwidthUsage(config.Config.NetworkInterface, interval)
+			// bandwidthUsage := GetAverageBandwidthUsage("enp5s0", interval)
+			trace.Event(tracing.CPU_USAGE, int64(math.Round(float64(CPUUsage))), int64(math.Round(float64(bandwidthUsage))))
 		}
 	}()
 }
@@ -105,6 +113,56 @@ func GetCPUUsage(fields []string, window time.Duration) []float32 {
 	return result
 }
 
+func GetTotalCPUAndBandwidthUsage(iface string, window time.Duration) (float64, float64) {
+	// Get initial CPU stats
+	stat, err := linuxproc.ReadStat("/proc/stat")
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Could not read statistics.")
+	}
+	oldCPUStats := stat.CPUStats
+
+	initialRx, initialTx := readNetworkStats(iface)
+
+	// Wait for given time window
+	time.Sleep(window)
+
+	// Get new CPU stats
+	stat, err = linuxproc.ReadStat("/proc/stat")
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Could not read statistics.")
+	}
+	newCPUStats := stat.CPUStats
+
+	// Calculate total CPU usage across all cores
+	var CPUUsage float64 = 0
+	for i := range oldCPUStats {
+		diff := diffCPUStat(newCPUStats[i], oldCPUStats[i])
+		total := sumCPUStat(diff)
+		idle := float64(diff.Idle)
+
+		if total == 0 {
+			continue
+		}
+
+		// Calculate total usage for each core and sum it up
+		CPUUsage += ((float64(total) - idle) / float64(total)) * 100
+	}
+
+	// Get new Bandwidth stats
+	finalRx, finalTx := readNetworkStats(iface)
+
+	// Calculate bytes received and transmitted during the interval
+	rxBytes := finalRx - initialRx
+	txBytes := finalTx - initialTx
+
+	totalBytes := rxBytes + txBytes
+
+	// Calculate bandwidth usage (kbytes per second)
+	bandwidthUsage := float64(totalBytes) / window.Seconds()
+
+	return CPUUsage, bandwidthUsage
+}
+
 func sumCPUStat(stat linuxproc.CPUStat) uint64 {
 	return stat.User +
 		stat.Nice +
@@ -132,4 +190,26 @@ func diffCPUStat(first linuxproc.CPUStat, second linuxproc.CPUStat) linuxproc.CP
 		Guest:     first.Guest - second.Guest,
 		GuestNice: first.GuestNice - second.GuestNice,
 	}
+}
+
+// readNetworkStats reads the received and transmitted bytes for a specific network interface.
+func readNetworkStats(iface string) (int64, int64) {
+	file, err := os.Open("/proc/net/dev")
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Could not open /proc/net/dev")
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, iface) {
+			fields := strings.Fields(strings.TrimSpace(line))
+			rxBytes, _ := strconv.ParseInt(fields[1], 10, 64)
+			txBytes, _ := strconv.ParseInt(fields[9], 10, 64)
+			return rxBytes, txBytes
+		}
+	}
+
+	return 0, 0
 }
