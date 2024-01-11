@@ -13,14 +13,15 @@ sudo apt-get -y install \
 	git \
 	openssl \
 	jq \
-	graphviz
+	graphviz \
+	gcc
 
 cd ~
 
 echo "Installing golang."
 
-wget https://storage.googleapis.com/golang/go1.17.2.linux-amd64.tar.gz
-tar xpzf go1.17.2.linux-amd64.tar.gz
+wget https://go.dev/dl/go1.21.6.linux-amd64.tar.gz
+tar xpzf go1.21.6.linux-amd64.tar.gz
 
 sudo mkdir -p /opt/gopath
 sudo chown -R  $user:$group /opt/gopath

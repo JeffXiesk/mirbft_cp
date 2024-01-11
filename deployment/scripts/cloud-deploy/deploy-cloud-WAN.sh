@@ -41,8 +41,8 @@ if [ "$1" = "-i" ]; then
              --count $count)
         done
 
-        echo "sleep 30 seconds"
-        sleep 30
+        echo "sleep 40 seconds"
+        sleep 40
     else
         sleep 0.1
     fi
@@ -54,17 +54,18 @@ if [ "$1" = "-i" ]; then
         aws configure set region $region
         public_ip+=$(
         aws ec2 describe-instances   \
-        --filter "Name=network-interface.status,Values=available,in-use"   \
+        --filter "Name=tag:Name,Values=Parallel-bft-instance" "Name=instance-state-name,Values=running"    \
         --query "Reservations[*].Instances[*].PublicIpAddress"   \
         --output=text)
         public_ip+=" "
         
-        private_ip+=$(
-        aws ec2 describe-instances   \
-        --filter "Name=network-interface.status,Values=available,in-use"   \
-        --query "Reservations[*].Instances[*].PrivateIpAddress"   \
-        --output=text)
-        private_ip+=" "
+        # private_ip+=$(
+        # aws ec2 describe-instances   \
+        # --filter "Name=tag:Name,Values=Parallel-bft-instance" "Name=instance-state-name,Values=running"  \
+        # --query "Reservations[*].Instances[*].PrivateIpAddress"   \
+        # --output=text)
+        # private_ip+=" "
+        private_ip=$public_ip
     done
     
     echo $public_ip
@@ -127,20 +128,20 @@ else
     echo "Not init"
 fi
 
-peer_list=($(python3 scripts/cloud-deploy/pyscript/find_peer.py))
-bandwidth_cnt=0
-bandwidth=1000mbit
-bandwidth_low=1000mbit
-if [ "$1" = "-b" ]; then
-    shift
-    # echo 'in -b'
-    bandwidth_cnt=$1
-    shift
-    bandwidth_low=$1mbit
-    shift
-fi
-echo $bandwidth_cnt  
-echo $bandwidth_low 
+# peer_list=($(python3 scripts/cloud-deploy/pyscript/find_peer.py))
+# bandwidth_cnt=0
+# bandwidth=1000mbit
+# bandwidth_low=1000mbit
+# if [ "$1" = "-b" ]; then
+#     shift
+#     # echo 'in -b'
+#     bandwidth_cnt=$1
+#     shift
+#     bandwidth_low=$1mbit
+#     shift
+# fi
+# echo $bandwidth_cnt  
+# echo $bandwidth_low 
 
 # echo 'setting bandwidth'
 # for peer in "${peer_list[@]}"
@@ -148,15 +149,15 @@ echo $bandwidth_low
 #     ssh $ssh_options_cloud root@$peer "tc qdisc del dev ens5 root; tc qdisc add dev ens5 root tbf rate $bandwidth burst 320kbit latency 100ms" &
 #     echo "$peer $bandwidth"
 # done
-wait
+# wait
 
-for ((c=0;c<$bandwidth_cnt;c++))
-do
-    ssh $ssh_options_cloud root@${peer_list[c]} "tc qdisc del dev ens5 root; tc qdisc add dev ens5 root tbf rate $bandwidth_low burst 320kbit latency 100ms" &
-    echo "${peer_list[c]} $bandwidth_low"
-    # Limiting the Egress Traffic
-done
-wait
+# for ((c=0;c<$bandwidth_cnt;c++))
+# do
+#     ssh $ssh_options_cloud root@${peer_list[c]} "tc qdisc del dev ens5 root; tc qdisc add dev ens5 root tbf rate $bandwidth_low burst 320kbit latency 100ms" &
+#     echo "${peer_list[c]} $bandwidth_low"
+#     # Limiting the Egress Traffic
+# done
+# wait
 
 
 if [ "$1" = "-d" ]; then
@@ -191,7 +192,11 @@ if [ "$1" = "-sd" ]; then
     shift
     for i in "${region_list[@]}" ; do
         aws configure set region $i
-        aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
+        aws ec2 terminate-instances --instance-ids \
+        $(aws ec2 describe-instances \
+        --filters "Name=tag:Name,Values=Parallel-bft-instance" "Name=instance-state-name,Values=running" \
+        --query "Reservations[].Instances[].InstanceId" \
+        --output text)
         # scripts/cloud-deploy/shutdown_instances.sh
     done
 fi
@@ -200,7 +205,11 @@ if [ "$1" = "-st" ]; then
     shift
     for i in "${region_list[@]}" ; do
         aws configure set region $i
-        aws ec2 stop-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
+        aws ec2 stop-instances --instance-ids \
+        $(aws ec2 describe-instances \
+        --filters "Name=tag:Name,Values=Parallel-bft-instance" "Name=instance-state-name,Values=running" \
+        --query "Reservations[].Instances[].InstanceId" \
+        --output text)
         # scripts/cloud-deploy/shutdown_instances.sh
     done
 fi
