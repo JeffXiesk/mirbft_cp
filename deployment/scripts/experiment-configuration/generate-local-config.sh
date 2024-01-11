@@ -100,8 +100,9 @@ singleLeaderEpoch=$minEpochLength
 
 # Parameters to tune:
 batchsizes="2048"           # [requests]
-batchrates="32"             # [batches/s]
-minBatchTimeout="1000"      # [ms]
+batchrates="8"             # [batches/s]
+# minBatchTimeout=$(($systemSizes * 1000 / $batchrates))  # [ms]
+minBatchTimeout=$(($systemSizes * 1000 / $batchrates))  # [ms]
 maxBatchTimeout="4000"      # [ms]
 segmentLengths="16"         # [entries]
 viewChangeTimeouts="60000"  # [ms]
@@ -120,7 +121,7 @@ function skip() {
 
 throughputsAuthPbft=$()
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288"
-throughputsAuthPbft[4]="2048"
+throughputsAuthPbft[4]="128"
 throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
 throughputsAuthPbft[16]="128 256 512 1024 2048 4096"
 throughputsAuthPbft[32]=""

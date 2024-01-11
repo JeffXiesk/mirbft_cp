@@ -65,3 +65,7 @@ go get -u gopkg.in/yaml.v2
 
 echo "Installing the concurrent-map for Go"
 go get -u github.com/orcaman/concurrent-map
+
+echo "Installing bls"
+go get -u github.com/herumi/bls-eth-go-binary/bls
+cd $GOPATH/src/github.com/herumi/bls-eth-go-binary && make -j4

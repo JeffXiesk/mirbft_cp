@@ -41,8 +41,8 @@ if [ "$1" = "-i" ]; then
              --count $count)
         done
 
-        echo "sleep 30 seconds"
-        sleep 60
+        echo "sleep 40 seconds"
+        sleep 40
     else
         sleep 0.1
     fi
@@ -59,12 +59,13 @@ if [ "$1" = "-i" ]; then
         --output=text)
         public_ip+=" "
         
-        private_ip+=$(
-        aws ec2 describe-instances   \
-        --filter "Name=network-interface.status,Values=available,in-use"   \
-        --query "Reservations[*].Instances[*].PrivateIpAddress"   \
-        --output=text)
-        private_ip+=" "
+        # private_ip+=$(
+        # aws ec2 describe-instances   \
+        # --filter "Name=network-interface.status,Values=available,in-use"   \
+        # --query "Reservations[*].Instances[*].PrivateIpAddress"   \
+        # --output=text)
+        # private_ip+=" "
+        private_ip=$public_ip
     done
     
     echo $public_ip
@@ -207,7 +208,11 @@ if [ "$1" = "-sd" ]; then
     shift
     for i in "${region_list[@]}" ; do
         aws configure set region $i
-        aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
+        aws ec2 terminate-instances --instance-ids \
+        $(aws ec2 describe-instances \
+        --filters "Name=tag:Name,Values=Parallel-bft-instance" "Name=instance-state-name,Values=running" \
+        --query "Reservations[].Instances[].InstanceId" \
+        --output text)
         # scripts/cloud-deploy/shutdown_instances.sh
     done
 fi
@@ -216,7 +221,11 @@ if [ "$1" = "-st" ]; then
     shift
     for i in "${region_list[@]}" ; do
         aws configure set region $i
-        aws ec2 stop-instances --instance-ids $(aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text)
+        aws ec2 stop-instances --instance-ids \
+        $(aws ec2 describe-instances \
+        --filters "Name=tag:Name,Values=Parallel-bft-instance" "Name=instance-state-name,Values=running" \
+        --query "Reservations[].Instances[].InstanceId" \
+        --output text)
         # scripts/cloud-deploy/shutdown_instances.sh
     done
 fi
