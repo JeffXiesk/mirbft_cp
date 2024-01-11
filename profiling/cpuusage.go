@@ -23,6 +23,7 @@ import (
 	"time"
 
 	linuxproc "github.com/c9s/goprocinfo/linux"
+	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/tracing"
 	logger "github.com/rs/zerolog/log"
 )
@@ -33,7 +34,7 @@ func StartCPUTracing(trace tracing.Trace, interval time.Duration) {
 		for {
 			// usage := GetCPUUsage([]string{"Load", "System"}, interval)
 			// trace.Event(tracing.CPU_USAGE, int64(math.Round(float64(usage[0]*100))), int64(math.Round(float64(usage[1])*100)))
-			CPUUsage, bandwidthUsage := GetTotalCPUAndBandwidthUsage("lo", interval)
+			CPUUsage, bandwidthUsage := GetTotalCPUAndBandwidthUsage(config.Config.NetworkInterface, interval)
 			// bandwidthUsage := GetAverageBandwidthUsage("enp5s0", interval)
 			trace.Event(tracing.CPU_USAGE, int64(math.Round(float64(CPUUsage))), int64(math.Round(float64(bandwidthUsage))))
 		}
