@@ -47,7 +47,7 @@ failureCounts=(0) # For each system size, the corresponding failure count (on to
 StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 privKeyNumEachPeer=(5) # Using as buffer for lagged instance
 UseSig=(false)
-
+fixBatchRate=true
 
 
 reuseFaulty=true  # If true, both correct and faulty peers will have the same tag and will be launched together, with the same config file.
@@ -70,7 +70,7 @@ throughputCap=131072000     # The system will always be proposing requests at a 
                             # Used to prevent view changes when too many batches accumulate in a bucket.
 
 # System composition
-orderers="HotStuff"             # Possible values: Pbft HotStuff Raft Dummy
+orderers="Pbft"             # Possible values: Pbft HotStuff Raft Dummy
 checkpointers="Signing"
 
 # Parameters chosen for experiments
@@ -285,8 +285,8 @@ dplLines() {
 
 
 config() {
-  cat config-file-templates/mir-modular.yml | sed "s/LOGGINGLEVEL/$loggingLevel/ ; s/ORDERER/$orderer/ ; s/CHECKPOINTER/$cpt/ ; s/FAILURES/$numFailures/ ; s/STRAGGLERCNT/$numStraggler/ ; s/PRIVKEYCNT/$numPrivKey/ ; s/USESIG/$numUseSig/ ; s/PRIORITYCONNECTIONS/$numConnections/ ; s/VIEWCHANGETIMEOUT/$viewChangeTimeout/ ; s/CRASHTIMING/$crashTiming/ ; s/LEADERPOLICY/$leaderPolicy/ ; s/EPOCH/$epoch/ ; s/SEGMENTLENGTH/$segmentLength/ ; s/WATERMARK/$watermark/ ; s/BUCKETS/$numBuckets/ ; s/BATCHSIZE/$batchsize/ ; s/PAYLOAD/$payloadSize/ ; s/BATCHTIMEOUT/$batchtimeout/ ; s/THROUGHPUTCAP/$throughputCap/ ; s/MSGBATCHPERIOD/$msgBatchPeriod/ ; s/CLIENTS/$instances/ ; s/REQUESTS/$requests/ ; s/DURATION/$((duration * 1000))/ ; s/REQUESTRATE/$rate/ ; s/HARDRATELIMIT/$hardRateLimit/ ; s/BATCHVERIFIER/$batchVerifier/ ; s/REQUESTHANDLERTHREADS/$requestHandlers/ ; s/REQUESTINPUTBUFFER/$requestBufferSize/ ; s/AUTH/$auth/ ; s/VERIFYEARLY/$verifyEarly/ ; s/RANDOMSEED/$randomNumber/ ; s/FAULTY/false/ ; s/NLR/$nlr/" > $exp_data_dir/config/config-$exp.yml
-  cat config-file-templates/mir-modular.yml | sed "s/LOGGINGLEVEL/$loggingLevel/ ; s/ORDERER/$orderer/ ; s/CHECKPOINTER/$cpt/ ; s/FAILURES/$numFailures/ ; s/STRAGGLERCNT/$numStraggler/ ; s/PRIVKEYCNT/$numPrivKey/ ; s/USESIG/$numUseSig/ ; s/PRIORITYCONNECTIONS/$numConnections/ ; s/VIEWCHANGETIMEOUT/$viewChangeTimeout/ ; s/CRASHTIMING/$crashTiming/ ; s/LEADERPOLICY/$leaderPolicy/ ; s/EPOCH/$epoch/ ; s/SEGMENTLENGTH/$segmentLength/ ; s/WATERMARK/$watermark/ ; s/BUCKETS/$numBuckets/ ; s/BATCHSIZE/$batchsize/ ; s/PAYLOAD/$payloadSize/ ; s/BATCHTIMEOUT/$batchtimeout/ ; s/THROUGHPUTCAP/$throughputCap/ ; s/MSGBATCHPERIOD/$msgBatchPeriod/ ; s/CLIENTS/$instances/ ; s/REQUESTS/$requests/ ; s/DURATION/$((duration * 1000))/ ; s/REQUESTRATE/$rate/ ; s/HARDRATELIMIT/$hardRateLimit/ ; s/BATCHVERIFIER/$batchVerifier/ ; s/REQUESTHANDLERTHREADS/$requestHandlers/ ; s/REQUESTINPUTBUFFER/$requestBufferSize/ ; s/AUTH/$auth/ ; s/VERIFYEARLY/$verifyEarly/ ; s/RANDOMSEED/$randomNumber/ ; s/FAULTY/true/ ; s/NLR/$nlr/" > $exp_data_dir/config/config-$exp-faulty.yml
+  cat config-file-templates/mir-modular.yml | sed "s/LOGGINGLEVEL/$loggingLevel/ ; s/ORDERER/$orderer/ ; s/CHECKPOINTER/$cpt/ ; s/FAILURES/$numFailures/ ; s/STRAGGLERCNT/$numStraggler/ ; s/PRIVKEYCNT/$numPrivKey/ ; s/USESIG/$numUseSig/ ; s/FIXBATCHRATE/$fixBatchRate/ ; s/PRIORITYCONNECTIONS/$numConnections/ ; s/VIEWCHANGETIMEOUT/$viewChangeTimeout/ ; s/CRASHTIMING/$crashTiming/ ; s/LEADERPOLICY/$leaderPolicy/ ; s/EPOCH/$epoch/ ; s/SEGMENTLENGTH/$segmentLength/ ; s/WATERMARK/$watermark/ ; s/BUCKETS/$numBuckets/ ; s/BATCHSIZE/$batchsize/ ; s/PAYLOAD/$payloadSize/ ; s/BATCHTIMEOUT/$batchtimeout/ ; s/THROUGHPUTCAP/$throughputCap/ ; s/MSGBATCHPERIOD/$msgBatchPeriod/ ; s/CLIENTS/$instances/ ; s/REQUESTS/$requests/ ; s/DURATION/$((duration * 1000))/ ; s/REQUESTRATE/$rate/ ; s/HARDRATELIMIT/$hardRateLimit/ ; s/BATCHVERIFIER/$batchVerifier/ ; s/REQUESTHANDLERTHREADS/$requestHandlers/ ; s/REQUESTINPUTBUFFER/$requestBufferSize/ ; s/AUTH/$auth/ ; s/VERIFYEARLY/$verifyEarly/ ; s/RANDOMSEED/$randomNumber/ ; s/FAULTY/false/ ; s/NLR/$nlr/" > $exp_data_dir/config/config-$exp.yml
+  cat config-file-templates/mir-modular.yml | sed "s/LOGGINGLEVEL/$loggingLevel/ ; s/ORDERER/$orderer/ ; s/CHECKPOINTER/$cpt/ ; s/FAILURES/$numFailures/ ; s/STRAGGLERCNT/$numStraggler/ ; s/PRIVKEYCNT/$numPrivKey/ ; s/USESIG/$numUseSig/ ; s/FIXBATCHRATE/$fixBatchRate/ ; s/PRIORITYCONNECTIONS/$numConnections/ ; s/VIEWCHANGETIMEOUT/$viewChangeTimeout/ ; s/CRASHTIMING/$crashTiming/ ; s/LEADERPOLICY/$leaderPolicy/ ; s/EPOCH/$epoch/ ; s/SEGMENTLENGTH/$segmentLength/ ; s/WATERMARK/$watermark/ ; s/BUCKETS/$numBuckets/ ; s/BATCHSIZE/$batchsize/ ; s/PAYLOAD/$payloadSize/ ; s/BATCHTIMEOUT/$batchtimeout/ ; s/THROUGHPUTCAP/$throughputCap/ ; s/MSGBATCHPERIOD/$msgBatchPeriod/ ; s/CLIENTS/$instances/ ; s/REQUESTS/$requests/ ; s/DURATION/$((duration * 1000))/ ; s/REQUESTRATE/$rate/ ; s/HARDRATELIMIT/$hardRateLimit/ ; s/BATCHVERIFIER/$batchVerifier/ ; s/REQUESTHANDLERTHREADS/$requestHandlers/ ; s/REQUESTINPUTBUFFER/$requestBufferSize/ ; s/AUTH/$auth/ ; s/VERIFYEARLY/$verifyEarly/ ; s/RANDOMSEED/$randomNumber/ ; s/FAULTY/true/ ; s/NLR/$nlr/" > $exp_data_dir/config/config-$exp-faulty.yml
 }
 
 csvLine() {

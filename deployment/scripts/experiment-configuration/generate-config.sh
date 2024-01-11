@@ -37,13 +37,18 @@ machineLocations="fra05"
 faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 dal10 fra05 mil01 mex01 tor01 tor04 seo01"
 
 # number of client instances per node for 1/16/32 client machines
-clients1=""    # deploys 1 client machine which run the specified number of client instances
+clients1="1"    # deploys 1 client machine which run the specified number of client instances
 clients16=""    # deploys 16 client machine which run the specified number of client instances
-clients32="8"    # deploys 32 client machine which run the specified number of client instances
-systemSizes="16" # Must be sorted in ascending order!
-failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
+clients32=""    # deploys 32 client machine which run the specified number of client instances
+systemSizes="4" # Must be sorted in ascending order!
+failureCounts=(1) # For each system size, the corresponding failure count (on top of the correct nodes)
+
 
 StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+privKeyNumEachPeer=(5) # Using as buffer for lagged instance
+UseSig=(false)
+fixBatchRate=true
+
 
 reuseFaulty=true  # If true, both correct and faulty peers will have the same tag and will be launched together, with the same config file.
                   # The failure count is only expressed as a parameter in (every peer's) config file, and even the faulty peers will see
@@ -51,7 +56,7 @@ reuseFaulty=true  # If true, both correct and faulty peers will have the same ta
                   # the RandomSeed field).
 
 # Low-level system parameters
-loggingLevel="info"
+loggingLevel="debug"
 peerTag="peers"
 faultyPeerTag="faultyPeers"
 minConcurrentRequests=$((256 * 16384)) # Based on empirical data. At saturation, makes the throughput-latency plot nicely go up (as it is equivalent to may concurrent clients).
@@ -65,7 +70,7 @@ throughputCap=131072000     # The system will always be proposing requests at a 
                             # Used to prevent view changes when too many batches accumulate in a bucket.
 
 # System composition
-orderers="HotStuff"             # Possible values: Pbft HotStuff Raft Dummy
+orderers="Pbft"             # Possible values: Pbft HotStuff Raft Dummy
 checkpointers="Signing"
 
 # Parameters chosen for experiments
@@ -76,7 +81,7 @@ fixedEpochLength=false
 auths="true"
 bucketsPerLeader="16"
 minBuckets="16"
-minEpochLength="512"       # [entries]
+minEpochLength="64"       # [entries]
 nodeConnections="1"
 minConnections="16"
 leaderPolicies="Simple"  # Possible values:
@@ -93,10 +98,10 @@ crashTimings="Straggler" # Possible values:
 singleLeaderEpoch=$minEpochLength
 
 # Parameters to tune:
-batchsizes="4096"           # [requests]
+batchsizes="2048"           # [requests]
 batchrates="32"             # [batches/s]
-minBatchTimeout="2000"      # [ms]
-maxBatchTimeout="10000"      # [ms]
+minBatchTimeout="1000"      # [ms]
+maxBatchTimeout="4000"      # [ms]
 segmentLengths="16"         # [entries]
 viewChangeTimeouts="60000"  # [ms]
 nodeToLeaderRatios="1"      # How many nodes are initally leaders, set to 1 to have initially all nodes in the leaderset
@@ -113,16 +118,12 @@ function skip() {
 }
 
 throughputsAuthPbft=$()
-# throughputsAuthPbft[4]="10240 12288 14336 16384"
-# throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288 24576 32768 40960 49152"
-throughputsAuthPbft[4]="50000"
-throughputsAuthPbft[8]="30000 35000"
-throughputsAuthPbft[16]="30000 35000"
-# throughputsAuthPbft[16]="5000 5000 5000 5000 5000 10000 10000 10000 10000 10000 15000 15000 15000 15000 15000 20000 20000 20000 20000 20000"
-# throughputsAuthPbft[16]=" 25000 25000 25000 25000 25000 30000 30000 30000 30000 30000 35000 35000 35000 35000 35000 65000 65000 65000 65000 65000 70000 70000 70000 70000 70000"
-# throughputsAuthPbft[32]="1024 2048 4096 8192 16384 32768 65536 98304 131072"
-throughputsAuthPbft[32]="30000 35000"
-throughputsAuthPbft[64]="30000 35000"
+# throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288"
+throughputsAuthPbft[4]="128"
+throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
+throughputsAuthPbft[16]="128 256 512 1024 2048 4096"
+throughputsAuthPbft[32]=""
+throughputsAuthPbft[64]=""
 throughputsAuthPbft[128]=""
 throughputsNoAuthPbft=$()
 throughputsNoAuthPbft[4]="256"
@@ -147,16 +148,16 @@ throughputsNoAuthSinglePbft[64]=""
 throughputsNoAuthSinglePbft[128]=""
 
 throughputsAuthHotStuff=$()
-throughputsAuthHotStuff[4]="30000 35000 40000"
-throughputsAuthHotStuff[8]="20000 30000"
-throughputsAuthHotStuff[16]="30000 35000"
-throughputsAuthHotStuff[32]="20000 30000"
-throughputsAuthHotStuff[64]="30000 35000 40000"
+throughputsAuthHotStuff[4]="1024 2048"
+throughputsAuthHotStuff[8]=""
+throughputsAuthHotStuff[16]=""
+throughputsAuthHotStuff[32]=""
+throughputsAuthHotStuff[64]=""
 throughputsAuthHotStuff[128]=""
 throughputsNoAuthHotStuff=$()
-throughputsNoAuthHotStuff[4]="128"
+throughputsNoAuthHotStuff[4]="1024 2048"
 throughputsNoAuthHotStuff[8]=""
-throughputsNoAuthHotStuff[16]="45000 50000"
+throughputsNoAuthHotStuff[16]=""
 throughputsNoAuthHotStuff[32]=""
 throughputsNoAuthHotStuff[64]=""
 throughputsNoAuthHotStuff[128]=""
@@ -274,7 +275,7 @@ clientWatermarks() {
 }
 
 dplLines() {
-    echo "# $exp,$numPeers,$numFailures,$numStraggler,$viewChangeTimeout,$numLocations,$bandwidth,$numConnections,$orderer,$cpt,$machines,$instances,$totalclients,$segmentLength,$leaderPolicy,$epoch,$batchsize,$batchtimeout,$batchrate,$msgBatchPeriod,$numBuckets,$leaderBuckets,$auth,$verifyEarly,$throughputCap,$thr,$rate,$hardRateLimit,$requests,$watermark,$batchVerifier,$requestHandlers,$requestBufferSize" >> $deployment_file
+    echo "# $exp,$numPeers,$numFailures,$numStraggler,$numPrivKey,$numUseSig,$viewChangeTimeout,$numLocations,$bandwidth,$numConnections,$orderer,$cpt,$machines,$instances,$totalclients,$segmentLength,$leaderPolicy,$epoch,$batchsize,$batchtimeout,$batchrate,$msgBatchPeriod,$numBuckets,$leaderBuckets,$auth,$verifyEarly,$throughputCap,$thr,$rate,$hardRateLimit,$requests,$watermark,$batchVerifier,$requestHandlers,$requestBufferSize" >> $deployment_file
     echo -n "run $exp config: config-$exp.yml   peers: $peerTag   clients: $clientTags" >> $deployment_file
     if [ $numFailures -gt 0 ] && ! $reuseFaulty; then
       echo -n " config: config-$exp-faulty.yml   peers: $faultyPeerTag" >> $deployment_file # Space at the start is crucial.
@@ -284,12 +285,12 @@ dplLines() {
 
 
 config() {
-  cat config-file-templates/mir-modular.yml | sed "s/LOGGINGLEVEL/$loggingLevel/ ; s/ORDERER/$orderer/ ; s/CHECKPOINTER/$cpt/ ; s/FAILURES/$numFailures/ ; s/STRAGGLERCNT/$numStraggler/ ; s/PRIORITYCONNECTIONS/$numConnections/ ; s/VIEWCHANGETIMEOUT/$viewChangeTimeout/ ; s/CRASHTIMING/$crashTiming/ ; s/LEADERPOLICY/$leaderPolicy/ ; s/EPOCH/$epoch/ ; s/SEGMENTLENGTH/$segmentLength/ ; s/WATERMARK/$watermark/ ; s/BUCKETS/$numBuckets/ ; s/BATCHSIZE/$batchsize/ ; s/PAYLOAD/$payloadSize/ ; s/BATCHTIMEOUT/$batchtimeout/ ; s/THROUGHPUTCAP/$throughputCap/ ; s/MSGBATCHPERIOD/$msgBatchPeriod/ ; s/CLIENTS/$instances/ ; s/REQUESTS/$requests/ ; s/DURATION/$((duration * 1000))/ ; s/REQUESTRATE/$rate/ ; s/HARDRATELIMIT/$hardRateLimit/ ; s/BATCHVERIFIER/$batchVerifier/ ; s/REQUESTHANDLERTHREADS/$requestHandlers/ ; s/REQUESTINPUTBUFFER/$requestBufferSize/ ; s/AUTH/$auth/ ; s/VERIFYEARLY/$verifyEarly/ ; s/RANDOMSEED/$randomNumber/ ; s/FAULTY/false/ ; s/NLR/$nlr/" > $exp_data_dir/config/config-$exp.yml
-  cat config-file-templates/mir-modular.yml | sed "s/LOGGINGLEVEL/$loggingLevel/ ; s/ORDERER/$orderer/ ; s/CHECKPOINTER/$cpt/ ; s/FAILURES/$numFailures/ ; s/STRAGGLERCNT/$numStraggler/ ; s/PRIORITYCONNECTIONS/$numConnections/ ; s/VIEWCHANGETIMEOUT/$viewChangeTimeout/ ; s/CRASHTIMING/$crashTiming/ ; s/LEADERPOLICY/$leaderPolicy/ ; s/EPOCH/$epoch/ ; s/SEGMENTLENGTH/$segmentLength/ ; s/WATERMARK/$watermark/ ; s/BUCKETS/$numBuckets/ ; s/BATCHSIZE/$batchsize/ ; s/PAYLOAD/$payloadSize/ ; s/BATCHTIMEOUT/$batchtimeout/ ; s/THROUGHPUTCAP/$throughputCap/ ; s/MSGBATCHPERIOD/$msgBatchPeriod/ ; s/CLIENTS/$instances/ ; s/REQUESTS/$requests/ ; s/DURATION/$((duration * 1000))/ ; s/REQUESTRATE/$rate/ ; s/HARDRATELIMIT/$hardRateLimit/ ; s/BATCHVERIFIER/$batchVerifier/ ; s/REQUESTHANDLERTHREADS/$requestHandlers/ ; s/REQUESTINPUTBUFFER/$requestBufferSize/ ; s/AUTH/$auth/ ; s/VERIFYEARLY/$verifyEarly/ ; s/RANDOMSEED/$randomNumber/ ; s/FAULTY/true/ ; s/NLR/$nlr/" > $exp_data_dir/config/config-$exp-faulty.yml
+  cat config-file-templates/mir-modular.yml | sed "s/LOGGINGLEVEL/$loggingLevel/ ; s/ORDERER/$orderer/ ; s/CHECKPOINTER/$cpt/ ; s/FAILURES/$numFailures/ ; s/STRAGGLERCNT/$numStraggler/ ; s/PRIVKEYCNT/$numPrivKey/ ; s/USESIG/$numUseSig/ ; s/FIXBATCHRATE/$fixBatchRate/ ; s/PRIORITYCONNECTIONS/$numConnections/ ; s/VIEWCHANGETIMEOUT/$viewChangeTimeout/ ; s/CRASHTIMING/$crashTiming/ ; s/LEADERPOLICY/$leaderPolicy/ ; s/EPOCH/$epoch/ ; s/SEGMENTLENGTH/$segmentLength/ ; s/WATERMARK/$watermark/ ; s/BUCKETS/$numBuckets/ ; s/BATCHSIZE/$batchsize/ ; s/PAYLOAD/$payloadSize/ ; s/BATCHTIMEOUT/$batchtimeout/ ; s/THROUGHPUTCAP/$throughputCap/ ; s/MSGBATCHPERIOD/$msgBatchPeriod/ ; s/CLIENTS/$instances/ ; s/REQUESTS/$requests/ ; s/DURATION/$((duration * 1000))/ ; s/REQUESTRATE/$rate/ ; s/HARDRATELIMIT/$hardRateLimit/ ; s/BATCHVERIFIER/$batchVerifier/ ; s/REQUESTHANDLERTHREADS/$requestHandlers/ ; s/REQUESTINPUTBUFFER/$requestBufferSize/ ; s/AUTH/$auth/ ; s/VERIFYEARLY/$verifyEarly/ ; s/RANDOMSEED/$randomNumber/ ; s/FAULTY/false/ ; s/NLR/$nlr/" > $exp_data_dir/config/config-$exp.yml
+  cat config-file-templates/mir-modular.yml | sed "s/LOGGINGLEVEL/$loggingLevel/ ; s/ORDERER/$orderer/ ; s/CHECKPOINTER/$cpt/ ; s/FAILURES/$numFailures/ ; s/STRAGGLERCNT/$numStraggler/ ; s/PRIVKEYCNT/$numPrivKey/ ; s/USESIG/$numUseSig/ ; s/FIXBATCHRATE/$fixBatchRate/ ; s/PRIORITYCONNECTIONS/$numConnections/ ; s/VIEWCHANGETIMEOUT/$viewChangeTimeout/ ; s/CRASHTIMING/$crashTiming/ ; s/LEADERPOLICY/$leaderPolicy/ ; s/EPOCH/$epoch/ ; s/SEGMENTLENGTH/$segmentLength/ ; s/WATERMARK/$watermark/ ; s/BUCKETS/$numBuckets/ ; s/BATCHSIZE/$batchsize/ ; s/PAYLOAD/$payloadSize/ ; s/BATCHTIMEOUT/$batchtimeout/ ; s/THROUGHPUTCAP/$throughputCap/ ; s/MSGBATCHPERIOD/$msgBatchPeriod/ ; s/CLIENTS/$instances/ ; s/REQUESTS/$requests/ ; s/DURATION/$((duration * 1000))/ ; s/REQUESTRATE/$rate/ ; s/HARDRATELIMIT/$hardRateLimit/ ; s/BATCHVERIFIER/$batchVerifier/ ; s/REQUESTHANDLERTHREADS/$requestHandlers/ ; s/REQUESTINPUTBUFFER/$requestBufferSize/ ; s/AUTH/$auth/ ; s/VERIFYEARLY/$verifyEarly/ ; s/RANDOMSEED/$randomNumber/ ; s/FAULTY/true/ ; s/NLR/$nlr/" > $exp_data_dir/config/config-$exp-faulty.yml
 }
 
 csvLine() {
-    echo "$exp,$numPeers,$nlr,$numFailures,$numStraggler,$crashTiming,$viewChangeTimeout,$numLocations,$bandwidth,$numConnections,$orderer,$machines,$instances,$totalclients,$segmentLength,$leaderPolicy,$epoch,$batchsize,$batchtimeout,$batchrate,$msgBatchPeriod,$numBuckets,$leaderBuckets,$auth,$verifyEarly,$throughputCap,$thr,$rate,$hardRateLimit,$requests,$watermark,$batchVerifier,$requestHandlers,$requestBufferSize" >> $csv_file
+    echo "$exp,$numPeers,$nlr,$numFailures,$numStraggler,$numPrivKey,$numUseSig,$crashTiming,$viewChangeTimeout,$numLocations,$bandwidth,$numConnections,$orderer,$machines,$instances,$totalclients,$segmentLength,$leaderPolicy,$epoch,$batchsize,$batchtimeout,$batchrate,$msgBatchPeriod,$numBuckets,$leaderBuckets,$auth,$verifyEarly,$throughputCap,$thr,$rate,$hardRateLimit,$requests,$watermark,$batchVerifier,$requestHandlers,$requestBufferSize" >> $csv_file
 }
 
 generate() {
@@ -584,8 +585,8 @@ fi
 
 
 # Generate CSV file header.
-echo "exp,peers,nlr,failures,StrgglerCnt,crash-timing,vctimeout,datacenters,bandwidth,num-connections,orderer,clients,instances,client-threads,segment,leader-policy,epoch,batchsize,batchtimeout,batchrate,msgbatchperiod,buckets,leader-buckets,authentication,verify-early,throughput-cap,target-throughput,rate-per-client,hard-rate-limit,requests,cl-watermarks,batch-verifier,request-handlers,req-buffer-size" > $csv_file
-echo -e "\n# Parameters: exp,peers,nlr,failures,StrgglerCnt,crash-timing,vctimeout,datacenters,bandwidth,num-connections,orderer,clients,instances,client-threads,leader-policy,segment,epoch,batchsize,batchtimeout,batchrate,msgbatchperiod,buckets,leader-buckets,authentication,verify-early,throughput-cap,target-throughput,rate-per-client,hard-rate-limit,requests,cl-watermarks,batch-verifier,request-handlers,req-buffer-size\n" >> $deployment_file
+echo "exp,peers,nlr,failures,numStraggler,numPrivCnt,UseSig,crash-timing,vctimeout,datacenters,bandwidth,num-connections,orderer,clients,instances,client-threads,segment,leader-policy,epoch,batchsize,batchtimeout,batchrate,msgbatchperiod,buckets,leader-buckets,authentication,verify-early,throughput-cap,target-throughput,rate-per-client,hard-rate-limit,requests,cl-watermarks,batch-verifier,request-handlers,req-buffer-size" > $csv_file
+echo -e "\n# Parameters: exp,peers,nlr,failures,numStraggler,numPrivCnt,UseSig,crash-timing,vctimeout,datacenters,bandwidth,num-connections,orderer,clients,instances,client-threads,leader-policy,segment,epoch,batchsize,batchtimeout,batchrate,msgbatchperiod,buckets,leader-buckets,authentication,verify-early,throughput-cap,target-throughput,rate-per-client,hard-rate-limit,requests,cl-watermarks,batch-verifier,request-handlers,req-buffer-size\n" >> $deployment_file
 
 deployedCorrect=0
 deployedFaulty=0
@@ -597,6 +598,10 @@ for numPeers in $systemSizes; do
   failureCounts=(${failureCounts[@]:1})
   numStraggler=${StragglerCnt[0]}
   StragglerCnt=(${StragglerCnt[@]:1})
+  numPrivKey=${privKeyNumEachPeer[0]}
+  PrivKeyCnt=(${privKeyNumEachPeer[@]:1})
+  numUseSig=(${UseSig[0]})
+  UseSig=(${UseSig[@]:1})
 
   if $reuseFaulty; then
     numPeers=$((numPeers + numFailures))
@@ -605,10 +610,12 @@ for numPeers in $systemSizes; do
   {
   echo ""
   echo "# ========================================"
-  echo "#  Peers: $numPeers"
-  echo "# Faulty: $numFailures"
-  echo "# Straggler: $numStraggler"
-  echo "#  Reuse: $reuseFaulty"
+  echo "#        Peers: $numPeers"
+  echo "#       Faulty: $numFailures"
+  echo "#    Straggler: $numStraggler"
+  echo "#   PrivKeyNum: $numPrivKey"
+  echo "# UseSignature: $numUseSig"
+  echo "#        Reuse: $reuseFaulty"
   echo "# ========================================"
 
   deployMachines $((numPeers - deployedCorrect)) $peerTag $deployedCorrect "$machineLocations"

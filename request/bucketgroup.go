@@ -19,9 +19,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	logger "github.com/rs/zerolog/log"
 	"github.com/hyperledger-labs/mirbft/config"
 	"github.com/hyperledger-labs/mirbft/membership"
+	logger "github.com/rs/zerolog/log"
 )
 
 type BucketGroup struct {
@@ -142,8 +142,11 @@ func (bg *BucketGroup) CutBatch(size int, timeout time.Duration) *Batch {
 	if config.Config.LeaderPolicy == "Single" {
 		totalReq /= membership.NumNodes() // For Single leader policy, use the raw throughput cap, not adjusted to system size.
 	}
-	// waitingTime := 1000000000 * int64(totalReq/config.Config.ThroughputCap) // In nanoseconds
-	waitingTime := int64(1000000000) // In nanoseconds
+
+	waitingTime := 1000000000 * int64(totalReq/config.Config.ThroughputCap) // In nanoseconds
+	if config.Config.FixBatchRate {
+		waitingTime = int64(config.Config.BatchTimeout.Nanoseconds()) // In nanoseconds
+	}
 	atomic.StoreInt64(&bg.nextBatchTimestamp, time.Now().UnixNano()+waitingTime)
 
 	logger.Debug().
@@ -168,16 +171,17 @@ func (bg *BucketGroup) WaitForRequests(numRequests int, timeout time.Duration) {
 // Blocks until the buckets in the BucketGroup (cumulatively) contain numRequests requests or until timeout elapses.
 // When WaitForRequests returns, bg.totalRequests accurately represents the total number of requests in the BucketGroup.
 // ATTENTION: All Buckets must be LOCKED when calling this method.
-//            May release and re-acquire the bucket locks before returning.
+//
+//	May release and re-acquire the bucket locks before returning.
 func (bg *BucketGroup) waitForRequestsLocked(numRequests int, timeout time.Duration) {
 
 	// Count all requests in all buckets in the group.
 	// (A normal assignment suffices, as all buckets are locked.)
 	bg.totalRequests = int32(bg.CountRequests())
 
-	// If there are enough requests in the bucket, return immediately.
-	// if int(bg.totalRequests) >= numRequests || (timeout == 0) {
-	if (timeout == 0) {
+	// If FixBatchRate, wait until timeout.
+	// Otherwise, if there are enough requests in the bucket, return immediately.
+	if (config.Config.FixBatchRate && timeout == 0) || (!config.Config.FixBatchRate && (int(bg.totalRequests) >= numRequests || timeout == 0)) {
 		return
 	}
 
