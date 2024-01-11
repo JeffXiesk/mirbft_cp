@@ -1,6 +1,6 @@
 #!/bin/bash
 
-private_key_file="/opt/gopath/src/github.com/IBM/mirbft/deployment/key/id_rsa"
+private_key_file="/opt/gopath/src/github.com/hyperledger-labs/mirbft/deployment/key/id_rsa"
 ssh_options="-i $private_key_file -o StrictHostKeyChecking=no -o ServerAliveInterval=60"
 
 
@@ -116,25 +116,25 @@ if [ "$1" = "-i" ]; then
     wait
 fi
 
-if [ "$1" = "-s" ]; then
-    shift
-    public_ip=$(cat ../cloud-instance.info | awk '{ print $2}')
-    public_ip_arr=(`echo $public_ip | tr ',' ' '`)
+# if [ "$1" = "-s" ]; then
+#     shift
+#     public_ip=$(cat ../cloud-instance.info | awk '{ print $2}')
+#     public_ip_arr=(`echo $public_ip | tr ',' ' '`)
 
-    private_ip=$(cat ../cloud-instance.info | awk '{ print $3}')
-    private_ip_arr=(`echo $private_ip | tr ',' ' '`)
-    for i in "${public_ip_arr[@]}"
-    do
-        scp $ssh_options '/opt/gopath/src/github.com/IBM/mirbft/deployment/setup.sh' root@$i:/root
-        ssh $ssh_options root@$i 'source /root/setup.sh' &
-        echo "$i sent ssh key done..."
-    done
-    wait
-fi
+#     private_ip=$(cat ../cloud-instance.info | awk '{ print $3}')
+#     private_ip_arr=(`echo $private_ip | tr ',' ' '`)
+#     for i in "${public_ip_arr[@]}"
+#     do
+#         scp $ssh_options '/opt/gopath/src/github.com/hyperledger-labs/mirbft/deployment/setup.sh' root@$i:/root
+#         ssh $ssh_options root@$i 'source /root/setup.sh' &
+#         echo "$i sent ssh key done..."
+#     done
+#     wait
+# fi
 
 echo "End set ssh key..."
 
-cd /opt/gopath/src/github.com/IBM/mirbft/deployment
+cd /opt/gopath/src/github.com/hyperledger-labs/mirbft/deployment
 
 if [ "$1" = "-c" ]; then
     shift
@@ -166,10 +166,7 @@ if [ "$1" = "--run" ]; then
     bash run.sh
 fi
 
-# bash deploy-cloud-WAN.sh -i -n 4 4 -r -w -s -c 1 --run
-# bash deploy-cloud-WAN.sh -i -n 16 32 -s -c 1 --run
-# bash deploy-cloud-WAN.sh -c 0 --wan --run
-# bash deploy-cloud-WAN.sh --run
+# bash deploy-cloud-LAN.sh -i -n 4 4 -r -w -c 1 --run
 
 if [ "$1" = "-sd" ]; then
     shift
