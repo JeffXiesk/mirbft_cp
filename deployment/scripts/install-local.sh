@@ -62,3 +62,6 @@ go get golang.org/x/crypto/blake2b
 
 echo "Installing the YAML parser for Go"
 go get -u gopkg.in/yaml.v2
+
+echo "Installing the concurrent-map for Go"
+go get -u github.com/orcaman/concurrent-map
