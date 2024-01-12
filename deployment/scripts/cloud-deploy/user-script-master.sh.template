@@ -99,17 +99,17 @@ apt-get -y install \
 	openssl \
 	jq \
 	graphviz \
-  make \
-  gcc
+	make \
+	gcc
 
 echo "Disabling Go modules."
 sed -i '1iexport GO111MODULE=auto' /root/.bashrc
 sed -i '1iexport GOCACHE=/root/.cache/go-build' /root/.bashrc
 sed -i '1iexport GIT_SSL_NO_VERIFY=1' /root/.bashrc
 source /root/.bashrc
-# export GO111MODULE=auto
-# export GOCACHE=/root/.cache/go-build
-# export GIT_SSL_NO_VERIFY=1
+export GO111MODULE=auto
+export GOCACHE=/root/.cache/go-build
+export GIT_SSL_NO_VERIFY=1
 
 echo "Installing golang packages. (May take a long time without producing output.)"
 
@@ -143,7 +143,6 @@ echo "Installing bls"
 go get -u github.com/herumi/bls-eth-go-binary/bls
 cd /root/go/src/github.com/herumi/bls-eth-go-binary && make -j4
 
-
 echo "Creating app folders."
 cd $GOPATH || exit 1
 mkdir -p src/github.com/hyperledger-labs
@@ -151,8 +150,8 @@ cd src/github.com/hyperledger-labs || exit 1
 
 echo "Obtaining own IP addresses and tag."
 # Obtain public and private IP from instance detail.
-# own_public_ip=$(jq -r '.primaryIpAddress' < "$detail_file")
-# own_private_ip=$(jq -r '.primaryBackendIpAddress' < "$detail_file")
+own_public_ip=$(jq -r '.primaryIpAddress' < "$detail_file")
+own_private_ip=$(jq -r '.primaryBackendIpAddress' < "$detail_file")
 #own_tag=$(jq -r '.tagReferences[0].tag.name' < "$detail_file")
 # Get tag from a separately uploaded file, in order not to rely on the cloud tagging system.
 own_tag=$(cat "$instance_tag_file")
@@ -164,4 +163,5 @@ echo "Tag: $own_tag"
 
 echo "RUNNING" > $status_file
 
-# } >> $log_file 2>> $log_file
+# }
+#  >> $log_file 2>> $log_file

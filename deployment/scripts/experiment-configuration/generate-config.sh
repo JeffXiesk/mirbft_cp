@@ -37,10 +37,10 @@ machineLocations="fra05"
 faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 dal10 fra05 mil01 mex01 tor01 tor04 seo01"
 
 # number of client instances per node for 1/16/32 client machines
-clients1="1"    # deploys 1 client machine which run the specified number of client instances
-clients16=""    # deploys 16 client machine which run the specified number of client instances
+clients1=""    # deploys 1 client machine which run the specified number of client instances
+clients16="8"    # deploys 16 client machine which run the specified number of client instances
 clients32=""    # deploys 32 client machine which run the specified number of client instances
-systemSizes="4" # Must be sorted in ascending order!
+systemSizes="32" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 fixBatchRate=true
 networkInterface="ens5"
@@ -102,7 +102,7 @@ singleLeaderEpoch=$minEpochLength
 batchsizes="4096"           # [requests]
 batchrates="8"             # [batches/s]
 minBatchTimeout=$(($systemSizes * 1000 / $batchrates))  # [ms]
-maxBatchTimeout="10000"      # [ms]
+maxBatchTimeout="16000"      # [ms]
 segmentLengths="16"         # [entries]
 viewChangeTimeouts="60000"  # [ms]
 nodeToLeaderRatios="1"      # How many nodes are initally leaders, set to 1 to have initially all nodes in the leaderset
@@ -119,11 +119,11 @@ function skip() {
 }
 
 throughputsAuthPbft=$()
-throughputsAuthPbft[4]="4096 8192 16384"
+throughputsAuthPbft[4]="4096"
 #throughputsAuthPbft[4]="128"
 throughputsAuthPbft[8]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
 throughputsAuthPbft[16]="20000"
-throughputsAuthPbft[32]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
+throughputsAuthPbft[32]="35000"
 throughputsAuthPbft[64]="5000 10000 15000 20000 25000 30000 35000 40000 45000"
 throughputsAuthPbft[128]=""
 throughputsNoAuthPbft=$()

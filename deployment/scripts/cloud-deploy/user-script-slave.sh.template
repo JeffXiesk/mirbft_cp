@@ -86,8 +86,8 @@ apt-get -y install \
 	jq \
 	graphviz
 
-echo "Installing cmap for go."
-go get -u github.com/orcaman/concurrent-map
+# echo "Installing cmap for go."
+# go get -u github.com/orcaman/concurrent-map
 
 echo "Creating app folders."
 mkdir -p $GOPATH/src/github.com/hyperledger-labs || exit 1
@@ -95,8 +95,8 @@ cd $GOPATH/src/github.com/hyperledger-labs || exit 1
 
 echo "Obtaining own public IP address."
 # Obtain public and private IP from instance detail.
-# own_public_ip=$(jq -r '.primaryIpAddress' < "$detail_file")
-# own_private_ip=$(jq -r '.primaryBackendIpAddress' < "$detail_file")
+own_public_ip=$(jq -r '.primaryIpAddress' < "$detail_file")
+own_private_ip=$(jq -r '.primaryBackendIpAddress' < "$detail_file")
 #own_tag=$(jq -r '.tagReferences[0].tag.name' < "$detail_file")
 # Get tag from a separately uploaded file, in order not to rely on the cloud tagging system.
 own_tag=$(cat "$instance_tag_file")

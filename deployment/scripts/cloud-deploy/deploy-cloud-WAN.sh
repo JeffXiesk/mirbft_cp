@@ -12,10 +12,11 @@ peer_num=${num_arr[1]}
 # echo $client_num
 # echo $peer_num
 
-region_list=("us-east-2" "ap-northeast-1" "eu-west-3" "ap-southeast-2")
+# "eu-west-3" "ap-northeast-1" "ap-southeast-2" "lt-09d0c9f2409b1ed85" "lt-0caead15e0ffbe385" "lt-0a82b62ee3edca658"
+region_list=("us-east-2")
 region_cnt=${#region_list[@]}
 region_need_add_one=$(($totalnum%$region_cnt))
-LaunchTemplateId_list=("lt-0e560d976efbab859" "lt-0caead15e0ffbe385" "lt-09d0c9f2409b1ed85" "lt-0a82b62ee3edca658")
+LaunchTemplateId_list=("lt-0e560d976efbab859")
 
 if [ "$1" = "-i" ]; then
     echo "Init"
@@ -137,6 +138,14 @@ if [ "$1" = "-i" ]; then
         wait
 
         echo "End set ssh key..."
+
+        for i in "${public_ip_arr[@]}"
+        do
+            ssh $ssh_options_cloud root@$i 'sudo tc qdisc add dev ens5 root netem delay 90ms 20ms' &
+            echo 'End setting delay...'
+        done
+        wait
+
     else 
         sleep 0.1
     fi

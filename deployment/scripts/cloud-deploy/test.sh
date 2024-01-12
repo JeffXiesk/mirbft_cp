@@ -16,7 +16,7 @@
 
 #!/bin/bash
 # in deploy folder run.
-ssh_options_cloud='-i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60'
+ssh_options_cloud='-i scripts/cloud-deploy/key/id_rsa -o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60'
 
 # source shutdown_instances.sh
 # num=$(python scripts/cloud-deploy/pyscript/find_insnum.py)
@@ -114,17 +114,26 @@ ssh_options_cloud='-i scripts/cloud-deploy/bft11.pem -o StrictHostKeyChecking=no
 # done
 
 
-scp $ssh_options_cloud root@100.25.211.118:/root/experiment-output-* scripts/cloud-deploy/experiment-output
-echo "$i fetch experiment done..."
+# scp $ssh_options_cloud root@100.25.211.118:/root/experiment-output-* scripts/cloud-deploy/experiment-output
+# echo "$i fetch experiment done..."
 
-# for each_region in ${AWS_REGIONS} ; do 
-#     aws ec2 import-key-pair \
-#     --key-name MyKeyPair \
-#     --public-key-material fileb://$HOME/.ssh/id_rsa_MyKeyPair.pub \
-#     --region $each_region ; 
+# # for each_region in ${AWS_REGIONS} ; do 
+# #     aws ec2 import-key-pair \
+# #     --key-name MyKeyPair \
+# #     --public-key-material fileb://$HOME/.ssh/id_rsa_MyKeyPair.pub \
+# #     --region $each_region ; 
+# # done
+
+
+# for tar in scripts/cloud-deploy/experiment-output/*.tar.gz;  do 
+#     tar -zxvf $tar -C scripts/cloud-deploy/experiment-output/;
 # done
 
 
-for tar in scripts/cloud-deploy/experiment-output/*.tar.gz;  do 
-    tar -zxvf $tar -C scripts/cloud-deploy/experiment-output/;
-done
+ssh $ssh_options_cloud root@54.92.14.38 "  
+    killall -9 discoverymaster discoveryslave orderingpeer orderingclient scp rsync
+    rm -rf /root/experiment-output-*.tar.gz /root/experiment-output /root/master-log.log /root/slave-log.log /root/status /root/master-ready /root/instance-tag /root/master-commands.cmd /root/go/src/github.com/hyperledger-labs/mirbft /root/experiment-config /root/current-deployment-data
+    echo RUNNING > /root/status
+    kill -9 $(ps -ef | grep 'sshd: root@notty' | awk '{print $2}')
+    echo -e '\n\n\nBERO\n\n\n'"
+    
