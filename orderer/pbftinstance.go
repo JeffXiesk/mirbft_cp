@@ -198,7 +198,8 @@ func (pi *pbftInstance) lead() {
 
 	// Simulate a straggler.
 	if membership.SimulatedStraggler[int32(pi.segment.SegID())%int32(membership.NumNodes())] == 1 && config.Config.CrashTiming == "Straggler" {
-		config.Config.BatchTimeoutMs = int(5 * float64(config.Config.BatchTimeoutMs))
+		// config.Config.BatchTimeoutMs = int(5 * float64(config.Config.BatchTimeoutMs))
+		config.Config.BatchTimeoutMs = int(float64(4000))
 		config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
 		logger.Info().Str("byzantine", config.Config.CrashTiming).Int("batchTimeout", config.Config.BatchTimeoutMs).Msg("byzantine effect !")
 		// we set the batchsize to an infinate practically size, so that we always wait for the timeout
@@ -270,6 +271,13 @@ func (pi *pbftInstance) proposeSN(preprepare *pb.PbftPreprepare, sn int32) {
 	// Simulate a straggler.
 	batchSize := pi.segment.BatchSize()
 	if membership.SimulatedStraggler[membership.OwnID] == 1 && config.Config.CrashTiming == "Straggler" {
+		if sn / int32(membership.NumNodes()) >= 2 || sn / int32(membership.NumNodes()) < 3 {
+			config.Config.BatchTimeoutMs = int(float64(61000))
+			config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
+		} else {
+			config.Config.BatchTimeoutMs = int(float64(4000))
+			config.Config.BatchTimeout = time.Duration(config.Config.BatchTimeoutMs) * time.Millisecond
+		}
 		// we cut an empty batch to maximize damage
 		batchSize = 4096
 	}

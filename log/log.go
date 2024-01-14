@@ -17,9 +17,10 @@ package log
 import (
 	"sync"
 
-	logger "github.com/rs/zerolog/log"
+	"github.com/hyperledger-labs/mirbft/membership"
 	pb "github.com/hyperledger-labs/mirbft/protobufs"
 	"github.com/hyperledger-labs/mirbft/tracing"
+	logger "github.com/rs/zerolog/log"
 )
 
 const (
@@ -54,7 +55,8 @@ var (
 	// Sequence number of the first empty slot in the log.
 	// Advanced when publishing log entries.
 	// Guarded by entryPublishLock
-	firstEmptySN int32 = 0
+	firstEmptySN     int32 = 0
+	firstSNNotCommit int32 = 0
 
 	// Guards logSubscribers, logSubscribersOutOfOrder, entrySubscribers and firstEmptySN
 	entryPublishLock = sync.Mutex{}
@@ -86,7 +88,7 @@ func CommitEntry(entry *Entry) {
 	}
 
 	tracing.MainTrace.Event(tracing.COMMIT, int64(entry.Sn), 0)
-	if entry.Batch != nil { 
+	if entry.Batch != nil {
 		logger.Info().
 			Int32("sn", entry.Sn).
 			Int("nReq", len(entry.Batch.Requests)).
@@ -259,26 +261,39 @@ func publishEntries() {
 	// As long as firstEmptySN points to a non-empty slot,
 	// push the corresponding Entry to the subscribers
 	// and increment firstEmptySN.
-	for entry, ok := entries.Load(firstEmptySN); ok; entry, ok = entries.Load(firstEmptySN) {
-		if (entry.(*Entry).Batch != nil){
-			logger.Info().
-				Int32("sn", firstEmptySN).
-				Int("nReq", len(entry.(*Entry).Batch.Requests)).
-				Msg("Delivered batch.")
+	for _, ok := entries.Load(firstEmptySN); ok; _, ok = entries.Load(firstEmptySN) {
 
-			// On each iteration, push new log Entry to all in-order subscriber channels.
-			publishEntry(entry.(*Entry), logSubscribers)
+		// RCC Mode: Deliver all block in one round when all commit
+		if firstEmptySN != firstSNNotCommit+int32(membership.NumNodes())-1 {
+			firstEmptySN++
+			continue
 		}
-		// Notify entry subscribers
-		// The Manager relies on an entry to be published (pushed to all log subscribers)
-		// before the entry subscribers are notified.
-		if entrySubscribers[firstEmptySN] != nil {
-			for _, ch := range entrySubscribers[firstEmptySN] {
-				ch <- true
+
+		for i := firstSNNotCommit; i <= firstEmptySN; i++ {
+			entry, _ := entries.Load(i)
+
+			if entry.(*Entry).Batch != nil {
+				logger.Info().
+					Int32("sn", i).
+					Int("nReq", len(entry.(*Entry).Batch.Requests)).
+					Msg("Delivered batch.")
+
+				// On each iteration, push new log Entry to all in-order subscriber channels.
+				publishEntry(entry.(*Entry), logSubscribers)
 			}
-			delete(entrySubscribers, firstEmptySN)
+			// Notify entry subscribers
+			// The Manager relies on an entry to be published (pushed to all log subscribers)
+			// before the entry subscribers are notified.
+			if entrySubscribers[i] != nil {
+				for _, ch := range entrySubscribers[i] {
+					ch <- true
+				}
+				delete(entrySubscribers, i)
+			}
+
 		}
 
+		firstSNNotCommit += int32(membership.NumNodes())
 		firstEmptySN++
 	}
 }
