@@ -37,15 +37,15 @@ machineLocations="fra05"
 faultyMachineLocations="sjc04 osa23 ams03 syd05 lon06 wdc07 che01 tok05 par01 dal10 fra05 mil01 mex01 tor01 tor04 seo01"
 
 # number of client instances per node for 1/16/32 client machines
-clients1="1"    # deploys 1 client machine which run the specified number of client instances
+clients1="4"    # deploys 1 client machine which run the specified number of client instances
 clients16=""    # deploys 16 client machine which run the specified number of client instances
 clients32=""    # deploys 32 client machine which run the specified number of client instances
-systemSizes="4" # Must be sorted in ascending order!
+systemSizes="8" # Must be sorted in ascending order!
 failureCounts=(0) # For each system size, the corresponding failure count (on top of the correct nodes)
 networkInterface="lo"
 
 
-StragglerCnt=(1) # Count of Straggler (Only effect when crashTimings is 'Straggler')
+StragglerCnt=(0) # Count of Straggler (Only effect when crashTimings is 'Straggler')
 privKeyNumEachPeer=(5) # Using as buffer for lagged instance
 UseSig=(false)
 fixBatchRate=true
@@ -120,8 +120,8 @@ function skip() {
 
 throughputsAuthPbft=$()
 # throughputsAuthPbft[4]="128 256 512 1024 2048 4096 8192 12288"
-throughputsAuthPbft[4]="2048"
-throughputsAuthPbft[8]="128 256 512 1024 2048 4096"
+throughputsAuthPbft[4]="256"
+throughputsAuthPbft[8]="2048"
 throughputsAuthPbft[16]="128 256 512 1024 2048 4096"
 throughputsAuthPbft[32]=""
 throughputsAuthPbft[64]=""

@@ -16,8 +16,8 @@ package orderer
 
 import (
 	"fmt"
-	"time"
 	"sync"
+	"time"
 
 	"github.com/hyperledger-labs/mirbft/announcer"
 	"github.com/hyperledger-labs/mirbft/log"
@@ -28,7 +28,9 @@ import (
 )
 
 // const (
-// 	catchupDelay = 400 * time.Millisecond
+//
+//	catchupDelay = 400 * time.Millisecond
+//
 // )
 var mutex sync.Mutex
 
@@ -86,18 +88,18 @@ func (gi *globalInstance) processSerializedMessages() {
 func (gi *globalInstance) fetchMissingMessages(nowGsn int32) {
 	time.Sleep(500 * time.Millisecond)
 	for i := log.FirstEmptySN; i <= nowGsn; i++ {
-		logger.Info().Int32("FirstEmptySN",log.FirstEmptySN).Int32("i",i).Msg("Delivered msg")
+		logger.Info().Int32("FirstEmptySN", log.FirstEmptySN).Int32("i", i).Msg("Delivered msg")
 		if !gi.checkCommits(i) {
 			for _, nodeId := range membership.AllNodeIDs() {
-				
+
 				mutex.Lock()
 				if gi.gsn2commit[i][nodeId] == nil {
-					sn:=gi.gsn2sn[i]
+					sn := gi.gsn2sn[i]
 					mutex.Unlock()
 
 					msg := &pb.ProtocolMessage{
 						SenderId: membership.OwnID,
-						Sn: sn,
+						Sn:       sn,
 						Msg: &pb.ProtocolMessage_GlobalPreprepare{
 							GlobalPreprepare: &pb.GlobalPreprepare{
 								Sn:     sn,
@@ -120,7 +122,7 @@ func (gi *globalInstance) fetchMissingMessages(nowGsn int32) {
 			break
 		} else {
 			gi.lastCommitGsn += 1
-			
+
 		}
 	}
 }
@@ -185,13 +187,13 @@ func (gi *globalInstance) handleMessage(msg *pb.ProtocolMessage) {
 }
 
 func (gi *globalInstance) sendPreprepare(sn int32) {
-	
+
 	mutex.Lock()
 	logEntry := gi.sn2logentry[sn]
 	gi.gsn += 1
 	gi.gsn2sn[gi.gsn] = sn
 	gi.sn2gsn[sn] = gi.gsn
-	gsn:=gi.gsn
+	gsn := gi.gsn
 	mutex.Unlock()
 
 	logger.Info().Int32("sn", sn).
@@ -199,9 +201,9 @@ func (gi *globalInstance) sendPreprepare(sn int32) {
 		Int32("view", gi.view).
 		Msg("Delay 10s before sending Global-PREPREPARE.")
 
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 
-	logger.Info().Int32("sn", sn).
+	logger.Info().Int32("origin_sn", sn).
 		Int32("gsn", gsn).
 		Int32("view", gi.view).
 		Int32("senderID", membership.OwnID).

@@ -2,7 +2,7 @@ initial_directory=$(pwd)
 
 # Kill all application processes on the local machine
 echo "Killing all application processes on the local machine."
-killall discoverymaster discoveryslave orderingpeer orderingclient
+killall discoverymaster discoveryslave globalorderpeer orderingpeer orderingclient
 
 echo "Compiling."
 cd ../ || exit 1
